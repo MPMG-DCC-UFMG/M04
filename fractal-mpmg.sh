@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# IMPORTANT: this version must match the "build.gradle" one
-fractal_version="SPARK-2.4.5"
-
 printf "Description: Script launcher for Fractal MPMG applications\n\n"
 
 usage="
@@ -11,14 +8,14 @@ config=<config-file-path>.json ... $(basename "$0")"
 
 required="config"
 
-if [ -z $FRACTAL_HOME ]; then
-  echo "FRACTAL_HOME is unset"
+if [ -z "$M06_HOME" ]; then
+  echo "$M06_HOME is unset"
   exit 1
 else
-  echo "info: FRACTAL_HOME is set to $FRACTAL_HOME"
+  echo "info: $M06_HOME is set to $M06_HOME"
 fi
 
-if [ -z $SPARK_HOME ]; then
+if [ -z "$SPARK_HOME" ]; then
   echo "SPARK_HOME is unset"
   exit 1
 else
@@ -39,8 +36,7 @@ done
 
 cmd="$SPARK_HOME/bin/spark-submit \\
    --class br.ufmg.cs.systems.fractal.mpmg.MPMGSparkRunner \\
-   --jars $FRACTAL_HOME/fractal-core/build/libs/fractal-core-${fractal_version}.jar \\
-   $FRACTAL_HOME/fractal-apps/build/libs/fractal-apps-${fractal_version}.jar \\
+   $M06_HOME/build/libs/M06.jar \\
    $config"
 
 printf "info: Submitting command:\n$cmd\n\n"
