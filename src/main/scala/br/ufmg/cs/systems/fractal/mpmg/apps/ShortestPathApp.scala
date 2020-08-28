@@ -22,7 +22,11 @@ object ShortestPathApp extends Logging {
       expand(1).
       aggregate[PairWritable[IntWritable, IntWritable], IntArrayList]("sps",
         (subg, comp, value) => {
-          val v = subg.getVertices; val k = subg.getNumVertices; val n1 = new IntWritable(v.get(0)); val n2 = new IntWritable(v.get(k - 1)); new PairWritable(n1, n2)
+          val v = subg.getVertices;
+          val k = subg.getNumVertices;
+          val n1 = new IntWritable(v.get(0));
+          val n2 = new IntWritable(v.get(k - 1));
+          new PairWritable(n1, n2)
         },
         (subg, comp, value) => {
           subg.getVertices
@@ -61,13 +65,22 @@ object ShortestPathApp extends Logging {
         }
         }.
         filter[PairWritable[IntWritable, IntWritable], IntArrayList]("sps") {
-          (subg, agg) => !agg.containsKey({
-            val v = subg.getVertices; val k = v.size; val n1 = new IntWritable(v.get(0)); val n2 = new IntWritable(v.get(k - 1)); new PairWritable(n1, n2)
-          })
+          (subg, agg) =>
+            !agg.containsKey({
+              val v = subg.getVertices;
+              val k = v.size;
+              val n1 = new IntWritable(v.get(0));
+              val n2 = new IntWritable(v.get(k - 1));
+              new PairWritable(n1, n2)
+            })
         }.
         aggregate[PairWritable[IntWritable, IntWritable], IntArrayList]("sps",
           (subg, comp, value) => {
-            val v = subg.getVertices; val k = v.size; val n1 = new IntWritable(v.get(0)); val n2 = new IntWritable(v.get(k - 1)); new PairWritable(n1, n2)
+            val v = subg.getVertices;
+            val k = v.size;
+            val n1 = new IntWritable(v.get(0));
+            val n2 = new IntWritable(v.get(k - 1));
+            new PairWritable(n1, n2)
           },
           (subg, comp, value) => {
             subg.getVertices

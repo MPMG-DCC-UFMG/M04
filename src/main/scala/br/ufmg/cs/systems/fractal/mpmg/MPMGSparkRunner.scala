@@ -1,25 +1,19 @@
 package br.ufmg.cs.systems.fractal.mpmg
 
-import java.io.{BufferedWriter, File, FileWriter}
-//import java.sql.{Date, ResultSet, Time, Timestamp}
-
 import br.ufmg.cs.systems.fractal._
 import br.ufmg.cs.systems.fractal.subgraph._
 import br.ufmg.cs.systems.fractal.util.collection.IntArrayList
 import br.ufmg.cs.systems.fractal.util.{Logging, PairWritable}
-import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.FileSystem
 import org.apache.hadoop.fs.Path
-import org.apache.hadoop.io.IntWritable
+import org.apache.hadoop.io.{IntWritable, Text}
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.DataFrame
-import org.apache.hadoop.io.Text
-import java.io.BufferedOutputStream
-//import java.nio.file.Path
+import org.apache.spark.sql.{DataFrame, SparkSession}
+
+import java.io.{BufferedWriter, File, FileWriter}
 
 import scala.collection.mutable.Map
-import scala.io.Source
+
+import java.io.BufferedOutputStream
 
 /*
 * Intern apps -- they can be used insider the apps that users can call.
@@ -36,10 +30,10 @@ class UtilApp() extends Logging {
     val useConfig = if (config == null) readConfig(configPath) else config
     var conf = new SparkConf()
     useConfig(configName).arr.foreach(setting => {
-    conf = conf.set(setting("name").str, setting("value").str)
-   })
+      conf = conf.set(setting("name").str, setting("value").str)
+    })
 
-   SparkSession.builder.config(conf).enableHiveSupport().getOrCreate()
+    SparkSession.builder.config(conf).enableHiveSupport().getOrCreate()
   }
 
   def getCreateHiveSession(ss: SparkSession): com.hortonworks.hwc.HiveWarehouseSession = {
@@ -78,7 +72,7 @@ class HiveApp(val configPath: String) extends Logging {
     //logInfo(s"\tEdges loaded sample of 10: ${edges.take(10)}")
     //    todo: write using spark
     logInfo(s"\tWriting data to CSV at: ${filePath}")
-    
+
     val buffer = new BufferedWriter(new FileWriter(new File(filePath)))
     edges.collect.foreach(edge => {
       buffer.write(s"${edge.get(0)} ${edge.get(1)}\n")
@@ -97,7 +91,7 @@ class HiveApp(val configPath: String) extends Logging {
     val table = databaseConfigs("output_table_name").str
     val query = new StringBuilder(s"INSERT INTO TABLE ${table} VALUES")
     logInfo(s"\tExecuting query: ${query}")
-    
+
     /*val linesIterator = Source.fromFile(filePath).getLines
     linesIterator.next
     for (line <- linesIterator) {
@@ -132,8 +126,10 @@ class MapVerticesApp(val fractalGraph: FractalGraph,
 
 trait MPMGApp extends Logging {
   def execute: Unit
+
   def writeResults(filePath: String): Unit
-  def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit 
+
+  def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit
 }
 
 class CliquesApp(
@@ -169,9 +165,9 @@ class CliquesApp(
     val output = fs.create(path);
 
     // But BufferedOutputStream must be used to output an actual text file.
-    val os = new BufferedOutputStream(output) 
+    val os = new BufferedOutputStream(output)
     os.write("Identificador da clique,Identificador do vértice participante\n".getBytes("UTF-8"))
-   
+
     var i = 1
     app.mappedSubgraphs.collect.foreach(subgraph => {
       for (vertex: String <- subgraph.mappedWords) {
@@ -181,7 +177,7 @@ class CliquesApp(
     })
 
     os.close()
- 
+
     /*val buffer = new BufferedWriter(new FileWriter(new File(filePath)))
     buffer.write("Identificador da clique,Identificador do vértice participante\n")
 
@@ -237,13 +233,13 @@ class ShortestPathsApp(
     }
     outputBuffer.close()
   }
-  
+
   def writeResults(filePath: String): Unit = {
   }
 }
 
-class ReadDatabaseApp(val hs : com.hortonworks.hwc.HiveWarehouseSession, val query: String
-           	       ) extends MPMGApp {
+class ReadDatabaseApp(val hs: com.hortonworks.hwc.HiveWarehouseSession, val query: String
+                     ) extends MPMGApp {
   var app: DataFrame = _
 
   def execute: Unit = {
@@ -253,7 +249,7 @@ class ReadDatabaseApp(val hs : com.hortonworks.hwc.HiveWarehouseSession, val que
 
   override def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {
   }
-  
+
   def writeResults(filePath: String): Unit = {
     if (filePath.isEmpty) return
 
@@ -277,9 +273,8 @@ class ReadDatabaseApp(val hs : com.hortonworks.hwc.HiveWarehouseSession, val que
       buffer.write(s"${edge.get(0)} ${edge.get(1)}\n")
     })
     buffer.close()*/
- 
 
-   
+
     //app.coalesce(1).write.format("com.databricks.spark.csv").option("delimiter", " ").mode("overwrite").save(filePath)
   }
 }
@@ -303,62 +298,62 @@ object MPMGSparkRunner {
 
     //running fractal application
     val algs = new FractalAlgorithms //TODO: extends this class to be Algorithms (Fractal and Database algorithms)
-	
-    val outputPath = appConfig("output_path").str 
+
+    val outputPath = appConfig("output_path").str
     if (outputPath.isEmpty) throw new RuntimeException(s"Unknown output_path")
 
     appConfig("name").str.toLowerCase match {
       case "cliques" => {
-    	/* fractal and its spark initialization */
-    	val ss = utilApp.getCreateSparkSession(config, null, "spark_fractal")
-    	if (!ss.sparkContext.isLocal) Thread.sleep(10000) // TODO: this is ugly but have to make sure all spark executors are up by the time we start executing fractal applications
-    	val fc = new FractalContext(ss.sparkContext)
-    	val inputPath = appConfig("input_path").str
-    	if (inputPath.isEmpty) throw new RuntimeException(s"Unknown input_fractal_path")
-    	val fractalGraph = fc.textFile(inputPath, "br.ufmg.cs.systems.fractal.graph.EdgeListGraph")
-        
-	/* Execute app */
-	val vertexMap = new MapVerticesApp(fractalGraph, algs) //TODO: put this as an application (map the input and the output of fractal)
+        /* fractal and its spark initialization */
+        val ss = utilApp.getCreateSparkSession(config, null, "spark_fractal")
+        if (!ss.sparkContext.isLocal) Thread.sleep(10000) // TODO: this is ugly but have to make sure all spark executors are up by the time we start executing fractal applications
+        val fc = new FractalContext(ss.sparkContext)
+        val inputPath = appConfig("input_path").str
+        if (inputPath.isEmpty) throw new RuntimeException(s"Unknown input_fractal_path")
+        val fractalGraph = fc.textFile(inputPath, "br.ufmg.cs.systems.fractal.graph.EdgeListGraph")
+
+        /* Execute app */
+        val vertexMap = new MapVerticesApp(fractalGraph, algs) //TODO: put this as an application (map the input and the output of fractal)
         //vertexMap.execute
         val app = new CliquesApp(fractalGraph, algs, appConfig("steps").num.toInt)
-	app.execute 
-    	
-	//write output results
-	app.writeResults(outputPath, vertexMap.app)
-    	fc.stop()
-    	ss.stop()
-	
+        app.execute
+
+        //write output results
+        app.writeResults(outputPath, vertexMap.app)
+        fc.stop()
+        ss.stop()
+
       }
       case "spaths" => {
-    	/* fractal and its spark initialization */
-    	val ss = utilApp.getCreateSparkSession(config, null, "spark_fractal")
-    	if (!ss.sparkContext.isLocal) Thread.sleep(10000) // TODO: this is ugly but have to make sure all spark executors are up by the time we start executing fractal applications
-    	val fc = new FractalContext(ss.sparkContext)
-    	val inputPath = appConfig("input_path").str
-    	if (inputPath.isEmpty) throw new RuntimeException(s"Unknown input_path")
-    	val fractalGraph = fc.textFile(inputPath, "br.ufmg.cs.systems.fractal.graph.EdgeListGraph")
-	
-	/* Execute app */
+        /* fractal and its spark initialization */
+        val ss = utilApp.getCreateSparkSession(config, null, "spark_fractal")
+        if (!ss.sparkContext.isLocal) Thread.sleep(10000) // TODO: this is ugly but have to make sure all spark executors are up by the time we start executing fractal applications
+        val fc = new FractalContext(ss.sparkContext)
+        val inputPath = appConfig("input_path").str
+        if (inputPath.isEmpty) throw new RuntimeException(s"Unknown input_path")
+        val fractalGraph = fc.textFile(inputPath, "br.ufmg.cs.systems.fractal.graph.EdgeListGraph")
+
+        /* Execute app */
         val vertexMap = new MapVerticesApp(fractalGraph, algs) //TODO: put this as an application (map the input and the output of fractal)
         vertexMap.execute //TODO: remove this from here, use as an application
         val app = new ShortestPathsApp(fractalGraph, algs, appConfig("steps").num.toInt)
-	app.execute 
-    	
-	//write output results
-	app.writeResults(outputPath, vertexMap.app)
-    	fc.stop()
-    	ss.stop()
+        app.execute
+
+        //write output results
+        app.writeResults(outputPath, vertexMap.app)
+        fc.stop()
+        ss.stop()
       }
       case "read_database" => {
-    	/*  database/hive and its spark initialization	 */
-    	val ss = utilApp.getCreateSparkSession(config, null, "spark_database")
-	val hs = utilApp.getCreateHiveSession(ss) 
-	
-	/* Execute app */
-	val app = new ReadDatabaseApp(hs, appConfig("query").str)
-	app.execute
-	app.writeResults(outputPath)
-	ss.close()
+        /*  database/hive and its spark initialization	 */
+        val ss = utilApp.getCreateSparkSession(config, null, "spark_database")
+        val hs = utilApp.getCreateHiveSession(ss)
+
+        /* Execute app */
+        val app = new ReadDatabaseApp(hs, appConfig("query").str)
+        app.execute
+        app.writeResults(outputPath)
+        ss.close()
       }
       case appName => {
         throw new RuntimeException(s"Unknown app: ${appName}")
