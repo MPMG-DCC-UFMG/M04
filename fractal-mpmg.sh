@@ -9,10 +9,10 @@ config=<config-file-path>.json ... $(basename "$0")"
 required="config"
 
 if [ -z "$M06_HOME" ]; then
-  echo "$M06_HOME is unset"
+  echo "M06_HOME is unset"
   exit 1
 else
-  echo "info: $M06_HOME is set to $M06_HOME"
+  echo "info: M06_HOME is set to $M06_HOME"
 fi
 
 if [ -z "$SPARK_HOME" ]; then
