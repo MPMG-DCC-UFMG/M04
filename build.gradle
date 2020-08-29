@@ -30,23 +30,17 @@ repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
-    maven { url 'https://jitpack.io' }
     maven { url 'https://repo.hortonworks.com/content/repositories/releases/' }
 }
 
 dependencies {
-    // framework to be probed
-    implementation 'org.apache.spark:spark-core_2.11:2.2.0'
-
-    implementation 'org.scala-lang:scala-library:2.11.8'
+    implementation files("${System.getenv("FRACTAL_HOME")}/build/libs/fractal-SPARK-2.3.2.jar")
 
     // https://mvnrepository.com/artifact/com.lihaoyi/upickle
     implementation 'com.lihaoyi:upickle_2.11:0.7.4'
 
     // https://mvnrepository.com/artifact/com.hortonworks.hive/hive-warehouse-connector
     implementation 'com.hortonworks.hive:hive-warehouse-connector_2.11:1.0.0.3.1.5.0-152'
-
-    implementation 'com.github.ceciliassis:fractal-original:alternative-SNAPSHOT'
 }
 
 shadowJar {
