@@ -8,6 +8,10 @@ import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io.{IntWritable, Text}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import com.hortonworks.spark.sql.hive.llap.HiveWarehouseBuilder;
+import com.hortonworks.spark.sql.hive.llap.HiveWarehouseSession;
+//import com.hortonworks.hwc.HiveWarehouseSession
+
 
 import java.io.{BufferedWriter, File, FileWriter}
 
@@ -36,9 +40,9 @@ class UtilApp() extends Logging {
     SparkSession.builder.config(conf).enableHiveSupport().getOrCreate()
   }
 
-  def getCreateHiveSession(ss: SparkSession): com.hortonworks.hwc.HiveWarehouseSession = {
+  def getCreateHiveSession(ss: SparkSession): HiveWarehouseSession = {
     logInfo("Creating Hive Session (and respective spark session)")
-    com.hortonworks.spark.sql.hive.llap.HiveWarehouseBuilder.session(ss).build()
+    HiveWarehouseBuilder.session(ss).build()
   }
 }
 
@@ -46,7 +50,7 @@ class HiveApp(val configPath: String) extends Logging {
   val utilApp = new UtilApp
   var databaseConfigs: ujson.Value = _
   var currentConfig: ujson.Value = _
-  var hiveSession: com.hortonworks.hwc.HiveWarehouseSession = _
+  var hiveSession: HiveWarehouseSession = _
 
   def initConfigs: Unit = {
     currentConfig = utilApp.readConfig(configPath)
@@ -55,7 +59,7 @@ class HiveApp(val configPath: String) extends Logging {
 
   def initHiveConnector {
     val sparkSession = utilApp.getCreateSparkSession(currentConfig, null, "spark_database")
-    hiveSession = com.hortonworks.spark.sql.hive.llap.HiveWarehouseBuilder.session(sparkSession).build()
+    hiveSession = HiveWarehouseBuilder.session(sparkSession).build()
   }
 
   initConfigs
@@ -238,7 +242,7 @@ class ShortestPathsApp(
   }
 }
 
-class ReadDatabaseApp(val hs: com.hortonworks.hwc.HiveWarehouseSession, val query: String
+class ReadDatabaseApp(val hs: HiveWarehouseSession, val query: String
                      ) extends MPMGApp {
   var app: DataFrame = _
 
@@ -259,14 +263,14 @@ class ReadDatabaseApp(val hs: com.hortonworks.hwc.HiveWarehouseSession, val quer
     val fs = path.getFileSystem(conf)
 
     // Output file can be created from file system.
-    val output = fs.create(path);
+    /*val output = fs.create(path);
 
     // But BufferedOutputStream must be used to output an actual text file.
-    val os = new BufferedOutputStream(output)
+    //val os = new BufferedOutputStream(output)
     app.collect.foreach(edge => {
       os.write(s"${edge.get(0)} ${edge.get(1)}\n".getBytes("UTF-8"))
     })
-    os.close()
+    os.close()*/
 
     /*val buffer = new BufferedWriter(new FileWriter(new File(filePath)))
     app.collect.foreach(edge => {
@@ -274,8 +278,9 @@ class ReadDatabaseApp(val hs: com.hortonworks.hwc.HiveWarehouseSession, val quer
     })
     buffer.close()*/
 
+    app.write.format("com.databricks.spark.csv").mode("overwrite").save(filePath)
 
-    //app.coalesce(1).write.format("com.databricks.spark.csv").option("delimiter", " ").mode("overwrite").save(filePath)
+    //app.coalesce(1).write.format("com.databricks.spark.csv").option("delimiter", " ").mode("overwrite").(filePath)
   }
 }
 
