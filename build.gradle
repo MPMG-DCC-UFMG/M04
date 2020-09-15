@@ -37,10 +37,14 @@ dependencies {
     implementation files("${System.getenv("FRACTAL_HOME")}/build/libs/fractal-SPARK-2.3.2.jar")
 
     // https://mvnrepository.com/artifact/com.lihaoyi/upickle
-    implementation 'com.lihaoyi:upickle_2.11:0.7.4'
+    //implementation 'com.lihaoyi:upickle_2.11:0.7.4'
+
+    compile group: 'com.lihaoyi', name: 'upickle_2.11', version: '0.7.4'
 
     // https://mvnrepository.com/artifact/com.hortonworks.hive/hive-warehouse-connector
-    implementation 'com.hortonworks.hive:hive-warehouse-connector_2.11:1.0.0.3.1.5.0-152'
+    //implementation 'com.hortonworks.hive:hive-warehouse-connector_2.11:1.0.0.3.1.5.0-152'
+
+    compile group: 'com.hortonworks.hive', name: 'hive-warehouse-connector_2.11', version: '1.0.0.3.1.0.0-78'
 }
 
 shadowJar {
