@@ -11,7 +11,9 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import com.hortonworks.spark.sql.hive.llap.HiveWarehouseBuilder;
 import com.hortonworks.spark.sql.hive.llap.HiveWarehouseSession;
 //import com.hortonworks.hwc.HiveWarehouseSession
-
+import org.apache.spark.graphx.{GraphLoader, PartitionStrategy}
+import org.apache.spark.graphx.Graph
+import org.apache.spark.graphx.VertexId
 
 import java.io.{BufferedWriter, File, FileWriter}
 
@@ -242,6 +244,55 @@ class ShortestPathsApp(
   }
 }
 
+class ConnectedComponentsApp(var graph:Graph[Int, Int]) extends MPMGApp {
+
+  var app: Graph[VertexId, Int] = _
+
+  def execute: Unit = {
+
+    val cc = graph.connectedComponents()
+    app = cc
+  }
+
+  def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {
+  }
+
+  def writeResults(filePath: String): Unit = {
+
+    val outputBuffer = new BufferedWriter(new FileWriter(new File(filePath)))
+    outputBuffer.write("Identificador do vértice,Identificar do CC\n")
+    app.vertices.collect().foreach(vertex => {
+      outputBuffer.write(s"${vertex._1},${vertex._2}\n")
+    })
+    outputBuffer.close()
+  }
+}
+
+class TriangleCountingApp(var graph:Graph[Int, Int]) extends MPMGApp {
+
+  var app: Graph[Int, Int] = _
+
+  def execute: Unit = {
+
+    val tc = graph.triangleCount()
+    app = tc
+  }
+
+  def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {
+  }
+
+  def writeResults(filePath: String): Unit = {
+
+    val outputBuffer = new BufferedWriter(new FileWriter(new File(filePath)))
+    outputBuffer.write("Identificador do vértice,Qtd. de triângulos que participa\n")
+    app.vertices.collect().foreach(vertex => {
+      outputBuffer.write(s"${vertex._1},${vertex._2}\n")
+    })
+    outputBuffer.close()
+  }
+}
+
+
 class ReadDatabaseApp(val hs: HiveWarehouseSession, val query: String
                      ) extends MPMGApp {
   var app: DataFrame = _
@@ -359,6 +410,50 @@ object MPMGSparkRunner {
         app.execute
         app.writeResults(outputPath)
         ss.close()
+      }
+      case "connected_components" => {
+
+        val inputPath = appConfig("input_path").str
+        if (inputPath.isEmpty) throw new RuntimeException(s"Unknown input_path")
+
+        /* fractal and its spark initialization */
+        val ss = utilApp.getCreateSparkSession(config, null, "spark_fractal")
+        if (!ss.sparkContext.isLocal) Thread.sleep(10000) // TODO: this is ugly but have to make sure all spark executors are up by the time we start executing fractal applications
+
+        val sc = ss.sparkContext
+        
+        val graph = GraphLoader.edgeListFile(sc, inputPath)
+
+        val app = new ConnectedComponentsApp(graph)
+        app.execute
+
+        //write output results
+        app.writeResults(outputPath)
+        sc.stop()
+        ss.stop()
+
+      }
+      case "tricount" => {
+
+        val inputPath = appConfig("input_path").str
+        if (inputPath.isEmpty) throw new RuntimeException(s"Unknown input_path")
+
+        /* fractal and its spark initialization */
+        val ss = utilApp.getCreateSparkSession(config, null, "spark_fractal")
+        if (!ss.sparkContext.isLocal) Thread.sleep(10000) // TODO: this is ugly but have to make sure all spark executors are up by the time we start executing fractal applications
+
+        val sc = ss.sparkContext
+
+        // Load the edges in canonical order and partition the graph for triangle count
+        val graph = GraphLoader.edgeListFile(sc, inputPath, true).partitionBy(PartitionStrategy.RandomVertexCut)
+
+        val app = new TriangleCountingApp(graph)
+        app.execute
+
+        //write output results
+        app.writeResults(outputPath)
+        sc.stop()
+        ss.stop()
       }
       case appName => {
         throw new RuntimeException(s"Unknown app: ${appName}")

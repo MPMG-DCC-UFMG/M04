@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-    implementation files("${System.getenv("FRACTAL_HOME")}/build/libs/fractal-SPARK-2.3.2.jar")
+    implementation files("${System.getenv("FRACTAL_HOME")}/build/libs/fractal-SPARK-2.4.5.jar")
 
     // https://mvnrepository.com/artifact/com.lihaoyi/upickle
     //implementation 'com.lihaoyi:upickle_2.11:0.7.4'
