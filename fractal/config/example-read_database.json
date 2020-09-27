@@ -1,0 +1,43 @@
+{
+  "spark_fractal": [
+    {
+      "name": "spark.app.name",
+      "value": "fractal-ReadDatabaseApp"
+    },
+    {
+      "name": "spark.master",
+      "value": "yarn"
+    },
+    {
+      "name": "spark.driver.host",
+      "value": "10.21.0.127"
+    },
+    {
+      "name": "spark.executor.memory",
+      "value": "4g"
+    },{
+      "name": "spark.hadoop.hive.llap.daemon.service.hosts",
+      "value": "@llap0"
+    }
+  ],
+  "spark_database": [
+    {
+      "name": "spark.sql.hive.hiveserver2.jdbc.url",
+      "value": "jdbc:hive2://hadoopmn-gsi-prod01.mpmg.mp.br:2181,hadoopmn-gsi-prod02.mpmg.mp.br:2181,hadoopmn-gsi-prod03.mpmg.mp.br:2181/dataset;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2;AuthMech=3;password=UFMGtrilhas2020;user=trilhasgsi"
+    },
+    {
+      "name": "spark.datasource.hive.warehouse.exec.results.max",
+      "value": "2147483647"
+    }
+  ],
+  "database": {
+    "temporary_tables": [],
+    "input_query": "SELECT * FROM dataset.rfb_cnpj_201905 limit 2000",
+    "output_query_path": "",
+    "input_graph_path": "",
+    "output_fractal_path": "/dados-fractal/read_database.csv"
+  },
+  "fractal": {
+    "app": "read_database"
+  }
+}
