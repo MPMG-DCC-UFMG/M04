@@ -41,9 +41,12 @@
   ],
   "app": {
     "name": "cliques", 
+    "name": "read_database", 
     "query": " WITH licitantes_dim_habilitado as ( select distinct num_documento from postgres_olap_lins.dim_licitacao_habilitado where length(num_documento) = 14), licitantes_e_socios as ( select A.num_documento as licitante, B.cpf_cnpj_socio as socio from licitantes_dim_habilitado A inner join dataset.rfb_cnpj_201905_socios B on (A.num_documento = B.cnpj)), socios_pj as (select distinct socio as cnpj_nos from licitantes_e_socios where (length(socio) = 14)), uniao_licitantes_e_socios as (select licitante as cnpj_nos from licitantes_e_socios union select cnpj_nos as cnpj_nos from socios_pj), uniao_licitantes_e_socios_c_rfb_soc as (select A.cnpj_nos as cnpj_nos, B.cpf_cnpj_socio as socio from uniao_licitantes_e_socios A join  dataset.rfb_cnpj_201905_socios B on (A.cnpj_nos = B.cnpj)) ( select A.cnpj_nos cnpj1, B.cnpj_nos cnpj2 from uniao_licitantes_e_socios_c_rfb_soc A join uniao_licitantes_e_socios_c_rfb_soc B where (A.socio = B.socio) and (A.cnpj_nos != B.cnpj_nos) ) ", 
     "input_path": "hdfs://hadoopgsiha/dados-fractal/output-query-database.csv", 
+    "input_path2": "hdfs://hadoopgsiha/dados-fractal/output-query-database.csv", 
     "steps" : 4, 
-    "output_path": "file:///home/ufmg.m06dcc/output.csv"
+    "output_path2": "file:///home/ufmg.m06dcc/query-output.csv",
+    "output_path": "hdfs://hadoopgsiha/dados-fractal/query-output.csv"
   }
 }

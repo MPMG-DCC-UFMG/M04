@@ -31,10 +31,11 @@ repositories {
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
     maven { url 'https://repo.hortonworks.com/content/repositories/releases/' }
+    maven { url 'https://dl.bintray.com/spark-packages/maven/' }
 }
 
 dependencies {
-    implementation files("${System.getenv("FRACTAL_HOME")}/build/libs/fractal-SPARK-2.4.5.jar")
+    implementation files("${System.getenv("FRACTAL_HOME")}/build/libs/fractal-SPARK-2.3.2.jar")
 
     // https://mvnrepository.com/artifact/com.lihaoyi/upickle
     //implementation 'com.lihaoyi:upickle_2.11:0.7.4'
@@ -45,6 +46,8 @@ dependencies {
     //implementation 'com.hortonworks.hive:hive-warehouse-connector_2.11:1.0.0.3.1.5.0-152'
 
     compile group: 'com.hortonworks.hive', name: 'hive-warehouse-connector_2.11', version: '1.0.0.3.1.0.0-78'
+
+    compile group: 'graphframes', name: 'graphframes', version: '0.6.0-spark2.3-s_2.11'
 }
 
 shadowJar {

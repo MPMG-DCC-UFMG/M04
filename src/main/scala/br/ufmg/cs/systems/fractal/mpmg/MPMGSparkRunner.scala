@@ -20,7 +20,8 @@ import java.io.{BufferedWriter, File, FileWriter}
 import scala.collection.mutable.Map
 
 import java.io.BufferedOutputStream
-
+import org.graphframes.GraphFrame
+import org.apache.spark.sql.DataFrame
 /*
 * Intern apps -- they can be used insider the apps that users can call.
 */
@@ -174,13 +175,24 @@ class CliquesApp(
     val os = new BufferedOutputStream(output)
     os.write("Identificador da clique,Identificador do vértice participante\n".getBytes("UTF-8"))
 
-    var i = 1
-    app.mappedSubgraphs.collect.foreach(subgraph => {
+    /*var i = 1
+    app.mappedSubgraphs.collect().foreach(subgraph => {
       for (vertex: String <- subgraph.mappedWords) {
         os.write(s"${i},${vertex}\n".getBytes("UTF-8"))
       }
       i += 1 // todo: validate if is don't collide
-    })
+    })*/
+
+    var i = 1
+    var iter_var = app.mappedSubgraphs.toLocalIterator
+    while (iter_var.hasNext) {
+     val subgraph = iter_var.next()
+     for (vertex: String <- subgraph.mappedWords) {
+        os.write(s"${i},${vertex}\n".getBytes("UTF-8"))
+     }
+      i += 1 
+    }
+
 
     os.close()
 
@@ -244,14 +256,18 @@ class ShortestPathsApp(
   }
 }
 
-class ConnectedComponentsApp(var graph:Graph[Int, Int]) extends MPMGApp {
-
-  var app: Graph[VertexId, Int] = _
+//class ConnectedComponentsApp(var graph:Graph[Int, Int]) extends MPMGApp {
+class ConnectedComponentsApp(var graph:GraphFrame) extends MPMGApp {
+  //var app: Graph[VertexId, Int] = _
+  var app:DataFrame = _
 
   def execute: Unit = {
 
-    val cc = graph.connectedComponents()
-    app = cc
+    //val cc = graph.connectedComponents()
+    //app = cc
+
+    val result = graph.connectedComponents.run()
+    app = result.select("id", "component").orderBy("component")
   }
 
   def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {
@@ -259,12 +275,13 @@ class ConnectedComponentsApp(var graph:Graph[Int, Int]) extends MPMGApp {
 
   def writeResults(filePath: String): Unit = {
 
-    val outputBuffer = new BufferedWriter(new FileWriter(new File(filePath)))
+    /*val outputBuffer = new BufferedWriter(new FileWriter(new File(filePath)))
     outputBuffer.write("Identificador do vértice,Identificar do CC\n")
     app.vertices.collect().foreach(vertex => {
       outputBuffer.write(s"${vertex._1},${vertex._2}\n")
     })
-    outputBuffer.close()
+    outputBuffer.close()*/
+    app.write.csv(filePath)
   }
 }
 
@@ -422,8 +439,22 @@ object MPMGSparkRunner {
 
         val sc = ss.sparkContext
         
-        val graph = GraphLoader.edgeListFile(sc, inputPath)
+        //import ss.implicits._ 
+        //val graph = GraphLoader.edgeListFile(sc, inputPath)
+        /*val graph = Graph.fromEdgeTuples(
+            ss.read
+                // Adjust separator if needed
+                .options(Map("delimiter" -> ","))
+                .csv(inputPath)
+                .as[(Long, Long)]
+                .rdd,
+            defaultValue = 0
+        )*/
+        sc.setCheckpointDir("/checkpoint-dir")
+        var df = ss.read.option("inferSchema","true").option("delimiter",",").csv(inputPath).toDF("src", "dst")
+	df = df.repartition(300) 
 
+        val graph = GraphFrame.fromEdges(df)
         val app = new ConnectedComponentsApp(graph)
         app.execute
 
