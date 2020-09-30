@@ -285,14 +285,18 @@ class ConnectedComponentsApp(var graph:GraphFrame) extends MPMGApp {
   }
 }
 
-class TriangleCountingApp(var graph:Graph[Int, Int]) extends MPMGApp {
+//class TriangleCountingApp(var graph:Graph[Int, Int]) extends MPMGApp {
+class TriangleCountingApp(var graph:GraphFrame) extends MPMGApp {
 
-  var app: Graph[Int, Int] = _
+  //var app: Graph[Int, Int] = _
+  var app:DataFrame = _
 
   def execute: Unit = {
 
-    val tc = graph.triangleCount()
-    app = tc
+    //val tc = graph.triangleCount()
+    //app = tc
+    val results = graph.triangleCount.run()
+    app = results.select("id", "count").orderBy("id")
   }
 
   def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {
@@ -300,12 +304,13 @@ class TriangleCountingApp(var graph:Graph[Int, Int]) extends MPMGApp {
 
   def writeResults(filePath: String): Unit = {
 
-    val outputBuffer = new BufferedWriter(new FileWriter(new File(filePath)))
+    /*val outputBuffer = new BufferedWriter(new FileWriter(new File(filePath)))
     outputBuffer.write("Identificador do vértice,Qtd. de triângulos que participa\n")
     app.vertices.collect().foreach(vertex => {
       outputBuffer.write(s"${vertex._1},${vertex._2}\n")
     })
-    outputBuffer.close()
+    outputBuffer.close()*/
+    app.write.csv(filePath)
   }
 }
 
@@ -451,7 +456,7 @@ object MPMGSparkRunner {
             defaultValue = 0
         )*/
         sc.setCheckpointDir("/checkpoint-dir")
-        var df = ss.read.option("inferSchema","true").option("delimiter",",").csv(inputPath).toDF("src", "dst")
+        var df = ss.read.option("inferSchema","true").option("delimiter"," ").csv(inputPath).toDF("src", "dst")
 	df = df.repartition(300) 
 
         val graph = GraphFrame.fromEdges(df)
@@ -476,7 +481,13 @@ object MPMGSparkRunner {
         val sc = ss.sparkContext
 
         // Load the edges in canonical order and partition the graph for triangle count
-        val graph = GraphLoader.edgeListFile(sc, inputPath, true).partitionBy(PartitionStrategy.RandomVertexCut)
+        //val graph = GraphLoader.edgeListFile(sc, inputPath, true).partitionBy(PartitionStrategy.RandomVertexCut)
+
+        sc.setCheckpointDir("/checkpoint-dir")
+        var df = ss.read.option("inferSchema","true").option("delimiter"," ").csv(inputPath).toDF("src", "dst")
+        df = df.repartition(300)
+
+        val graph = GraphFrame.fromEdges(df)
 
         val app = new TriangleCountingApp(graph)
         app.execute
