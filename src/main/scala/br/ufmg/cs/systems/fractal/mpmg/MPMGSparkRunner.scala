@@ -11,6 +11,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import com.hortonworks.spark.sql.hive.llap.HiveWarehouseBuilder;
 import com.hortonworks.spark.sql.hive.llap.HiveWarehouseSession;
 //import com.hortonworks.hwc.HiveWarehouseSession
+import org.apache.spark.SparkContext
 import org.apache.spark.graphx.{GraphLoader, PartitionStrategy}
 import org.apache.spark.graphx.Graph
 import org.apache.spark.graphx.VertexId
@@ -22,6 +23,7 @@ import scala.collection.mutable.Map
 import java.io.BufferedOutputStream
 import org.graphframes.GraphFrame
 import org.apache.spark.sql.DataFrame
+import scala.collection.immutable.ListMap
 /*
 * Intern apps -- they can be used insider the apps that users can call.
 */
@@ -266,8 +268,8 @@ class ConnectedComponentsApp(var graph:GraphFrame) extends MPMGApp {
     //val cc = graph.connectedComponents()
     //app = cc
 
-    val result = graph.connectedComponents.run()
-    app = result.select("id", "component").orderBy("component")
+    val cc = graph.connectedComponents.run()
+    app = cc
   }
 
   def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {
@@ -283,12 +285,59 @@ class ConnectedComponentsApp(var graph:GraphFrame) extends MPMGApp {
     outputBuffer.close()*/
     app.write.csv(filePath)
   }
+
+  def characterize(sc: SparkContext, filePath: String, delimiter: String): Unit = {
+
+    val longs = sc.textFile(filePath)
+    val counts = longs.map(x=>{x.split(delimiter)(1).toLong}).countByValue()
+    val sorted = ListMap(counts.toSeq.sortWith(_._2 > _._2):_*)
+    var mapToString = new PartialFunction[(Long,Long),String]{
+      def apply(x:(Long,Long)) = x._1.toString + "," + x._2.toString;
+      def isDefinedAt(x:(Long,Long)) = true;
+    }
+
+    var fw = new FileWriter(filePath.substring(7) + ".OUT")
+    var bw = new BufferedWriter(fw)
+    
+    bw.write("Component,Tamanho\n");
+    sorted.collect(mapToString).foreach(x => {
+      bw.write(s"${x}\n")
+    });
+    
+    bw.close();
+    fw.close();
+    
+  }
 }
 
-//class TriangleCountingApp(var graph:Graph[Int, Int]) extends MPMGApp {
+class TriangleCountingGraphxApp(var graph:Graph[Int, Int]) extends MPMGApp {
+
+  var app: Graph[Int, Int] = _
+
+  def execute: Unit = {
+
+    val tc = graph.triangleCount()
+    app = tc
+    
+  }
+
+  def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {
+  }
+
+  def writeResults(filePath: String): Unit = {
+
+    val file = new File(filePath)
+    val outputBuffer = new BufferedWriter(new FileWriter(file))
+    outputBuffer.write("id-vertice,qtd-triangulo\n")
+    app.vertices.collect().foreach(vertex => {
+      outputBuffer.write(s"${vertex._1},${vertex._2}\n")
+    })
+    outputBuffer.close()
+  }
+}
+
 class TriangleCountingApp(var graph:GraphFrame) extends MPMGApp {
 
-  //var app: Graph[Int, Int] = _
   var app:DataFrame = _
 
   def execute: Unit = {
@@ -296,7 +345,7 @@ class TriangleCountingApp(var graph:GraphFrame) extends MPMGApp {
     //val tc = graph.triangleCount()
     //app = tc
     val results = graph.triangleCount.run()
-    app = results.select("id", "count").orderBy("id")
+    app = results.select("id", "count").orderBy(org.apache.spark.sql.functions.col("count").desc)
   }
 
   def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {
@@ -312,8 +361,34 @@ class TriangleCountingApp(var graph:GraphFrame) extends MPMGApp {
     outputBuffer.close()*/
     app.write.csv(filePath)
   }
-}
 
+  def characterize(sc: SparkContext, filePath: String, delimiter: String): Unit = {
+
+    val longs = sc.textFile(filePath)
+    val counts = longs.map(x=>{x.split(delimiter)})
+    val sorted = counts.sortBy(_.apply(1).toInt, false)
+    var mapToString = new PartialFunction[Array[String],String]{
+      def apply(x:Array[String]) = x(0) + "," + x(1);
+      def isDefinedAt(x:Array[String]) = true;
+    }
+
+
+    var fw = new FileWriter(filePath.substring(7) + ".OUT")
+    var bw = new BufferedWriter(fw)
+
+    bw.write("Vertice,Triangulos\n");
+    sorted.collect(mapToString).foreach(x => {
+      bw.write(s"${x}\n")
+    });
+
+    bw.close();
+    fw.close();
+
+  }
+
+
+
+}
 
 class ReadDatabaseApp(val hs: HiveWarehouseSession, val query: String
                      ) extends MPMGApp {
@@ -337,9 +412,8 @@ class ReadDatabaseApp(val hs: HiveWarehouseSession, val query: String
 
     // Output file can be created from file system.
     /*val output = fs.create(path);
-
     // But BufferedOutputStream must be used to output an actual text file.
-    //val os = new BufferedOutputStream(output)
+    val os = new BufferedOutputStream(output)
     app.collect.foreach(edge => {
       os.write(s"${edge.get(0)} ${edge.get(1)}\n".getBytes("UTF-8"))
     })
@@ -438,6 +512,12 @@ object MPMGSparkRunner {
         val inputPath = appConfig("input_path").str
         if (inputPath.isEmpty) throw new RuntimeException(s"Unknown input_path")
 
+        var delimiter = appConfig("delimiter").str
+        if (delimiter.isEmpty) delimiter = ","
+
+        var checkpointDir = appConfig("checkpoint_dir").str
+        if (checkpointDir.isEmpty) checkpointDir = "/checkpoint-dir"
+
         /* fractal and its spark initialization */
         val ss = utilApp.getCreateSparkSession(config, null, "spark_fractal")
         if (!ss.sparkContext.isLocal) Thread.sleep(10000) // TODO: this is ugly but have to make sure all spark executors are up by the time we start executing fractal applications
@@ -455,8 +535,8 @@ object MPMGSparkRunner {
                 .rdd,
             defaultValue = 0
         )*/
-        sc.setCheckpointDir("/checkpoint-dir")
-        var df = ss.read.option("inferSchema","true").option("delimiter"," ").csv(inputPath).toDF("src", "dst")
+        sc.setCheckpointDir(checkpointDir)
+        var df = ss.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst")
 	df = df.repartition(300) 
 
         val graph = GraphFrame.fromEdges(df)
@@ -465,6 +545,9 @@ object MPMGSparkRunner {
 
         //write output results
         app.writeResults(outputPath)
+
+        app.characterize(sc, outputPath, delimiter)
+        
         sc.stop()
         ss.stop()
 
@@ -474,6 +557,12 @@ object MPMGSparkRunner {
         val inputPath = appConfig("input_path").str
         if (inputPath.isEmpty) throw new RuntimeException(s"Unknown input_path")
 
+        var delimiter = appConfig("delimiter").str
+        if (delimiter.isEmpty) delimiter = ","
+
+        var checkpointDir = appConfig("checkpoint_dir").str
+        if (checkpointDir.isEmpty) checkpointDir = "/checkpoint-dir"
+
         /* fractal and its spark initialization */
         val ss = utilApp.getCreateSparkSession(config, null, "spark_fractal")
         if (!ss.sparkContext.isLocal) Thread.sleep(10000) // TODO: this is ugly but have to make sure all spark executors are up by the time we start executing fractal applications
@@ -482,18 +571,20 @@ object MPMGSparkRunner {
 
         // Load the edges in canonical order and partition the graph for triangle count
         //val graph = GraphLoader.edgeListFile(sc, inputPath, true).partitionBy(PartitionStrategy.RandomVertexCut)
+        //val app = new TriangleCountingGraphxApp(graph)
+        //app.execute
 
-        sc.setCheckpointDir("/checkpoint-dir")
-        var df = ss.read.option("inferSchema","true").option("delimiter"," ").csv(inputPath).toDF("src", "dst")
+        sc.setCheckpointDir(checkpointDir)
+        var df = ss.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst")
         df = df.repartition(300)
-
         val graph = GraphFrame.fromEdges(df)
-
         val app = new TriangleCountingApp(graph)
-        app.execute
+        app.execute 
 
         //write output results
         app.writeResults(outputPath)
+
+        app.characterize(sc, outputPath, delimiter)
         sc.stop()
         ss.stop()
       }
