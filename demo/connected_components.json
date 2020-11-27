@@ -41,8 +41,8 @@
   ],
   "app": {
     "name": "connected_components", 
-    "input_path":"hdfs://hadoopgsiha/dados-fractal/demo/output-database2.csv",
-    "output_path": "hdfs://hadoopgsiha/dados-fractal/demo/output-cc.csv",
+    "input_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-cnpj-tel2.csv",
+    "output_path": "hdfs://hadoopgsiha/dados-fractal/output-cc.csv",
     "delimiter": ",",
     "checkpoint_dir":"hdfs://hadoopgsiha/dados-fractal/cpdir"
   }

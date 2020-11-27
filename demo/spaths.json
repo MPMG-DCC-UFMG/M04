@@ -40,9 +40,9 @@
     }
   ],
   "app": {
-    "name": "cliques", 
+    "name": "spaths", 
     "input_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-cnpj-tel.csv",
-    "steps" : 1, 
-    "output_path": "hdfs://hadoopgsiha/dados-fractal/output-cliques/output-cliques.csv"
+    "steps" : 10, 
+    "output_path":"/home/ufmg.m06dcc/repositories/M06/spaths-tel-full-step-10.csv"
   }
 }

@@ -10,7 +10,6 @@ import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import com.hortonworks.spark.sql.hive.llap.HiveWarehouseBuilder;
 import com.hortonworks.spark.sql.hive.llap.HiveWarehouseSession;
-//import com.hortonworks.hwc.HiveWarehouseSession
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.{GraphLoader, PartitionStrategy}
 import org.apache.spark.graphx.Graph
@@ -24,6 +23,7 @@ import scala.collection.mutable.ArrayBuffer
 import java.io.BufferedOutputStream
 import org.graphframes.GraphFrame
 import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.Row
 import scala.collection.immutable.ListMap
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.functions.col
@@ -139,7 +139,7 @@ class MapVerticesApp(val fractalGraph: FractalGraph,
 trait MPMGApp extends Logging {
   def execute: Unit
 
-  def writeResults(filePath: String): Unit
+  def writeResults(filePath: String, delimiter: String): Unit
 
   def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit
 }
@@ -180,14 +180,6 @@ class CliquesApp(
     val os = new BufferedOutputStream(output)
     os.write("Identificador da clique,Identificador do vértice participante\n".getBytes("UTF-8"))
 
-    /*var i = 1
-    app.mappedSubgraphs.collect().foreach(subgraph => {
-      for (vertex: String <- subgraph.mappedWords) {
-        os.write(s"${i},${vertex}\n".getBytes("UTF-8"))
-      }
-      i += 1 // todo: validate if is don't collide
-    })*/
-
     var i = 1
     var iter_var = app.mappedSubgraphs.toLocalIterator
     while (iter_var.hasNext) {
@@ -198,26 +190,10 @@ class CliquesApp(
       i += 1 
     }
 
-
     os.close()
-
-    /*val buffer = new BufferedWriter(new FileWriter(new File(filePath)))
-    buffer.write("Identificador da clique,Identificador do vértice participante\n")
-
-    var i = 1
-    app.mappedSubgraphs.collect.foreach(subgraph => {
-      for (vertex: String <- subgraph.mappedWords) {
-        buffer.write(s"${i},${vertex}\n")
-      }
-      i += 1 // todo: validate if is don't collide
-    })
-
-    buffer.close()*/
-
   }
 
-  def writeResults(filePath: String): Unit = {
-  }
+  def writeResults(filePath: String, delimiter: String): Unit = { }
 }
 
 class ShortestPathsApp(
@@ -249,7 +225,6 @@ class ShortestPathsApp(
         val it = path.iterator
         while (it.hasNext) {
           val id = new IntWritable(it.next())
-          //outputBuffer.write(s"${i},${vertexMap(id)},${pair.getLeft},${pair.getRight}\n")
           outputBuffer.write(s"${i},${vertexMap(id)},${vertexMap(pair.getLeft)},${vertexMap(pair.getRight)}\n")
         }
         i += 1 // todo: validate if is don't collide
@@ -258,8 +233,7 @@ class ShortestPathsApp(
     outputBuffer.close()
   }
 
-  def writeResults(filePath: String): Unit = {
-  }
+  def writeResults(filePath: String, delimiter: String): Unit = {}
 }
 
 class ConnectedComponentsApp(var graph:GraphFrame) extends MPMGApp {
@@ -271,13 +245,11 @@ class ConnectedComponentsApp(var graph:GraphFrame) extends MPMGApp {
     app = cc
   }
 
-  def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {
-  }
+  def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = { }
 
-  def writeResults(filePath: String): Unit = {
+  def writeResults(filePath: String, delimiter: String): Unit = {
 
-    //app.write.csv(filePath).mode("overwrite")
-    app.write.format("com.databricks.spark.csv").mode("overwrite").save(filePath)
+    app.write.format("com.databricks.spark.csv").option("delimiter", delimiter).mode("overwrite").save(filePath)
   }
 
   def characterize(spark: SparkSession, sc: SparkContext, filePath: String, delimiter: String): Unit = {
@@ -287,34 +259,7 @@ class ConnectedComponentsApp(var graph:GraphFrame) extends MPMGApp {
     val sorted = ListMap(counts.toSeq.sortWith(_._2 > _._2):_*)
 
     val df = spark.createDataFrame(sorted.toSeq)
-    //df.write.csv(filePath + ".out").mode("overwrite")
-    df.write.format("com.databricks.spark.csv").mode("overwrite").save(filePath + ".out")
-  }
-}
-
-class TriangleCountingGraphxApp(var graph:Graph[Int, Int]) extends MPMGApp {
-
-  var app: Graph[Int, Int] = _
-
-  def execute: Unit = {
-
-    val tc = graph.triangleCount()
-    app = tc
-    
-  }
-
-  def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {
-  }
-
-  def writeResults(filePath: String): Unit = {
-
-    val file = new File(filePath)
-    val outputBuffer = new BufferedWriter(new FileWriter(file))
-    outputBuffer.write("id-vertice,qtd-triangulo\n")
-    app.vertices.collect().foreach(vertex => {
-      outputBuffer.write(s"${vertex._1},${vertex._2}\n")
-    })
-    outputBuffer.close()
+    df.write.format("com.databricks.spark.csv").option("delimiter", delimiter).mode("overwrite").save(filePath + ".out")
   }
 }
 
@@ -328,13 +273,11 @@ class TriangleCountingApp(var graph:GraphFrame) extends MPMGApp {
     app = results.select("id", "count").orderBy(col("count").desc, col("id"))
   }
 
-  def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {
-  }
+  def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {}
 
-  def writeResults(filePath: String): Unit = {
+  def writeResults(filePath: String, delimiter: String): Unit = {
 
-    //app.write.csv(filePath).mode("overwrite")
-    app.write.format("com.databricks.spark.csv").mode("overwrite").save(filePath)
+    app.write.format("com.databricks.spark.csv").option("delimiter", delimiter).mode("overwrite").save(filePath)
   }
 
   def characterize(spark: SparkSession, filePath: String, delimiter: String): Unit = {
@@ -345,41 +288,54 @@ class TriangleCountingApp(var graph:GraphFrame) extends MPMGApp {
     val total_triangle = df.agg(sum("_2")).first.getLong(0) / 3
     import spark.implicits._ 
     val total_triangle_df = List(total_triangle).toDF()
-    //total_triangle_df.write.csv(filePath + ".out").mode("overwrite")
-    total_triangle_df.write.format("com.databricks.spark.csv").mode("overwrite").save(filePath + ".out")
+    total_triangle_df.write.format("com.databricks.spark.csv").option("delimiter", delimiter).mode("overwrite").save(filePath + ".out")
   }
 }
 
-class ShortestPathsByCCApp(spark:SparkSession, outputPath:String, steps:Int, ccid:Long, fc:FractalContext, algs: FractalAlgorithms) extends MPMGApp {
+class ShortestPathsByCCApp(
+    spark:SparkSession,
+    inputPath:String,
+    ccInputPath:String,
+    outputPath:String,
+    delimiter:String,
+    steps:Int,
+    ccid:Option[Long],
+    fc:FractalContext, 
+    algs: FractalAlgorithms) extends MPMGApp {
 
   def execute: Unit = {
 
-    val inputForSpathsCC = "hdfs://hadoopgsiha/dados-fractal/input_generated_for_spaths.csv"
+    // arquivo temporario onde sera escrita a componente a ser passada para o spaths
+    val inputForSpathsCC = inputPath.substring(0, inputPath.lastIndexOf("/") + 1) + "tmp_input_generated_for_spaths.csv"
 
     //1. le a saída gerada pela caracterizacao de componentes conexos
-    val ccOutPath = "hdfs://hadoopgsiha/dados-fractal/outputcc_graphframes_tel-full.csv.OUT"
-    var components = spark.read.option("inferSchema","true").option("delimiter", ",").csv(ccOutPath).toDF("cc", "qtd")
+    var components = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(ccInputPath + ".out").toDF("cc", "qtd")
 
-    //2. lê o arquivo que contem o componente conexo a qual pertence cada vertice
-    val ccPath = "hdfs://hadoopgsiha/dados-fractal/outputcc_graphframes_tel-full.csv"
-    var allVertexCC = spark.read.option("inferSchema","true").option("delimiter", ",").csv(ccPath).toDF("vertex", "cc")
+    //2. le o arquivo que contem o componente conexo a qual pertence cada vertice
+    var allVertexCC = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(ccInputPath).toDF("vertex", "cc")
 
     //3. carrega os pares de vertices do grafo completo
-    val wholeGraphPath = "hdfs://hadoopgsiha/dados-fractal/output-query-database-tel-full.csv"
-    var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", ",").csv(wholeGraphPath).toDF("src", "dst", "edgeType").drop("edgeType")
+    var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst", "edgeType").drop("edgeType")
 
-    val bfsOutPath = "/home/ufmg.m06dcc/repositories/M06/bfs.csv"
-    val localComponents = components.collect()
-//    for (ccRow <- localComponents) {
+    var tmpComponents:Any = None
+    if(ccid == None) tmpComponents = components.collect()
+    else {
+      val a:Array[Row] = new Array[Row](1)
+      a(0) = Row(ccid.get)
+      tmpComponents = a
+    }
+
+    val localComponents:Array[Row] = tmpComponents.asInstanceOf[Array[Row]]
+    for (ccRow <- localComponents) {
 
       //4. descobre todos os nós para cada componente conexo
-      val vertexCC = allVertexCC.where(col("cc") === ccid)//ccRow(0))
+      val vertexCC = allVertexCC.where(col("cc") === ccRow(0))
 
       //5. Salva em um arquivo as arestas do componente conexo
       val vertexIds = vertexCC.select("vertex").collect.flatMap(_.toSeq).map(x=>x.toString);
       val directedEdges = wholeGraphDF.filter( (col("src").isin(vertexIds:_*)) || (col("dst").isin(vertexIds:_*)));
       val edges = directedEdges.union(directedEdges.select(col("dst"),col("src")));
-      edges.write.mode("overwrite").option("sep"," ").csv(inputForSpathsCC)
+      edges.write.mode("overwrite").option("sep"," ").csv(inputForSpathsCC) // o fractal so aceita espacos
 
       val fractalGraph = fc.textFile(inputForSpathsCC, "br.ufmg.cs.systems.fractal.graph.EdgeListGraph")
 
@@ -390,38 +346,49 @@ class ShortestPathsByCCApp(spark:SparkSession, outputPath:String, steps:Int, cci
       app.execute
 
       app.writeResults(outputPath, vertexMap.app)
+    }
   }
 
   override def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {} 
   
-  def writeResults(filePath: String): Unit = {  }
+  def writeResults(filePath: String, delimiter: String): Unit = {  }
 
 }
 
-class BreadthFirstSearchApp(spark:SparkSession, ccid:Long) extends MPMGApp {
-
-  var app:DataFrame = _
+class BreadthFirstSearchApp(
+    spark:SparkSession, 
+    inputPath:String, 
+    ccInputPath:String, 
+    outputPath:String, 
+    delimiter:String, 
+    steps:Int, 
+    ccid:Option[Long]) extends MPMGApp {
 
   def execute:Unit = {
 
     //1. le a saída gerada pela caracterizacao de componentes conexos
-    val ccOutPath = "hdfs://hadoopgsiha/dados-fractal/outputcc_graphframes_tel-full.csv.OUT"
-    var components = spark.read.option("inferSchema","true").option("delimiter", ",").csv(ccOutPath).toDF("cc", "qtd")
+    var components = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(ccInputPath + ".out").toDF("cc", "qtd")
 
     //2. lê o arquivo que contem o componente conexo a qual pertence cada vertice
-    val ccPath = "hdfs://hadoopgsiha/dados-fractal/outputcc_graphframes_tel-full.csv"
-    var allVertexCC = spark.read.option("inferSchema","true").option("delimiter", ",").csv(ccPath).toDF("vertex", "cc")
+    var allVertexCC = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(ccInputPath).toDF("vertex", "cc")
 
     //3. carrega os pares de vertices do grafo completo
-    val wholeGraphPath = "hdfs://hadoopgsiha/dados-fractal/output-query-database-tel-full.csv"
-    var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", ",").csv(wholeGraphPath).toDF("src", "dst", "edgeType").drop("edgeType")
+    var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst", "edgeType").drop("edgeType")
 
-    val bfsOutPath = "/home/ufmg.m06dcc/repositories/M06/bfs.csv"
-    val localComponents = components.collect()
-//    for (ccRow <- localComponents) {
+    var tmpComponents:Any = None 
+    if(ccid == None) tmpComponents = components.collect()
+    else { 
+      val a:Array[Row] = new Array[Row](1)
+      a(0) = Row(ccid.get)
+      tmpComponents = a
+    }
+
+    val localComponents:Array[Row] = tmpComponents.asInstanceOf[Array[Row]]
+    for (ccRow <- localComponents) {
 
       //4. descobre todos os nós para cada componente conexo
-      val vertexCC = allVertexCC.where(col("cc") === ccid)//ccRow(0))//197568496035L)
+      val vertexCC = allVertexCC.where(col("cc") === ccRow(0))
+      print(vertexCC.collect())
 
       //5. lista todos os pares de vertices para cada componente conexo
       val crossJoin = vertexCC.as("from").crossJoin(vertexCC.as("to")).orderBy("from.vertex")
@@ -435,31 +402,13 @@ class BreadthFirstSearchApp(spark:SparkSession, ccid:Long) extends MPMGApp {
       //7. calcula o caminho mínimo para cada par de vértice do grafo descoberto
       val localCJ = crossJoin.collect();
 
-      /*localCJ.foreach(row => {
-        
-        val fromV = row(0).asInstanceOf[String]
-        val toV = row(2).asInstanceOf[String]
-        if ( (fromV != toV) && (!fromV.startsWith("tel")) && (!toV.startsWith("tel")) ){
-          val paths = graph.bfs.fromExpr("id = '" + fromV + "'").toExpr("id = '" + toV + "'").maxPathLength(5).run()
-          // chamar um collect e operar daqui pra baixo localmente.
-          // comparar os tempos com e sem essa estrategia
-          // talvez colocar todas as componentes em um só grafo (mas lembrar de chamar o crossjoin antes disso)
-          if (paths.count() > 0) {
-            val numberOfIntermediateNodes =(paths.columns.size - 2)/2
-            val cols = "from"::"to"::List.range(1, numberOfIntermediateNodes + 1).map(i=>("v" + i))
-            val result = paths.select(cols.map(c=>col(c+".id").as(c)):_*)
-            result.write.mode("append").csv("hdfs://hadoopgsiha/dados-fractal/bfs_original2.csv")
-          }
-        }
-      })*/
-
       var allPathsCC:ArrayBuffer[Array[Array[String]]] = new ArrayBuffer[Array[Array[String]]]()
       localCJ.foreach(row => {
 
         val fromV = row(0).asInstanceOf[String]
         val toV = row(2).asInstanceOf[String]
-        if ( (fromV < toV) && (!fromV.startsWith("tel")) && (!toV.startsWith("tel")) ){
-          val paths = graph.bfs.fromExpr("id = '" + fromV + "'").toExpr("id = '" + toV + "'").maxPathLength(5).run()
+        if ( (fromV < toV) ) { // && (!fromV.startsWith("tel")) && (!toV.startsWith("tel")) ){
+          val paths = graph.bfs.fromExpr("id = '" + fromV + "'").toExpr("id = '" + toV + "'").maxPathLength(steps).run()
           val localPaths = paths.collect()
           val localPathsSize = localPaths(0).size
           val vertexPathSize = localPathsSize/2 + 1
@@ -476,21 +425,20 @@ class BreadthFirstSearchApp(spark:SparkSession, ccid:Long) extends MPMGApp {
         }
       })
     
-      val buffer = new BufferedWriter(new FileWriter(new File(bfsOutPath), true))
+      val buffer = new BufferedWriter(new FileWriter(new File(outputPath), true))
       for(pathsPairOfVertices <- allPathsCC){
         for(path <- pathsPairOfVertices) {
-          val line = path.mkString(",").replaceAll("[\\[\\]]","")
+          val line = path.mkString(delimiter).replaceAll("[\\[\\]]","")
           buffer.write(s"${line}\n")
         }
       }
       buffer.close
-  //}
+    }
   }
 
-  override def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {
-  }
+  override def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {}
 
-  def writeResults(filePath: String): Unit = {}
+  def writeResults(filePath: String, delimiter: String): Unit = {}
 
 }
 
@@ -508,7 +456,7 @@ class WriteDatabaseApp(val hs: HiveWarehouseSession, query:String) extends MPMGA
 
   override def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = { }
 
-  def writeResults(filePath: String): Unit = {}
+  def writeResults(filePath: String, delimiter: String): Unit = {}
 
 }
 class ReadDatabaseApp(val hs: HiveWarehouseSession, val query: String
@@ -520,13 +468,10 @@ class ReadDatabaseApp(val hs: HiveWarehouseSession, val query: String
     app = hs.executeQuery(query)
   }
 
-  override def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {
-  }
-
-  def writeResults(filePath: String): Unit = {}
-
+  override def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {}
 
   def writeResults(filePath: String, delimiter: String): Unit = {
+  
     if (filePath.isEmpty) return
 
     logInfo(s"\tWriting data to CSV at: ${filePath}")
@@ -535,19 +480,7 @@ class ReadDatabaseApp(val hs: HiveWarehouseSession, val query: String
     val fs = path.getFileSystem(conf)
 
     // Output file can be created from file system.
-    /*val output = fs.create(path);
-    // But BufferedOutputStream must be used to output an actual text file.
-    val os = new BufferedOutputStream(output)
-    app.collect.foreach(edge => {
-      os.write(s"${edge.get(0)} ${edge.get(1)}\n".getBytes("UTF-8"))
-    })
-    os.close()*/
-
-    /*val buffer = new BufferedWriter(new FileWriter(new File(filePath)))
-    app.collect.foreach(edge => {
-      buffer.write(s"${edge.get(0)} ${edge.get(1)}\n")
-    })
-    buffer.close()*/
+    //val output = fs.create(path);
 
     app.write.format("com.databricks.spark.csv").option("delimiter", delimiter).mode("overwrite").save(filePath)
 
@@ -679,7 +612,7 @@ object MPMGSparkRunner {
         app.execute
 
         //write output results
-        app.writeResults(outputPath)
+        app.writeResults(outputPath, delimiter)
 
         app.characterize(ss, sc, outputPath, delimiter)
         
@@ -720,27 +653,33 @@ object MPMGSparkRunner {
         app.execute 
 
         //write output results
-        app.writeResults(outputPath)
+        app.writeResults(outputPath, delimiter)
 
         app.characterize(ss, outputPath, delimiter)
         sc.stop()
         ss.stop()
       }
       case "bfs" => {
-        var ccid = appConfig("ccid").str.toLong
+
+        val inputPath = appConfig("input_path").str
+        val ccInputPath = appConfig("cc_input_path").str
+	val outputPath = appConfig("output_path").str
+        val delimiter = appConfig("delimiter").str
+        val steps = appConfig("steps").num.toInt
+        var ccid:Option[Long] = None
+        try{
+          val ccid_aux = appConfig("ccid").num.toLong
+          ccid = Some(ccid_aux)
+        } catch { case _:Throwable => {}}
+
         val ss = utilApp.getCreateSparkSession(config, null, "spark_fractal")
         if (!ss.sparkContext.isLocal) Thread.sleep(10000) // TODO: this is ugly but have to make sure all spark executors are up by the time we start executing fractal applications
 
         val sc = ss.sparkContext
 
-        val app = new BreadthFirstSearchApp(ss, ccid)
+        val app = new BreadthFirstSearchApp(ss, inputPath, ccInputPath, outputPath, delimiter, steps, ccid)
 
-        val t1 = System.nanoTime()
         app.execute
-        val duration = (System.nanoTime() - t1) / 1e9d
-	import java.nio.file.{Paths, Files}
-        import java.nio.charset.StandardCharsets
-        Files.write(Paths.get("/home/ufmg.m06dcc/repositories/M06/duracao_original.txt"), String.valueOf(duration).getBytes(StandardCharsets.UTF_8))
 
         sc.stop()
         ss.stop()
@@ -751,20 +690,21 @@ object MPMGSparkRunner {
         val ss = utilApp.getCreateSparkSession(config, null, "spark_fractal")
         if (!ss.sparkContext.isLocal) Thread.sleep(10000) // TODO: this is ugly but have to make sure all spark executors are up by the time we start executing fractal applications
         val fc = new FractalContext(ss.sparkContext)
+       
         val inputPath = appConfig("input_path").str
-        if (inputPath.isEmpty) throw new RuntimeException(s"Unknown input_path")
-        val ccid = appConfig("ccid").str.toLong
+        val ccInputPath = appConfig("cc_input_path").str
+        val outputPath = appConfig("output_path").str
+        val delimiter = appConfig("delimiter").str
         val steps = appConfig("steps").num.toInt
+        var ccid:Option[Long] = None
+        try{
+          val ccid_aux = appConfig("ccid").num.toLong
+          ccid = Some(ccid_aux)
+        } catch { case _:Throwable => {}}
         
-        val app = new ShortestPathsByCCApp(ss, outputPath, steps, ccid, fc, algs)
+        val app = new ShortestPathsByCCApp(ss, inputPath, ccInputPath, outputPath, delimiter, steps, ccid, fc, algs)
 
-        val t1 = System.nanoTime()
         app.execute
-
-       val duration = (System.nanoTime() - t1) / 1e9d
-        import java.nio.file.{Paths, Files}
-        import java.nio.charset.StandardCharsets
-        Files.write(Paths.get("/home/ufmg.m06dcc/repositories/M06/duracao_spaths_cc.txt"), String.valueOf(duration).getBytes(StandardCharsets.UTF_8))
 
         fc.stop()
         ss.stop()
