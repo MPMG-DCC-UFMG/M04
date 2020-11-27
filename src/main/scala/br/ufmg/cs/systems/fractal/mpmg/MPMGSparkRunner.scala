@@ -444,14 +444,14 @@ class BreadthFirstSearchApp(
 
 }
 
-class WriteDatabaseApp(spark:SparkSession, val hs: HiveWarehouseSession, inputPath:String, outputPath:String, delimiter:String) extends MPMGApp {
+class WriteDatabaseApp(spark:SparkSession, val hs: HiveWarehouseSession, inputPath:String, tableName:String, delimiter:String) extends MPMGApp {
   
   def execute: Unit = {
 
     hs.setDatabase("tmp")
-    hs.createTable(outputPath).ifNotExists().column("clique_id", "bigint").column("vertex_id", "bigint").create()
+    hs.createTable(tableName).ifNotExists().column("clique_id", "bigint").column("vertex_id", "bigint").create()
     var df = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("clique_id", "vertex_id")
-    df.write.format(HIVE_WAREHOUSE_CONNECTOR).mode("overwrite").option("table", outputPath).save()
+    df.write.format(HIVE_WAREHOUSE_CONNECTOR).mode("overwrite").option("table", tableName).save()
 
   }
 
@@ -574,11 +574,11 @@ object MPMGSparkRunner {
         val hs = utilApp.getCreateHiveSession(ss)
 
         val inputPath = appConfig("input_path").str
-        val outputPath = appConfig("output_path").str
+        val tableName = appConfig("table_name").str
         var delimiter = appConfig("delimiter").str
 
         /* Execute app */
-        val app = new WriteDatabaseApp(ss, hs, inputPath, outputPath, delimiter)
+        val app = new WriteDatabaseApp(ss, hs, inputPath, tableName, delimiter)
         app.execute
         ss.close()
       }
