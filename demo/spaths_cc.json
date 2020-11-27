@@ -40,12 +40,12 @@
     }
   ],
   "app": {
-    "name": "spaths_cc", 
-    "input_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-cnpj-tel2.csv",
-    "cc_input_path":"hdfs://hadoopgsiha/dados-fractal/output-cc.csv",
+    "name": "spaths_cc",
+    "input_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-caminhos-cnpj-tel2.csv",
+    "cc_input_path":"hdfs://hadoopgsiha/dados-fractal/output-connected-components-caminhos.csv", 
     "output_path":"/home/ufmg.m06dcc/repositories/M06/output-spaths_cc.csv",
     "delimiter":",",
-    "steps":5,
+    "max_size":5,
     "ccid":197568496035
   }
 }

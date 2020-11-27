@@ -41,8 +41,8 @@
   ],
   "app": {
     "name": "cliques", 
-    "input_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-cnpj-tel.csv",
-    "steps" : 1, 
+    "input_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-cliques.csv",
+    "size" : 3, 
     "output_path": "hdfs://hadoopgsiha/dados-fractal/output-cliques/output-cliques.csv"
   }
 }

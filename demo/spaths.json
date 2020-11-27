@@ -41,8 +41,8 @@
   ],
   "app": {
     "name": "spaths", 
-    "input_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-cnpj-tel.csv",
-    "steps" : 10, 
-    "output_path":"/home/ufmg.m06dcc/repositories/M06/spaths-tel-full-step-10.csv"
+    "input_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-caminhos-cnpj-tel.csv",
+    "max_size" : 5, 
+    "output_path":"hdfs://hadoopgsiha/dados-fractal/output-spaths.csv"
   }
 }

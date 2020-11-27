@@ -40,9 +40,9 @@
     }
   ],
   "app": {
-    "name": "tricount", 
-    "input_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-cliques2.csv",
-    "output_path": "hdfs://hadoopgsiha/dados-fractal/output-tricount.csv",
+    "name": "connected_components", 
+    "input_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-cliques.csv",
+    "output_path": "hdfs://hadoopgsiha/dados-fractal/output-connected-components-cliques.csv",
     "delimiter": ",",
     "checkpoint_dir":"hdfs://hadoopgsiha/dados-fractal/cpdir"
   }

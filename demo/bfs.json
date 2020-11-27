@@ -41,11 +41,11 @@
   ],
   "app": {
     "name": "bfs", 
-    "input_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-cnpj-tel2.csv",
-    "cc_input_path":"hdfs://hadoopgsiha/dados-fractal/output-cc.csv",
+    "input_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-caminhos-cnpj-tel2.csv",
+    "cc_input_path":"hdfs://hadoopgsiha/dados-fractal/output-connected-components-caminhos.csv",
     "output_path":"/home/ufmg.m06dcc/repositories/M06/output-bfs.csv",
     "delimiter":",",
-    "steps":5,
+    "max_size":5,
     "ccid":197568496035
   }
 }

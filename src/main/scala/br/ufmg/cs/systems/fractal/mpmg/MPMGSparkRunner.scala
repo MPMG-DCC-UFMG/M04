@@ -10,6 +10,8 @@ import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import com.hortonworks.spark.sql.hive.llap.HiveWarehouseBuilder;
 import com.hortonworks.spark.sql.hive.llap.HiveWarehouseSession;
+import com.hortonworks.spark.sql.hive.llap.HiveWarehouseSession._;
+
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.{GraphLoader, PartitionStrategy}
 import org.apache.spark.graphx.Graph
@@ -147,19 +149,19 @@ trait MPMGApp extends Logging {
 class CliquesApp(
                   val fractalGraph: FractalGraph,
                   algs: FractalAlgorithms,
-                  explorationSteps: Int) extends FractalSparkApp with MPMGApp {
+                  size: Int) extends FractalSparkApp with MPMGApp {
   var app: Fractoid[VertexInducedSubgraph] = _
 
   def execute: Unit = {
-    val cliquesRes = algs.cliques(fractalGraph, (explorationSteps + 1)).
-      explore(explorationSteps)
+    val cliquesRes = algs.cliques(fractalGraph, size).
+      explore(size-1)
 
     val (accums, elapsed) = FractalSparkRunner.time {
       cliquesRes.compute()
     }
 
     logInfo(s"CliquesOptApp" +
-      s" explorationSteps=${explorationSteps}" +
+      s" size=${size}" +
       s" graph=${fractalGraph} " +
       s" numValidSubgraphs=${cliquesRes.numValidSubgraphs()} elapsed=${elapsed}"
     )
@@ -178,7 +180,7 @@ class CliquesApp(
 
     // But BufferedOutputStream must be used to output an actual text file.
     val os = new BufferedOutputStream(output)
-    os.write("Identificador da clique,Identificador do vértice participante\n".getBytes("UTF-8"))
+    //os.write("Identificador da clique,Identificador do vértice participante\n".getBytes("UTF-8"))
 
     var i = 1
     var iter_var = app.mappedSubgraphs.toLocalIterator
@@ -292,13 +294,13 @@ class TriangleCountingApp(var graph:GraphFrame) extends MPMGApp {
   }
 }
 
-class ShortestPathsByCCApp(
+class ShortestPathsComponentsApp(
     spark:SparkSession,
     inputPath:String,
     ccInputPath:String,
     outputPath:String,
     delimiter:String,
-    steps:Int,
+    max_size:Int,
     ccid:Option[Long],
     fc:FractalContext, 
     algs: FractalAlgorithms) extends MPMGApp {
@@ -342,7 +344,7 @@ class ShortestPathsByCCApp(
       val vertexMap = new MapVerticesApp(fractalGraph, algs) 
       vertexMap.execute 
     
-      val app = new ShortestPathsApp(fractalGraph, algs, steps)
+      val app = new ShortestPathsApp(fractalGraph, algs, max_size)
       app.execute
 
       app.writeResults(outputPath, vertexMap.app)
@@ -361,7 +363,7 @@ class BreadthFirstSearchApp(
     ccInputPath:String, 
     outputPath:String, 
     delimiter:String, 
-    steps:Int, 
+    max_size:Int, 
     ccid:Option[Long]) extends MPMGApp {
 
   def execute:Unit = {
@@ -408,7 +410,7 @@ class BreadthFirstSearchApp(
         val fromV = row(0).asInstanceOf[String]
         val toV = row(2).asInstanceOf[String]
         if ( (fromV < toV) ) { // && (!fromV.startsWith("tel")) && (!toV.startsWith("tel")) ){
-          val paths = graph.bfs.fromExpr("id = '" + fromV + "'").toExpr("id = '" + toV + "'").maxPathLength(steps).run()
+          val paths = graph.bfs.fromExpr("id = '" + fromV + "'").toExpr("id = '" + toV + "'").maxPathLength(max_size).run()
           val localPaths = paths.collect()
           val localPathsSize = localPaths(0).size
           val vertexPathSize = localPathsSize/2 + 1
@@ -442,15 +444,14 @@ class BreadthFirstSearchApp(
 
 }
 
-class WriteDatabaseApp(val hs: HiveWarehouseSession, query:String) extends MPMGApp {
+class WriteDatabaseApp(spark:SparkSession, val hs: HiveWarehouseSession, inputPath:String, outputPath:String, delimiter:String) extends MPMGApp {
   
   def execute: Unit = {
 
-    //val create_query = "CREATE EXTERNAL TABLE IF NOT EXISTS tmp.tb_cliques3 (vertex_id STRING, clique_id STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LOCATION '" + filePath + "'"
-    hs.executeUpdate(query)
-
-    //val query = "LOAD DATA LOCAL INPATH " + filePath + " OVERWRITE INTO TABLE tmp.tb_cliques"
-    //hs.executeUpdate(query.toString())
+    hs.setDatabase("tmp")
+    hs.createTable(outputPath).ifNotExists().column("clique_id", "bigint").column("vertex_id", "bigint").create()
+    var df = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("clique_id", "vertex_id")
+    df.write.format(HIVE_WAREHOUSE_CONNECTOR).mode("overwrite").option("table", outputPath).save()
 
   }
 
@@ -524,7 +525,7 @@ object MPMGSparkRunner {
         /* Execute app */
         val vertexMap = new MapVerticesApp(fractalGraph, algs) //TODO: put this as an application (map the input and the output of fractal)
         //vertexMap.execute
-        val app = new CliquesApp(fractalGraph, algs, appConfig("steps").num.toInt)
+        val app = new CliquesApp(fractalGraph, algs, appConfig("size").num.toInt)
         app.execute
 
         //write output results
@@ -545,7 +546,7 @@ object MPMGSparkRunner {
         /* Execute app */
         val vertexMap = new MapVerticesApp(fractalGraph, algs) //TODO: put this as an application (map the input and the output of fractal)
         vertexMap.execute //TODO: remove this from here, use as an application
-        val app = new ShortestPathsApp(fractalGraph, algs, appConfig("steps").num.toInt)
+        val app = new ShortestPathsApp(fractalGraph, algs, appConfig("max_size").num.toInt)
         app.execute
 
         //write output results
@@ -572,11 +573,12 @@ object MPMGSparkRunner {
         val ss = utilApp.getCreateSparkSession(config, null, "spark_database")
         val hs = utilApp.getCreateHiveSession(ss)
 
+        val inputPath = appConfig("input_path").str
+        val outputPath = appConfig("output_path").str
         var delimiter = appConfig("delimiter").str
-        if (delimiter.isEmpty) delimiter = " "
 
         /* Execute app */
-        val app = new WriteDatabaseApp(hs, appConfig("query").str)
+        val app = new WriteDatabaseApp(ss, hs, inputPath, outputPath, delimiter)
         app.execute
         ss.close()
       }
@@ -665,7 +667,7 @@ object MPMGSparkRunner {
         val ccInputPath = appConfig("cc_input_path").str
 	val outputPath = appConfig("output_path").str
         val delimiter = appConfig("delimiter").str
-        val steps = appConfig("steps").num.toInt
+        val max_size = appConfig("max_size").num.toInt
         var ccid:Option[Long] = None
         try{
           val ccid_aux = appConfig("ccid").num.toLong
@@ -677,7 +679,7 @@ object MPMGSparkRunner {
 
         val sc = ss.sparkContext
 
-        val app = new BreadthFirstSearchApp(ss, inputPath, ccInputPath, outputPath, delimiter, steps, ccid)
+        val app = new BreadthFirstSearchApp(ss, inputPath, ccInputPath, outputPath, delimiter, max_size, ccid)
 
         app.execute
 
@@ -695,14 +697,14 @@ object MPMGSparkRunner {
         val ccInputPath = appConfig("cc_input_path").str
         val outputPath = appConfig("output_path").str
         val delimiter = appConfig("delimiter").str
-        val steps = appConfig("steps").num.toInt
+        val max_size = appConfig("max_size").num.toInt
         var ccid:Option[Long] = None
         try{
           val ccid_aux = appConfig("ccid").num.toLong
           ccid = Some(ccid_aux)
         } catch { case _:Throwable => {}}
         
-        val app = new ShortestPathsByCCApp(ss, inputPath, ccInputPath, outputPath, delimiter, steps, ccid, fc, algs)
+        val app = new ShortestPathsComponentsApp(ss, inputPath, ccInputPath, outputPath, delimiter, max_size, ccid, fc, algs)
 
         app.execute
 

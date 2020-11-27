@@ -2,15 +2,27 @@
   "spark_fractal": [
     {
       "name": "spark.master",
-      "value": "local"
+      "value": "local[*]"
     },
-    {
+    { 
       "name": "spark.driver.host",
       "value": "10.21.0.127"
     },
-    {
+    { 
+      "name": "spark.driver.memory",
+      "value": "200g"
+    },
+    { 
+      "name": "spark.executor.cores",
+      "value": "5"
+    },
+    { 
+      "name": "spark.executor.instances",
+      "value": "4"
+    },
+    { 
       "name": "spark.executor.memory",
-      "value": "4g"
+      "value": "40g"
     }
   ],
   "spark_database": [
@@ -24,7 +36,7 @@
     },
     {
       "name": "spark.executor.memory",
-      "value": "4g"
+      "value": "6g"
     },
     {
       "name": "spark.hadoop.hive.llap.daemon.service.hosts",
@@ -40,10 +52,9 @@
     }
   ],
   "app": {
-    "name": "tricount", 
-    "input_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-cliques2.csv",
-    "output_path": "hdfs://hadoopgsiha/dados-fractal/output-tricount.csv",
-    "delimiter": ",",
-    "checkpoint_dir":"hdfs://hadoopgsiha/dados-fractal/cpdir"
+    "name" : "read_database",
+    "query": "select * from tmp.teste",
+    "output_path": "hdfs://hadoopgsiha/dados-fractal/output-read-database-tmp.tb_cliques.csv",
+    "delimiter" : ","
   }
 }
