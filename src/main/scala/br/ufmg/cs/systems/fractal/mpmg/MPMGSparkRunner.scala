@@ -435,9 +435,13 @@ class WriteDatabaseApp(
   
   def execute: Unit = {
 
-    hs.setDatabase(databaseName)
+    var dbName = databaseName
+    if (dbName != "") {
+    	hs.setDatabase(databaseName)
+	dbName = dbName + "."
+     }
     //hs.createTable(tableName).ifNotExists().column("clique_id", "bigint").column("vertex_id", "bigint").create()
-    val dropQuery = "DROP TABLE IF EXISTS " + databaseName + "." + tableName
+    val dropQuery = "DROP TABLE IF EXISTS " + dbName + tableName
     hs.executeUpdate(dropQuery)
 
     var createQuery = "CREATE TABLE " + tableName + " ("
