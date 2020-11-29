@@ -94,28 +94,6 @@ class HiveApp(val configPath: String) extends Logging {
     buffer.close()
     //edges.coalesce(1).write.format("com.databricks.spark.csv").mode("overwrite").save(filePath)
   }
-
-  /**
-   * Read from disk write in hive/database
-   */
-  def readWriteOutput(filePath: String): Unit = {
-    if (filePath.isEmpty) return
-
-    logInfo(s"\tReading data from: ${filePath}")
-    val table = databaseConfigs("output_table_name").str
-    val query = new StringBuilder(s"INSERT INTO TABLE ${table} VALUES")
-    logInfo(s"\tExecuting query: ${query}")
-
-    /*val linesIterator = Source.fromFile(filePath).getLines
-    linesIterator.next
-    for (line <- linesIterator) {
-      query.append(s" (${line}),")
-    }
-    query.deleteCharAt(query.length - 1)
-
-    logInfo(s"\tWriting data to table ${table} with query ${query}")
-    hiveSession.executeUpdate(query.toString())*/
-  }
 }
 
 class MapVerticesApp(val fractalGraph: FractalGraph,
@@ -317,8 +295,9 @@ class ShortestPathsComponentsApp(
     var allVertexCC = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(ccInputPath).toDF("vertex", "cc")
 
     //3. carrega os pares de vertices do grafo completo
-    var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst", "edgeType").drop("edgeType")
-
+    //var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst", "edgeType").drop("edgeType")
+    var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst")
+    
     var tmpComponents:Any = None
     if(ccid == None) tmpComponents = components.collect()
     else {
@@ -375,7 +354,8 @@ class BreadthFirstSearchApp(
     var allVertexCC = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(ccInputPath).toDF("vertex", "cc")
 
     //3. carrega os pares de vertices do grafo completo
-    var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst", "edgeType").drop("edgeType")
+    //var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst", "edgeType").drop("edgeType")
+    var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst")
 
     var tmpComponents:Any = None 
     if(ccid == None) tmpComponents = components.collect()
@@ -444,13 +424,32 @@ class BreadthFirstSearchApp(
 
 }
 
-class WriteDatabaseApp(spark:SparkSession, val hs: HiveWarehouseSession, inputPath:String, tableName:String, delimiter:String) extends MPMGApp {
+class WriteDatabaseApp(
+        spark:SparkSession, 
+	val hs: HiveWarehouseSession, 
+	inputPath:String, 
+        databaseName:String,
+	tableName:String, 
+	columnNames:String, 
+	delimiter:String) extends MPMGApp {
   
   def execute: Unit = {
 
-    hs.setDatabase("tmp")
-    hs.createTable(tableName).ifNotExists().column("clique_id", "bigint").column("vertex_id", "bigint").create()
-    var df = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("clique_id", "vertex_id")
+    hs.setDatabase(databaseName)
+    //hs.createTable(tableName).ifNotExists().column("clique_id", "bigint").column("vertex_id", "bigint").create()
+    val dropQuery = "DROP TABLE IF EXISTS " + databaseName + "." + tableName
+    hs.executeUpdate(dropQuery)
+
+    var createQuery = "CREATE TABLE " + tableName + " ("
+    
+    val columnNamesArr = columnNames.split(",")
+    columnNamesArr.foreach(colName => {createQuery = createQuery + colName + " String,"})
+    createQuery = createQuery.substring(0, createQuery.length - 1)
+    createQuery = createQuery + ") ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'"
+    hs.executeUpdate(createQuery)
+    
+    //var df = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("clique_id", "vertex_id")
+    var df = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF(columnNamesArr: _*)
     df.write.format(HIVE_WAREHOUSE_CONNECTOR).mode("overwrite").option("table", tableName).save()
 
   }
@@ -509,9 +508,6 @@ object MPMGSparkRunner {
     //running fractal application
     val algs = new FractalAlgorithms //TODO: extends this class to be Algorithms (Fractal and Database algorithms)
 
-    val outputPath = appConfig("output_path").str
-    //if (outputPath.isEmpty) throw new RuntimeException(s"Unknown output_path")
-
     appConfig("name").str.toLowerCase match {
       case "cliques" => {
         /* fractal and its spark initialization */
@@ -520,6 +516,7 @@ object MPMGSparkRunner {
         val fc = new FractalContext(ss.sparkContext)
         val inputPath = appConfig("input_path").str
         if (inputPath.isEmpty) throw new RuntimeException(s"Unknown input_fractal_path")
+        val outputPath = appConfig("output_path").str
         val fractalGraph = fc.textFile(inputPath, "br.ufmg.cs.systems.fractal.graph.EdgeListGraph")
 
         /* Execute app */
@@ -541,6 +538,7 @@ object MPMGSparkRunner {
         val fc = new FractalContext(ss.sparkContext)
         val inputPath = appConfig("input_path").str
         if (inputPath.isEmpty) throw new RuntimeException(s"Unknown input_path")
+        val outputPath = appConfig("output_path").str
         val fractalGraph = fc.textFile(inputPath, "br.ufmg.cs.systems.fractal.graph.EdgeListGraph")
 
         /* Execute app */
@@ -561,6 +559,7 @@ object MPMGSparkRunner {
 
         var delimiter = appConfig("delimiter").str
         if (delimiter.isEmpty) delimiter = " "
+        val outputPath = appConfig("output_path").str
 
         /* Execute app */
         val app = new ReadDatabaseApp(hs, appConfig("query").str)
@@ -574,11 +573,14 @@ object MPMGSparkRunner {
         val hs = utilApp.getCreateHiveSession(ss)
 
         val inputPath = appConfig("input_path").str
+        val databaseName = appConfig("database_name").str
         val tableName = appConfig("table_name").str
+        var columnNames = appConfig("column_names").str
         var delimiter = appConfig("delimiter").str
 
+
         /* Execute app */
-        val app = new WriteDatabaseApp(ss, hs, inputPath, tableName, delimiter)
+        val app = new WriteDatabaseApp(ss, hs, inputPath, databaseName, tableName, columnNames, delimiter)
         app.execute
         ss.close()
       }
@@ -592,6 +594,8 @@ object MPMGSparkRunner {
 
         var checkpointDir = appConfig("checkpoint_dir").str
         if (checkpointDir.isEmpty) checkpointDir = "/checkpoint-dir"
+
+        val outputPath = appConfig("output_path").str
 
         /* fractal and its spark initialization */
         val ss = utilApp.getCreateSparkSession(config, null, "spark_fractal")
@@ -632,6 +636,8 @@ object MPMGSparkRunner {
 
         var checkpointDir = appConfig("checkpoint_dir").str
         if (checkpointDir.isEmpty) checkpointDir = "/checkpoint-dir"
+
+        val outputPath = appConfig("output_path").str
 
         /* fractal and its spark initialization */
         val ss = utilApp.getCreateSparkSession(config, null, "spark_fractal")

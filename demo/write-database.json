@@ -54,7 +54,9 @@
   "app": {
     "name" :"write_database",
     "input_path":"hdfs://hadoopgsiha/dados-fractal/output-cliques",
-    "output_path":"tb_cliques",
+    "database_name":"tmp", 
+    "table_name":"tb_cliques",
+    "column_names":"clique_id,vertex_id",
     "delimiter":","
   }
 }

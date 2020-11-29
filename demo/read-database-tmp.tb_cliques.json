@@ -53,8 +53,9 @@
   ],
   "app": {
     "name" : "read_database",
-    "query": "select * from tmp.teste",
-    "output_path": "hdfs://hadoopgsiha/dados-fractal/output-read-database-tmp.tb_cliques.csv",
+    "query": "select * from tmp.mytable",
+    "output_path2": "hdfs://hadoopgsiha/dados-fractal/output-read-database-tb_cliques.csv",
+    "output_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-mytable.csv",
     "delimiter" : ","
   }
 }

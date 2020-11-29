@@ -40,13 +40,9 @@
     }
   ],
   "app": {
-    "name": "bfs", 
-    "query": "select distinct concat('cnpj_',cnpj) no1, concat('tel_',ddd_telefone) no2, 'telefone' tipo_aresta from (select distinct cnpj, regexp_replace(ddd_telefone, '(^0+(.*?))|([^0-9]+)', '') ddd_telefone from (select B.cnpj, B.ddd_telefone_1, B.ddd_telefone_2 from postgres_olap_lins.dim_licitacao_habilitado A left join dataset.rfb_cnpj_201905 B on A.num_documento = B.cnpj) as rfb lateral view explode(array(translate(ddd_telefone_1, ' ', ''), translate(ddd_telefone_2, ' ', ''))) rfb as ddd_telefone) A where length(ddd_telefone) between 9 and 11 and not (ddd_telefone regexp '0{7,11}|1{7,11}|2{7,11}|3{7,11}|4{7,11}|5{7,11}|6{7,11}|7{7,11}|8{7,11}|9{7,11}')", 
-    "input_path": "hdfs://hadoopgsiha/dados-fractal/output-query-database-tel-full.csv", 
-    "steps" : 1, 
-    "output_path": "hdfs://hadoopgsiha/dados-fractal/outputtc_graphframes_tel-full.csv",
-    "output_path1": "hdfs://hadoopgsiha/dados-fractal/output-query-database-tel-full.csv",
-    "delimiter": ",",
-    "checkpoint_dir":"/home/ufmg.m06dcc/cpdir"
+    "name": "cliques",
+    "size":3, 
+    "input_path":"hdfs://hadoopgsiha/dados-fractal/output-database.csv",
+    "output_path": "hdfs://hadoopgsiha/dados-fractal/output-cc.csv"
   }
 }
