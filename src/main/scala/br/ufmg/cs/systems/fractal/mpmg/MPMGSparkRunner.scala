@@ -180,7 +180,8 @@ class ShortestPathsApp(
                         val fractalGraph: FractalGraph,
                         algs: FractalAlgorithms,
                         explorationSteps: Int) extends FractalSparkApp with MPMGApp {
-  var app: Fractoid[EdgeInducedSubgraph] = _
+  //var app: Fractoid[EdgeInducedSubgraph] = _
+  var app: Map[(Int, Int), IntArrayList] = _
 
   def execute: Unit = {
     val (pathsf, elapsed) = FractalSparkRunner.time {
@@ -189,28 +190,41 @@ class ShortestPathsApp(
     logInfo(s"ShortestPathsApp" +
       s" explorationSteps=${explorationSteps}" +
       s" graph=${fractalGraph} " +
-      s" numValidSubgraphs=${pathsf.numValidSubgraphs()} elapsed=${elapsed}"
+      s" numValidSubgraphs=${pathsf.size} elapsed=${elapsed}"
     )
 
     app = pathsf
   }
 
   override def writeResults(filePath: String, vertexMap: Map[IntWritable, Text]): Unit = {
-    val outputBuffer = new BufferedWriter(new FileWriter(new File(filePath)))
-    outputBuffer.write("Identificador do caminho,Identificador do vértice participante,Vértice origem,Vértice destino\n")
+    val conf = new org.apache.hadoop.conf.Configuration();
+    val path = new Path(filePath)
+    val fs = path.getFileSystem(conf)
+
+    // Output file can be created from file system.
+    val output = fs.create(path);
+
+    // But BufferedOutputStream must be used to output an actual text file.
+    val os = new BufferedOutputStream(output)
+
+    //os.write("Identificador do caminho,Identificador do vértice participante,Vértice origem,Vértice destino\n")
 
     var i = 1
-    app.aggregationMap[PairWritable[IntWritable, IntWritable], IntArrayList]("sps").foreach {
+    //app.aggregationMap[PairWritable[IntWritable, IntWritable], IntArrayList]("sps").foreach {
+    app.foreach {
       case (pair, path) => {
         val it = path.iterator
         while (it.hasNext) {
           val id = new IntWritable(it.next())
-          outputBuffer.write(s"${i},${vertexMap(id)},${vertexMap(pair.getLeft)},${vertexMap(pair.getRight)}\n")
+          val orig = new IntWritable(pair._1)
+          val dest = new IntWritable(pair._2)
+          //os.write(s"${i},${vertexMap(id)},${vertexMap(pair.getLeft)},${vertexMap(pair.getRight)}\n".getBytes("UTF-8"))
+          os.write(s"${i},${vertexMap(id)},${vertexMap(orig)},${vertexMap(dest)}\n".getBytes("UTF-8"))
         }
         i += 1 // todo: validate if is don't collide
       }
     }
-    outputBuffer.close()
+    os.close()
   }
 
   def writeResults(filePath: String, delimiter: String): Unit = {}
@@ -235,7 +249,7 @@ class ConnectedComponentsApp(var graph:GraphFrame) extends MPMGApp {
   def characterize(spark: SparkSession, sc: SparkContext, filePath: String, delimiter: String): Unit = {
 
     val longs = sc.textFile(filePath)
-    val counts = longs.map(x=>{x.split(delimiter)(1).toLong}).countByValue()
+    val counts = longs.map(x=>{val columns = x.split(delimiter); columns(columns.length - 1).toLong}).countByValue()
     val sorted = ListMap(counts.toSeq.sortWith(_._2 > _._2):_*)
 
     val df = spark.createDataFrame(sorted.toSeq)
@@ -262,8 +276,14 @@ class TriangleCountingApp(var graph:GraphFrame) extends MPMGApp {
 
   def characterize(spark: SparkSession, filePath: String, delimiter: String): Unit = {
 
-    val longs = spark.sparkContext.textFile(filePath)
-    val counts = longs.map(x=>{val arr = x.split(delimiter); (arr(0).toString,arr(1).toLong)})
+    val lines = spark.sparkContext.textFile(filePath)
+    //val counts = longs.map(x=>{val arr = x.split(delimiter); (arr(0).toString,arr(1).toLong)})
+    val counts = lines.map(l => {
+        val lastIndexOfDelimiter = l.lastIndexOf(delimiter);
+        val vertexId = l.substring(0, lastIndexOfDelimiter); 
+        val numTriangle = l.substring(lastIndexOfDelimiter + 1).toLong;
+        (vertexId,numTriangle)
+    })
     val df = spark.createDataFrame(counts.collect())
     val total_triangle = df.agg(sum("_2")).first.getLong(0) / 3
     import spark.implicits._ 
@@ -296,7 +316,13 @@ class ShortestPathsComponentsApp(
 
     //3. carrega os pares de vertices do grafo completo
     //var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst", "edgeType").drop("edgeType")
-    var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst")
+    //var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst")
+    var wholeGraphDF:DataFrame = null.asInstanceOf[DataFrame]
+    try {
+      wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst", "tipo_aresta").drop("tipo_aresta")
+    } catch {
+      case e:Exception => wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst")
+    }
     
     var tmpComponents:Any = None
     if(ccid == None) tmpComponents = components.collect()
@@ -355,7 +381,13 @@ class BreadthFirstSearchApp(
 
     //3. carrega os pares de vertices do grafo completo
     //var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst", "edgeType").drop("edgeType")
-    var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst")
+    //var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst")
+    var wholeGraphDF:DataFrame = null.asInstanceOf[DataFrame]
+    try {
+      wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst", "tipo_aresta").drop("tipo_aresta")
+    } catch {
+      case e:Exception => wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst")
+    }
 
     var tmpComponents:Any = None 
     if(ccid == None) tmpComponents = components.collect()
@@ -502,7 +534,7 @@ object MPMGSparkRunner {
 
   def main(args: Array[String]) {
     //args
-    val configPath = args(0)
+    val configPath = args(2)
     val utilApp = new UtilApp
     val config = utilApp.readConfig(configPath)
 
@@ -553,6 +585,7 @@ object MPMGSparkRunner {
 
         //write output results
         app.writeResults(outputPath, vertexMap.app)
+        //app.writeResults(outputPath)
         fc.stop()
         ss.stop()
       }
