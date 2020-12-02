@@ -214,10 +214,10 @@ class ShortestPathsApp(
     app.foreach {
       case (pair, path) => {
         val it = path.iterator
+        val orig = new IntWritable(pair._1)
+        val dest = new IntWritable(pair._2)
         while (it.hasNext) {
           val id = new IntWritable(it.next())
-          val orig = new IntWritable(pair._1)
-          val dest = new IntWritable(pair._2)
           //os.write(s"${i},${vertexMap(id)},${vertexMap(pair.getLeft)},${vertexMap(pair.getRight)}\n".getBytes("UTF-8"))
           os.write(s"${i},${vertexMap(id)},${vertexMap(orig)},${vertexMap(dest)}\n".getBytes("UTF-8"))
         }
