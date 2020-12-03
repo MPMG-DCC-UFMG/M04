@@ -1,0 +1,49 @@
+{
+  "spark_fractal": [
+    {
+      "name": "spark.master",
+      "value": "local"
+    },
+    {
+      "name": "spark.driver.host",
+      "value": "10.21.0.127"
+    },
+    {
+      "name": "spark.executor.memory",
+      "value": "4g"
+    }
+  ],
+  "spark_database": [
+    {
+      "name": "spark.master",
+      "value": "yarn"
+    },
+    {
+      "name": "spark.driver.host",
+      "value": "10.21.0.127"
+    },
+    {
+      "name": "spark.executor.memory",
+      "value": "4g"
+    },
+    {
+      "name": "spark.hadoop.hive.llap.daemon.service.hosts",
+      "value": "@llap0"
+    },
+    {
+      "name": "spark.sql.hive.hiveserver2.jdbc.url",
+      "value": "jdbc:hive2://hadoopmn-gsi-prod01.mpmg.mp.br:2181,hadoopmn-gsi-prod02.mpmg.mp.br:2181,hadoopmn-gsi-prod03.mpmg.mp.br:2181/dataset;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2;AuthMech=3;password=UFMGtrilhas2020;user=trilhasgsi"
+    },
+    {
+      "name": "spark.datasource.hive.warehouse.exec.results.max",
+      "value": "2147483647"
+    }
+  ],
+  "app": {
+    "name": "connected_components", 
+    "input_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-caminhos-cnpj-tel2.csv",
+    "output_path": "hdfs://hadoopgsiha/dados-fractal/output-connected-components-caminhos-cnpj-tel.csv",
+    "delimiter": ",",
+    "checkpoint_dir":"hdfs://hadoopgsiha/dados-fractal/cpdir"
+  }
+}

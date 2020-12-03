@@ -112,22 +112,20 @@ class FractalAlgorithms extends Logging {
          val (_, firstVertex, lastVertex) = checkPath(s)
          val p = new PairWritable(new IntWritable(firstVertex),
             new IntWritable(lastVertex))
-         logFunc(s"MapKey iteration=-1 vertices=${s.getVertices} " +
-            s"key=${p}")
+         //logFunc(s"MapKey iteration=-1 vertices=${s.getVertices} " + s"key=${p}")
          p
       }
 
       val mapValueFunc: (EdgeInducedSubgraph,
          Computation[EdgeInducedSubgraph], IntArrayList) => (IntArrayList) =
          (s,c,v) => {
-         logFunc(s"MapValue iteration=-1 vertices=${s.getVertices} " +
-            s"value=${s.getVertices}")
+         //logFunc(s"MapValue iteration=-1 vertices=${s.getVertices} " + s"value=${s.getVertices}")
          s.getVertices
       }
 
       val reduceFunc: (IntArrayList, IntArrayList) => IntArrayList =
          (value1, value2) => {
-         logFunc(s"Reduce iteration=-1 value1=${value1} value2=${value2}")
+         //logFunc(s"Reduce iteration=-1 value1=${value1} value2=${value2}")
          value1
       }
 
@@ -148,8 +146,8 @@ class FractalAlgorithms extends Logging {
       var allPaths = Map.empty[(Int, Int), IntArrayList]
       spaths.foreach(kv => allPaths.put((kv._1.getLeft().get(), kv._1.getRight().get()), kv._2))
 
-      spaths.foreach(kv => logFunc(s"Spaths iteration=-1 ${kv}"))
-      allPaths.foreach(kv => logFunc(s"AllPaths iteration=-1 ${kv}"))
+      //spaths.foreach(kv => logFunc(s"Spaths iteration=-1 ${kv}"))
+      //allPaths.foreach(kv => logFunc(s"AllPaths iteration=-1 ${kv}"))
 
       var remainingSteps = numSteps - 1
       var continue = true
@@ -171,11 +169,11 @@ class FractalAlgorithms extends Logging {
                val pathNotFound = !allPathsBc.value.contains(
                   (firstVertex, lastVertex))
 
-               logFunc(s"Filtering iteration=${iteration} step=${c.getStep}" +
+               /*logFunc(s"Filtering iteration=${iteration} step=${c.getStep}" +
                   s" partitionId=${c.getPartitionId}" +
                   s" subgraph=${s.getVertices} pathFound=${pathNotFound}" +
                   s" isPath=${isPath} mapSize=${allPathsBc.value.size}" +
-                  s" mapIdentity=${System.identityHashCode(allPathsBc.value)}")
+                  s" mapIdentity=${System.identityHashCode(allPathsBc.value)}")*/
 
                pathNotFound && isPath
             }
@@ -195,17 +193,17 @@ class FractalAlgorithms extends Logging {
          allPaths = newAllPaths
          val new_size = allPaths.size
 
-         spaths.foreach(kv => logFunc(s"Spaths" +
+         /*spaths.foreach(kv => logFunc(s"Spaths" +
             s" iteration=${iteration} ${kv}"))
          allPaths.foreach(kv => logFunc(s"AllPaths" +
-            s" iteration=${iteration} ${kv}"))
+            s" iteration=${iteration} ${kv}"))*/
 
          remainingSteps -= 1
          continue = previous_size < new_size && remainingSteps > 0
-         logFunc(s"IterationFinished iteration=${iteration}" +
+         /*logFunc(s"IterationFinished iteration=${iteration}" +
             s" remainingSteps=${remainingSteps}" +
             s" previousSize=${previous_size} newSize=${new_size}" +
-            s" continue=${continue}")
+            s" continue=${continue}")*/
 
          iteration += 1
       }
