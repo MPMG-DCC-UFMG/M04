@@ -5,6 +5,7 @@ import br.ufmg.cs.systems.fractal.subgraph._
 import br.ufmg.cs.systems.fractal.util.collection.IntArrayList
 import br.ufmg.cs.systems.fractal.util.{Logging, PairWritable}
 import org.apache.hadoop.fs.Path
+import org.apache.hadoop.fs.FSDataOutputStream
 import org.apache.hadoop.io.{IntWritable, Text}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -24,6 +25,7 @@ import scala.collection.mutable.ArrayBuffer
 
 import java.io.BufferedOutputStream
 import java.io.FileOutputStream
+import java.io.PrintStream
 import org.graphframes.GraphFrame
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Row
@@ -203,14 +205,19 @@ class ShortestPathsApp(
     val fs = path.getFileSystem(conf)
 
     // Output file can be created from file system.
-    //val output = fs.create(path);
+    var output:FSDataOutputStream = null.asInstanceOf[FSDataOutputStream] 
+    if(append){
+      if(fs.exists(path)) {
+        output = fs.append(path)
+      } else {
+        output = fs.create(path)
+      }
+    } else {
+      output = fs.create(path);
+    }
 
     // But BufferedOutputStream must be used to output an actual text file.
-    //var os = new BufferedOutputStream(output)
-    //if(append) {
-      //os.close()
-    var  os = new BufferedWriter(new FileWriter(new File(filePath), append))
-    //}
+    var os = new BufferedOutputStream(output)
 
     //os.write("Identificador do caminho,Identificador do vértice participante,Vértice origem,Vértice destino\n")
 
@@ -225,11 +232,7 @@ class ShortestPathsApp(
           val id = new IntWritable(it.next())
           if(orig.get() > -1 && dest.get() > -1){
           //os.write(s"${i},${vertexMap(id)},${vertexMap(pair.getLeft)},${vertexMap(pair.getRight)}\n".getBytes("UTF-8"))
-          //os.write(s"${i},${vertexMap(id)},${vertexMap(orig)},${vertexMap(dest)}\n".getBytes("UTF-8"))
-          //print("id:" + id + "\n")
-          //print("orig:" + orig + "\n")
-	  //print("dest:" + dest + "\n")
-          os.write(s"${i},${vertexMap(id)},${vertexMap(orig)},${vertexMap(dest)}\n")
+            os.write(s"${i},${vertexMap(id)},${vertexMap(orig)},${vertexMap(dest)}\n".getBytes("UTF-8"))
           }
         }
         
@@ -327,8 +330,6 @@ class ShortestPathsComponentsApp(
     var allVertexCC = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(ccInputPath).toDF("vertex", "cc")
 
     //3. carrega os pares de vertices do grafo completo
-    //var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst", "edgeType").drop("edgeType")
-    //var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst")
     var wholeGraphDF:DataFrame = null.asInstanceOf[DataFrame]
     try {
       wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst", "tipo_aresta").drop("tipo_aresta")
@@ -444,11 +445,6 @@ class BreadthFirstSearchApp(
           val vertexPathSize = localPathsSize/2 + 1
           val localPathsStringArr = localPaths.map(row => {
             var pathStringArr:Array[String] = new Array[String](vertexPathSize)
-            //pathStringArr(0) = row(0).toString
-            //pathStringArr(1) = row(localPathsSize - 1).toString
-            //for (vindex <- 0 to (vertexPathSize - 1)){
-            //  pathStringArr(vindex) = row( (vindex-1)*2 ).toString
-            //}
             val pathIDStr:String = pathID.toString
             for (vindex <- 0 to (vertexPathSize - 1)){
               pathStringArr(vindex) = pathIDStr + "," + row( vindex*2 ).toString.replaceAll("[\\[\\]]","") + "," + fromV + "," + toV + "\n"
@@ -459,16 +455,26 @@ class BreadthFirstSearchApp(
           allPathsCC.append(localPathsStringArr)
         }
       })
-    
-      val buffer = new BufferedWriter(new FileWriter(new File(outputPath), true))
+   
+      val conf = new org.apache.hadoop.conf.Configuration();
+      val path = new Path(outputPath)
+      val fs = path.getFileSystem(conf)
+
+      // Output file can be created from file system.
+      var output:FSDataOutputStream = null.asInstanceOf[FSDataOutputStream]
+      if(fs.exists(path)) {
+        output = fs.append(path)
+      } else {
+        output = fs.create(path)
+      }
+ 
+      //val buffer = new BufferedWriter(new FileWriter(new File(outputPath), true))
       for(pathsPairOfVertices <- allPathsCC){
         for(path <- pathsPairOfVertices) {
-          //val line = path.mkString(delimiter).replaceAll("[\\[\\]]","")
-          //buffer.write(s"${line}\n")
-          for(line <- path) buffer.write(s"${line}")
+          for(line <- path) output.write(s"${line}".getBytes("UTF-8"))
         }
       }
-      buffer.close
+      output.close
     }
   }
 

@@ -9,9 +9,10 @@
       "value": "10.21.0.127"
     },
     {
-      "name": "spark.executor.memory",
-      "value": "4g"
+      "name":"spark.executor.heartbeatInterval",
+      "value":"60s"
     }
+
   ],
   "spark_database": [
     {
@@ -42,7 +43,7 @@
   "app": {
     "name": "spaths", 
     "input_path":"hdfs://hadoopgsiha/dados-fractal/output-read-database-caminhos-end-cnpj-tel.csv",
-    "max_size" : 5, 
-    "output_path":"/home/ufmg.m06dcc/repositories/M06/output-spaths-end-cnpj-tel.csv"
+    "max_size" : 2, 
+    "output_path":"/home/ufmg.m06dcc/M06/output-spaths-end-cnpj-tel.csv"
   }
 }
