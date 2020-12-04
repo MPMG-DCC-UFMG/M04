@@ -23,6 +23,7 @@ import scala.collection.mutable.Map
 import scala.collection.mutable.ArrayBuffer
 
 import java.io.BufferedOutputStream
+import java.io.FileOutputStream
 import org.graphframes.GraphFrame
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Row
@@ -179,7 +180,7 @@ class CliquesApp(
 class ShortestPathsApp(
                         val fractalGraph: FractalGraph,
                         algs: FractalAlgorithms,
-                        explorationSteps: Int) extends FractalSparkApp with MPMGApp {
+                        explorationSteps: Int, append:Boolean) extends FractalSparkApp with MPMGApp {
   //var app: Fractoid[EdgeInducedSubgraph] = _
   var app: Map[(Int, Int), IntArrayList] = _
 
@@ -202,10 +203,14 @@ class ShortestPathsApp(
     val fs = path.getFileSystem(conf)
 
     // Output file can be created from file system.
-    val output = fs.create(path);
+    //val output = fs.create(path);
 
     // But BufferedOutputStream must be used to output an actual text file.
-    val os = new BufferedOutputStream(output)
+    //var os = new BufferedOutputStream(output)
+    //if(append) {
+      //os.close()
+    var  os = new BufferedWriter(new FileWriter(new File(filePath), append))
+    //}
 
     //os.write("Identificador do caminho,Identificador do vértice participante,Vértice origem,Vértice destino\n")
 
@@ -218,9 +223,16 @@ class ShortestPathsApp(
         val dest = new IntWritable(pair._2)
         while (it.hasNext) {
           val id = new IntWritable(it.next())
+          if(orig.get() > -1 && dest.get() > -1){
           //os.write(s"${i},${vertexMap(id)},${vertexMap(pair.getLeft)},${vertexMap(pair.getRight)}\n".getBytes("UTF-8"))
-          os.write(s"${i},${vertexMap(id)},${vertexMap(orig)},${vertexMap(dest)}\n".getBytes("UTF-8"))
+          //os.write(s"${i},${vertexMap(id)},${vertexMap(orig)},${vertexMap(dest)}\n".getBytes("UTF-8"))
+          //print("id:" + id + "\n")
+          //print("orig:" + orig + "\n")
+	  //print("dest:" + dest + "\n")
+          os.write(s"${i},${vertexMap(id)},${vertexMap(orig)},${vertexMap(dest)}\n")
+          }
         }
+        
         i += 1 // todo: validate if is don't collide
       }
     }
@@ -333,7 +345,12 @@ class ShortestPathsComponentsApp(
     }
 
     val localComponents:Array[Row] = tmpComponents.asInstanceOf[Array[Row]]
+    val numOfComponents = localComponents.length
+    var componentIndex:Int = 1
     for (ccRow <- localComponents) {
+
+      logInfo(s"CURRENT COMPONENT: ${ccRow(0)} (${componentIndex} OF ${numOfComponents}")
+      componentIndex += 1
 
       //4. descobre todos os nós para cada componente conexo
       val vertexCC = allVertexCC.where(col("cc") === ccRow(0))
@@ -349,7 +366,7 @@ class ShortestPathsComponentsApp(
       val vertexMap = new MapVerticesApp(fractalGraph, algs) 
       vertexMap.execute 
     
-      val app = new ShortestPathsApp(fractalGraph, algs, max_size)
+      val app = new ShortestPathsApp(fractalGraph, algs, max_size, true)
       app.execute
 
       app.writeResults(outputPath, vertexMap.app)
@@ -380,8 +397,6 @@ class BreadthFirstSearchApp(
     var allVertexCC = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(ccInputPath).toDF("vertex", "cc")
 
     //3. carrega os pares de vertices do grafo completo
-    //var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst", "edgeType").drop("edgeType")
-    //var wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst")
     var wholeGraphDF:DataFrame = null.asInstanceOf[DataFrame]
     try {
       wholeGraphDF = spark.read.option("inferSchema","true").option("delimiter", delimiter).csv(inputPath).toDF("src", "dst", "tipo_aresta").drop("tipo_aresta")
@@ -397,6 +412,7 @@ class BreadthFirstSearchApp(
       tmpComponents = a
     }
 
+    var pathID:Integer = 1
     val localComponents:Array[Row] = tmpComponents.asInstanceOf[Array[Row]]
     for (ccRow <- localComponents) {
 
@@ -419,8 +435,8 @@ class BreadthFirstSearchApp(
       var allPathsCC:ArrayBuffer[Array[Array[String]]] = new ArrayBuffer[Array[Array[String]]]()
       localCJ.foreach(row => {
 
-        val fromV = row(0).asInstanceOf[String]
-        val toV = row(2).asInstanceOf[String]
+        val fromV = row(0).asInstanceOf[String].replaceAll("[\\[\\]]","")
+        val toV = row(2).asInstanceOf[String].replaceAll("[\\[\\]]","")
         if ( (fromV < toV) ) { // && (!fromV.startsWith("tel")) && (!toV.startsWith("tel")) ){
           val paths = graph.bfs.fromExpr("id = '" + fromV + "'").toExpr("id = '" + toV + "'").maxPathLength(max_size).run()
           val localPaths = paths.collect()
@@ -428,11 +444,16 @@ class BreadthFirstSearchApp(
           val vertexPathSize = localPathsSize/2 + 1
           val localPathsStringArr = localPaths.map(row => {
             var pathStringArr:Array[String] = new Array[String](vertexPathSize)
-            pathStringArr(0) = row(0).toString
-            pathStringArr(1) = row(localPathsSize - 1).toString
-            for (vindex <- 2 to (vertexPathSize - 1)){
-              pathStringArr(vindex) = row( (vindex-1)*2 ).toString
+            //pathStringArr(0) = row(0).toString
+            //pathStringArr(1) = row(localPathsSize - 1).toString
+            //for (vindex <- 0 to (vertexPathSize - 1)){
+            //  pathStringArr(vindex) = row( (vindex-1)*2 ).toString
+            //}
+            val pathIDStr:String = pathID.toString
+            for (vindex <- 0 to (vertexPathSize - 1)){
+              pathStringArr(vindex) = pathIDStr + "," + row( vindex*2 ).toString.replaceAll("[\\[\\]]","") + "," + fromV + "," + toV + "\n"
             }
+            pathID += 1
             pathStringArr
           })
           allPathsCC.append(localPathsStringArr)
@@ -442,8 +463,9 @@ class BreadthFirstSearchApp(
       val buffer = new BufferedWriter(new FileWriter(new File(outputPath), true))
       for(pathsPairOfVertices <- allPathsCC){
         for(path <- pathsPairOfVertices) {
-          val line = path.mkString(delimiter).replaceAll("[\\[\\]]","")
-          buffer.write(s"${line}\n")
+          //val line = path.mkString(delimiter).replaceAll("[\\[\\]]","")
+          //buffer.write(s"${line}\n")
+          for(line <- path) buffer.write(s"${line}")
         }
       }
       buffer.close
@@ -580,7 +602,7 @@ object MPMGSparkRunner {
         /* Execute app */
         val vertexMap = new MapVerticesApp(fractalGraph, algs) //TODO: put this as an application (map the input and the output of fractal)
         vertexMap.execute //TODO: remove this from here, use as an application
-        val app = new ShortestPathsApp(fractalGraph, algs, appConfig("max_size").num.toInt)
+        val app = new ShortestPathsApp(fractalGraph, algs, appConfig("max_size").num.toInt-1, false)
         app.execute
 
         //write output results
