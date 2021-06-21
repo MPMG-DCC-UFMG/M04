@@ -1,0 +1,2 @@
+- Visualizacoes atraves do Dash
+https://plotly.com/python/network-graphs/
