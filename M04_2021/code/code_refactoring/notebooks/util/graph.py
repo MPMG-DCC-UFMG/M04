@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import networkx as nx
 
+
 def cnpjs_licitantes_por_municipio(informacoes_licitacoes, cnpjs_por_licitacao,
                                    municipio: str) -> pd.DataFrame:
     licitacoes_do_municipio = informacoes_licitacoes.loc[
@@ -32,6 +33,10 @@ def gera_grafo(relacoes_entre_cnpjs, cnpjs: pd.DataFrame) -> nx.Graph:
             if relacao[1] in cnpjs.values:
                 G.add_edge(relacao[0], relacao[1])
     return G
+
+
+def calcula_cliques(grafo: nx.Graph) -> int:
+    return list(nx.find_cliques(grafo))
 
 
 def plota_grafo(grafo: nx.Graph, titulo: str, caminho_saida: str) -> plt.figure:
