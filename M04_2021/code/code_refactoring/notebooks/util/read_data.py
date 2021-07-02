@@ -10,6 +10,7 @@ def salvar_relacoes_entre_cnpjs():
     return pd.read_csv(
         data_path + 'relacao_cnpjs.csv',
         header=None,
+        names=['cnpj_1', 'cnpj_2'],
         dtype=str,
         sep=' '
     )
