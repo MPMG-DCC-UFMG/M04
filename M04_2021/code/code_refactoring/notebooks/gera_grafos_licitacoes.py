@@ -14,11 +14,12 @@ licitacoes = pd.DataFrame(licitacoes_data)
 licitacoes.to_pickle('licitacoes_sem_grafos')
 print("Pronto.")
 
-
+d_relacoes = graph.cria_dicionario_relacoes(relacoes_entre_cnpjs)
+d_licitacoes = graph.cria_dicionario_de_licitacoes(cnpjs_por_licitacao)
 
 licitacoes["grafos"] = licitacoes['licitacao'].apply(
-    lambda x: graph.gera_grafo_municipio(
-        x, informacoes_licitacoes, cnpjs_por_licitacao, relacoes_entre_cnpjs
+    lambda x: graph.gera_grafo_licitacao(
+        x, d_relacoes, d_licitacoes
     )
 )
 licitacoes.to_pickle('licitacoes_com_grafos')

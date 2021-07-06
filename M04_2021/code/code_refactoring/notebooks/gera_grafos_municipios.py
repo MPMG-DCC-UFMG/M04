@@ -15,10 +15,10 @@ municipios.to_pickle('municipios_sem_grafos')
 print("Pronto.")
 
 
-
+dic_relacoes = graph.cria_dicionario_relacoes(relacoes_entre_cnpjs)
 municipios["grafos"] = municipios['municipio'].apply(
-    lambda x: graph.gera_grafo_municipio(
-        x, informacoes_licitacoes, cnpjs_por_licitacao, relacoes_entre_cnpjs
+    lambda x: graph.gera_grafo(
+        x, informacoes_licitacoes, cnpjs_por_licitacao, dic_relacoes
     )
 )
 municipios.to_pickle('municipios_com_grafos')
