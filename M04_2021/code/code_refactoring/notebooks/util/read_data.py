@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 working_dir = os.getcwd()
-slice = working_dir.find('code', 13)
+slice = working_dir.find('code', 40)
 data_path = working_dir[:slice] + "data/input/"
 
 
