@@ -3,7 +3,7 @@ from collections import defaultdict
 import os
 
 working_dir = os.getcwd()
-slice = working_dir.find('code', 13)
+slice = working_dir.find('code')
 data_path = working_dir[:slice] + "data/input/"
 
 
@@ -89,3 +89,9 @@ def cnpjs_por_municipio(licitacoes_por_municio: dict, cnpjs_por_licitacao: dict)
             for cnpj in cnpjs:
                 d[municipio].append(cnpj)
     return d
+
+if __name__ == "__main__":
+    working_dir = os.getcwd()
+    # slice = working_dir.find('code')
+    data_path = working_dir + "/data/input/"
+    print(data_path)
