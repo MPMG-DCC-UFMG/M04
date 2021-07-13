@@ -1,3 +1,25 @@
+# =======================================================================================
+# RELATÓRIO 1 - RELATÓRIO DA DENSIDADE DO GRAFO E DOS CNPJs ENVOLVIDOS EM CADA LICITAÇÃO
+# =======================================================================================
+
+# ano;municipio;tipo_processo_licitatorio;id_licitacao;valor;vínculo_em_uso;
+# quantidade_cnpjs(vértices);quantidade_vinculos(arestas);densidade_grafo;
+# tamanho_max_clique_encontrada;lista_de_cnpjs_separado_por_virgula
+
+# OBS. colocar os CNPJs separados por vírgula permitirá que eles fiquem
+# dentro de um único campo.
+# OBS. vínculo_em_uso será o campo que irá identificar qual tipo de vínculo
+# estamos usando. Podemos definir um padrão para esses vínculos
+# - Vínculo Societário = 1
+# - Vínculo Endereços  = 2
+# - Vínculo Telefones  = 3
+
+# ou usar strings até termos previsão de um banco de dados para isso:
+# - Vínculo Societário = V_SOCIE
+# - Vínculo Endereços  = V_ENDER
+# - Vínculo Telefones  = V_TELEF
+
+
 import sys
 sys.path.insert(0, '../..')
 
@@ -30,6 +52,6 @@ df["tamanho_max_clique"] = df['grafo'].apply(
 
 
 df = df.drop('grafo', axis=1)
-df.to_csv(dump_path + 'relatorio_1')
+df.to_csv(dump_path + 'relatorio_1.csv')
 
 

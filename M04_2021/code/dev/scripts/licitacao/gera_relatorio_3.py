@@ -1,19 +1,23 @@
 # =======================================================================================
-# RELATÓRIO 2 - RELATÓRIO DAS CLIQUES MAXIMIMAIS POR LICITAÇÃO
+# RELATÓRIO 3 - PARTICIPAÇÃO DE CNPJs EM CLIQUES
 # =======================================================================================
-# *ATENÇÃO: CADA CLIQUE MAXIMAL ENCONTRADA IRÁ GERAR UMA NOVA LINHA NESTE RELATÓRIO
 
-# ano;municipio;tipo_processo_licitatorio;id_licitacao;valor;vínculo_em_uso;
-# quantidade_cnpjs(vértices);quantidade_vinculos(arestas);densidade_grafo;
-# tam_clique_encontrada;lista_de_cnpjs_separado_por_virgula_compondo_clique
+# A partir do relatório 2, nós temos a lista de todas as cliques maximimais em
+# todas as licitações.
+# Neste relatório, podemos apresentar em quantas cliques cada CNPJ aparece.
+# Assim, esse relatório apresenta a quantidade de licitações que cada CNPJ
+# participou onde tinha algum concorrente com algum vínculo com ele.
 
-# OBS. se uma licitação tiver 5 cliques maximais, ela aparecerá em 5 linhas,
-# cada linha só mudará o tamanho da clique e os CNPJs envolvidos
+# cnpj;qtdade_licitacoes_que_figurou_com_alguem_com_vinculo;
+# lista_licitacoes_onde_isso_ocorreu
 
-# A menor clique interessante é a de tamanho 2.
+# OBS. Podemos avaliar a possibilidade de ver se as cliques que foram
+# identificadas no relatório 2 aparecem em outras linhas. 
+# Isso seria muito interessante.
 
 import sys
 sys.path.insert(0, '../..')
+
 from util import carregamento_dados as cd, ferramentas_grafos as fg
 import pandas as pd
 from collections import defaultdict
@@ -22,6 +26,8 @@ dump_path = '../../pickles/licitacoes/'
 relacoes_entre_cnpjs = cd.salvar_relacoes_entre_cnpjs()
 informacoes_licitacoes = cd.salvar_informacoes_licitacoes()
 cnpjs_por_licitacao = cd.salvar_cnpjs_por_licitacao()
+
+cliques = pd.read_pickle(dump_path + 'cliques_picles')
 
 d_relacoes = cd.cnpjs_relacionados_por_cnpj(relacoes_entre_cnpjs)
 d_licitacoes = cd.cnpjs_por_licitacao(cnpjs_por_licitacao)
@@ -86,13 +92,37 @@ for licitacao in pd.Series(licitacoes).unique():
                 'densidade_grafo': fg.calcula_densidade(d[licitacao]['grafo']),
                 'tam_clique_encontrada': tamanho_clique,
                 'lista_de_cnpjs_compondo_clique' : printable_cnpjs,
+                'cnpjs': clique
             }
             clique_id += 1
 
-cliques = pd.DataFrame.from_dict(
-    data=c,
+CNPJs_em_cliques = set()
+for id in range(clique_id):
+    for cnpj in c[id]['cnpjs']:
+        CNPJs_em_cliques.add(cnpj)
+
+cnpjs_cliques = {
+    cnpj: {
+        'qtdade_licitacoes_que_figurou_com_alguem_com_vinculo': 0,
+        'lista_licitacoes_onde_isso_ocorreu': ''
+    } for cnpj in CNPJs_em_cliques
+}
+
+for id in range(clique_id):
+    qtd = 'qtdade_licitacoes_que_figurou_com_alguem_com_vinculo'
+    lic = 'lista_licitacoes_onde_isso_ocorreu'
+    for cnpj in c[id]['cnpjs']:
+        cnpjs_cliques[cnpj][qtd] += 1
+        cnpjs_cliques[cnpj][lic] += c[id]['id_licitacao'] + ';'
+
+cnpjs_cliques = pd.DataFrame.from_dict(
+    data=cnpjs_cliques,
     orient='index'
 )
+cnpjs_cliques.index.name = 'cnpj'
 
-cliques.to_csv(dump_path + 'relatorio_2.csv')
-cliques.to_pickle(dump_path + 'cliques_picles')
+
+
+cnpjs_cliques.to_csv(dump_path + 'relatorio_3.csv')
+
+
