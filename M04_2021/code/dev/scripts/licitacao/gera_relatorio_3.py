@@ -1,6 +1,6 @@
-# =======================================================================================
+# ==============================================================================
 # RELATÓRIO 3 - PARTICIPAÇÃO DE CNPJs EM CLIQUES
-# =======================================================================================
+# ==============================================================================
 
 # A partir do relatório 2, nós temos a lista de todas as cliques maximimais em
 # todas as licitações.
@@ -17,24 +17,25 @@
 
 import sys
 sys.path.insert(0, '../..')
-
 from util import carregamento_dados as cd, ferramentas_grafos as fg
 import pandas as pd
 from collections import defaultdict
 
+# Carrega os 3 arquivos principais.
 dump_path = '../../pickles/licitacoes/'
 relacoes_entre_cnpjs = cd.salvar_relacoes_entre_cnpjs()
 informacoes_licitacoes = cd.salvar_informacoes_licitacoes()
 cnpjs_por_licitacao = cd.salvar_cnpjs_por_licitacao()
 
-cliques = pd.read_pickle(dump_path + 'cliques_picles')
-
+# Cria dicionários de relações entre CNPJs e de CNPJs por licitação.
 d_relacoes = cd.cnpjs_relacionados_por_cnpj(relacoes_entre_cnpjs)
 d_licitacoes = cd.cnpjs_por_licitacao(cnpjs_por_licitacao)
 
+# Cria a lista de licitações que possui informações de CNPJs licitantes.
 dados_licitacao = cnpjs_por_licitacao.values
 licitacoes = [licitacao for licitacao, _ in dados_licitacao]
 
+# Cria dicionário que armazena informações principais por licitação.
 d = {
     licitacao: {
         'cnpjs' : [],
@@ -47,9 +48,13 @@ d = {
     } for licitacao in licitacoes
 }
 
+# Alimenta o dicionário com a lista de CNPJs licitantes por licitação.
 for licitacao, cnpj in cnpjs_por_licitacao.values:
     d[licitacao]['cnpjs'].append(cnpj)
 
+# Alimenta o dicionário com dados de cada licitação (município, ano, ...)
+# Utiliza a posição da coluna no arquivo original, deve ser checado se essa
+# ordem for alterada.
 for l in informacoes_licitacoes.values:
     try:
         d[l[0]]['municipio'] = l[1]
@@ -57,9 +62,13 @@ for l in informacoes_licitacoes.values:
         d[l[0]]['modalidade'] = l[3]
         d[l[0]]['valor'] = l[7]
     except:
-        # Exceção para licitações que não possuem informações de CNPJs licitantes
+        # Exceção para licitações que não possuem informações de CNPJs licitantes,
+        # nada é feito.
         pass
 
+# Gera o grafo de cada licitação e, em seguida, lista as cliques desse grafo.
+# Idealmente, poderia ser recuperado do arquivo gerado em gera_grafos_licitacoes.py
+# Como a execução do script é relativamente rápida, optou-se por recalcular esses dados.
 for licitacao in licitacoes:
     grafo = fg.gera_grafo_licitacao(
         licitacao, d_relacoes, d_licitacoes
@@ -69,7 +78,7 @@ for licitacao in licitacoes:
     d[licitacao]['grafo'] = grafo
     d[licitacao]['cliques'] = cliques
 
-# c : cliques dictionary
+# Cria o dicionário para armazenar informações relativas às cliques encontradas.
 c = defaultdict(dict)
 
 clique_id = 0
@@ -92,7 +101,6 @@ for licitacao in pd.Series(licitacoes).unique():
                 'densidade_grafo': fg.calcula_densidade(d[licitacao]['grafo']),
                 'tam_clique_encontrada': tamanho_clique,
                 'lista_de_cnpjs_compondo_clique' : printable_cnpjs,
-                'cnpjs': clique
             }
             clique_id += 1
 

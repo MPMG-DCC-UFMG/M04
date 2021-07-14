@@ -19,15 +19,14 @@
 # - Vínculo Endereços  = V_ENDER
 # - Vínculo Telefones  = V_TELEF
 
-
 import sys
 sys.path.insert(0, '../..')
 
 import pandas as pd
 # Pacotes implementados
 from util import carregamento_dados as cd, ferramentas_grafos as fg
-dump_path = '../../pickles/licitacoes/'
 
+dump_path = '../../pickles/licitacoes/'
 df = pd.read_pickle(dump_path + 'grafos_licitacoes')
 
 # Gera a coluna com o número de vértices do grafo das licitações
@@ -50,8 +49,11 @@ df["tamanho_max_clique"] = df['grafo'].apply(
     lambda x: fg.calcula_tamanho_max_clique(fg.lista_cliques(x))
 )
 
-
+# A coluna que armazena o grafo para cada licitação não é necessária
+# no relatório e pode ser removida.
 df = df.drop('grafo', axis=1)
+
+# Salva o relatório 1 em arquivo csv
 df.to_csv(dump_path + 'relatorio_1.csv')
 
 

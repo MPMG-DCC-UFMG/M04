@@ -1,9 +1,8 @@
 import sys
 sys.path.insert(0, '../..')
-from util import carregamento_dados as cd, ferramentas_grafos as fg
 import pandas as pd
-
 # Pacotes implementados
+from util import carregamento_dados as cd, ferramentas_grafos as fg
 
 
 # Carrega os 3 arquivos principais
@@ -27,15 +26,15 @@ licitacoes = pd.DataFrame(licitacoes_data)
 d_relacoes = cd.cnpjs_relacionados_por_cnpj(relacoes_entre_cnpjs)
 d_licitacoes = cd.cnpjs_por_licitacao(cnpjs_por_licitacao)
 
-
 # Gera a coluna dos grafos das licitações
 licitacoes["grafo"] = licitacoes['licitacao'].apply(
-    lambda x: fg.gera_grafo_licitacao(
-        x, d_relacoes, d_licitacoes
-    )
+    lambda x: fg.gera_grafo_licitacao(x, d_relacoes, d_licitacoes)
 )
 # Gera a coluna dos cnpjs licitantes
 licitacoes['cnpjs'] = licitacoes['licitacao'].apply(
     lambda x: d_licitacoes[str(x)]
 )
+
+# Salva o resultado em formato Pickle para processamento posterior por
+# outros scripts na geração de relatórios.
 licitacoes.to_pickle(dump_path + 'grafos_licitacoes')
