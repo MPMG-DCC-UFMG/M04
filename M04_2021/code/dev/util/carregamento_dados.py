@@ -10,7 +10,7 @@ data_path = working_dir[:slice] + "data/input/"
 
 def salvar_relacoes_entre_cnpjs():
     return pd.read_csv(
-        data_path + 'relacao_cnpjs.csv',
+        data_path + 'relacao_cnpjs_societario.csv',
         header=None,
         names=['cnpj_1', 'cnpj_2'],
         dtype=str,
