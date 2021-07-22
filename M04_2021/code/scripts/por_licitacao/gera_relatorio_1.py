@@ -26,8 +26,8 @@ import pandas as pd
 # Pacotes implementados
 from util import carregamento_dados as cd, ferramentas_grafos as fg
 
-dump_path = '../../pickles/licitacoes/'
-df = pd.read_pickle(dump_path + 'grafos_licitacoes')
+dump_path = '../../../data/output/csv/'
+df = pd.read_pickle('../../../data/output/pickles/' + 'grafos_licitacoes')
 
 # Gera a coluna com o número de vértices do grafo das licitações
 df["quantidade_cnpjs"] = df['grafo'].apply(
@@ -54,6 +54,6 @@ df["tamanho_max_clique"] = df['grafo'].apply(
 df = df.drop('grafo', axis=1)
 
 # Salva o relatório 1 em arquivo csv
-df.to_csv(dump_path + 'relatorio_1.csv')
+df.to_csv(dump_path + 'relatorio_1')
 
 

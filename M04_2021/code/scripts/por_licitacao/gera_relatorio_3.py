@@ -23,7 +23,8 @@ import pandas as pd
 from util import carregamento_dados as cd, ferramentas_grafos as fg
 
 # Carrega os 3 arquivos principais.
-dump_path = '../../pickles/licitacoes/'
+csv_path = '../../../data/output/csv/'
+pickle_path = '../../../data/output/pickles/'
 relacoes_entre_cnpjs = cd.salvar_relacoes_entre_cnpjs()
 informacoes_licitacoes = cd.salvar_informacoes_licitacoes()
 cnpjs_por_licitacao = cd.salvar_cnpjs_por_licitacao()
@@ -102,6 +103,7 @@ for licitacao in pd.Series(licitacoes).unique():
                 'densidade_grafo': fg.calcula_densidade(d[licitacao]['grafo']),
                 'tam_clique_encontrada': tamanho_clique,
                 'lista_de_cnpjs_compondo_clique': printable_cnpjs,
+                'cnpjs': clique
             }
             clique_id += 1
 
@@ -131,4 +133,4 @@ cnpjs_cliques = pd.DataFrame.from_dict(
 cnpjs_cliques.index.name = 'cnpj'
 
 
-cnpjs_cliques.to_csv(dump_path + 'relatorio_3.csv')
+cnpjs_cliques.to_csv(csv_path + 'relatorio_3')

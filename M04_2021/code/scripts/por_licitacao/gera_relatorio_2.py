@@ -20,7 +20,8 @@ import pandas as pd
 from collections import defaultdict
 
 # Carrega os 3 arquivos principais.
-dump_path = '../../pickles/licitacoes/'
+csv_path = '../../../data/output/csv/'
+pickle_path = '../../../data/output/pickles/'
 relacoes_entre_cnpjs = cd.salvar_relacoes_entre_cnpjs()
 informacoes_licitacoes = cd.salvar_informacoes_licitacoes()
 cnpjs_por_licitacao = cd.salvar_cnpjs_por_licitacao()
@@ -110,5 +111,5 @@ cliques = pd.DataFrame.from_dict(
 )
 
 # Salva o resultado em arquivo .csv e em Pickle para processamento posterior.
-cliques.to_csv(dump_path + 'relatorio_2.csv')
-cliques.to_pickle(dump_path + 'cliques_picles')
+cliques.to_csv(csv_path + 'relatorio_2')
+cliques.to_pickle(pickle_path + 'cliques_picles')
