@@ -1,7 +1,9 @@
 import pandas as pd
+import os
 
 # Carrega o arquivo de cnpjs por licitação e o arquivo de vínculos.
-dump_path = '../data/input/'
+dirname = os.path.dirname(__file__)
+dump_path = os.path.join(dirname, '../data/input/')
 
 relacoes_entre_cnpjs = pd.read_csv(
         dump_path + 'relacao_cnpjs_societario.csv',

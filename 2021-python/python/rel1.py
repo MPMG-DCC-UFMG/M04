@@ -20,13 +20,18 @@
 # - Vínculo Telefones  = V_TELEF
 
 import pandas as pd
+import os
 
 # Pacotes implementados
-from util import carregamento_dados as cd
-from util import ferramentas_grafos as fg
+import carregamento_dados as cd
+import ferramentas_grafos as fg
 
-dump_path = '../data/output/csv/'
-df = pd.read_pickle('../data/output/pickles/' + 'grafos_licitacoes')
+dirname = os.path.dirname(__file__)
+
+dump_path = os.path.join(dirname, '../data/output/csv/')
+pickles_path = os.path.join(dirname, '../data/output/pickles/')
+
+df = pd.read_pickle(pickles_path + 'grafos_licitacoes')
 
 # Gera a coluna com o número de vértices do grafo das licitações
 df["quantidade_cnpjs"] = df['grafo'].apply(

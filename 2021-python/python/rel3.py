@@ -19,13 +19,16 @@
 from collections import defaultdict
 
 import pandas as pd
+import os
 
-from util import carregamento_dados as cd
-from util import ferramentas_grafos as fg
+import carregamento_dados as cd
+import ferramentas_grafos as fg
 
 # Carrega os 3 arquivos principais.
-csv_path = '../data/output/csv/'
-pickle_path = '../data/output/pickles/'
+dirname = os.path.dirname(__file__)
+
+csv_path = os.path.join(dirname, '../data/output/csv/')
+pickle_path = os.path.join(dirname, '../data/output/pickles/')
 relacoes_entre_cnpjs = cd.salvar_relacoes_entre_cnpjs()
 informacoes_licitacoes = cd.salvar_informacoes_licitacoes()
 cnpjs_por_licitacao = cd.salvar_cnpjs_por_licitacao()

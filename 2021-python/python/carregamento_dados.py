@@ -2,7 +2,8 @@ import pandas as pd
 from collections import defaultdict
 import os
 
-data_path = "../data/input/"
+dirname = os.path.dirname(__file__)
+data_path = os.path.join(dirname, "../data/input/")
 
 
 def salvar_relacoes_entre_cnpjs():

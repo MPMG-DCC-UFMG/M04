@@ -13,10 +13,16 @@
 # deve variar entre as linhas que apresentam a mesma dupla.
 
 import pandas as pd
+import os
+
 import carregamento_dados as cd
 
 # Carrega o arquivo de cnpjs por licitação e o arquivo de vínculos.
-dump_path = '../data/output/csv/'
+dirname = os.path.dirname(__file__)
+
+dump_path = os.path.join(dirname, '../data/output/csv/')
+pickles_path = os.path.join(dirname, '../data/output/pickles/')
+
 relacoes_entre_cnpjs = cd.salvar_relacoes_entre_cnpjs()
 cnpjs_por_licitacao = cd.salvar_cnpjs_por_licitacao()
 print("Raw files loaded.")
@@ -26,7 +32,7 @@ d: dict = {}
 
 # Vamos extrair arestas dos grafos criados pelo script modela_grafos.py,
 # para isso, utilizamos o resultado salvo em pickle.
-df = pd.read_pickle('../data/output/pickles/' + 'grafos_licitacoes')
+df = pd.read_pickle(pickles_path + 'grafos_licitacoes')
 print("Graph data loaded.")
 
 # Extraimos somente as colunas 'licitacao' (para identificar o grafo) e 'grafo'.

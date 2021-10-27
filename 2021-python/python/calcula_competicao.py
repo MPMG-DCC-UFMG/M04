@@ -1,11 +1,14 @@
 import pandas as pd
+import os
 
 # Pacotes implementados
 import carregamento_dados as cd
 import ferramentas_grafos as fg
 
 # Carrega os 3 arquivos principais
-dump_path = '../data/output/pickles/'
+dirname = os.path.dirname(__file__)
+
+dump_path = os.path.join(dirname, '../data/output/pickles/')
 relacoes_entre_cnpjs = cd.salvar_relacoes_entre_cnpjs()
 informacoes_licitacoes = cd.salvar_informacoes_licitacoes()
 cnpjs_por_licitacao = cd.salvar_cnpjs_por_licitacao()
