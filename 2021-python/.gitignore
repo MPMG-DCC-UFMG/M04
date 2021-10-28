@@ -13,7 +13,6 @@ __pycache__/
 *.csv
 
 # folders
-l_scripts/
 queries/
 data/output
 
