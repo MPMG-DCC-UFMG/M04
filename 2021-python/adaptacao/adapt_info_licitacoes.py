@@ -3,7 +3,7 @@ import os
 
 dirname = os.path.dirname(__file__)
 data_path = os.path.join(dirname, '../data/input/')
-dump_path = os.path.join(data_path, 'info_licitacoes.csv')
+dump_path = os.path.join(data_path, 'infos_licitacoes.csv')
 
 info_licitacoes = pd.read_csv(
   data_path + 'read-database-licitacao.csv',
