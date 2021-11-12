@@ -13,6 +13,7 @@ rel3_path = os.path.join(dirname, 'rel3.py')
 
 print('Toda a rotina de scripts será rodada, para geração de todos os dados.\n')
 
+
 print('************************ Cálculo da competição ************************\n')
 os.system(f'python3 {calcula_competicao_path}')
 print('\n********************* Fim do álculo da competição *********************\n')
@@ -37,8 +38,6 @@ print('****************************** Relatório 1 ****************************\
 os.system(f'python3 {rel1_path}')
 print('\n************************** Fim do relatório 1 *************************\n')
 
-print('\nFim da rotina. Todas as tarefas foram executadas com sucesso.')
-
 
 print('****************************** Relatório 2 ****************************\n')
 os.system(f'python3 {rel2_path}')
@@ -48,3 +47,5 @@ print('\n************************** Fim do relatório 2 ************************
 print('****************************** Relatório 3 ****************************\n')
 os.system(f'python3 {rel3_path}')
 print('\n************************** Fim do relatório 3 *************************\n')
+
+print('\nFim da rotina. Todas as tarefas foram executadas com sucesso.')
