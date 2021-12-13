@@ -21,12 +21,14 @@ tput setaf 3; echo -e "Arquivos de configuração de consulta criados\n"; tput s
 config=$M04_HOME/leitura-dados/queries/licitacoes.json $M06_HOME/fractal-mpmg.sh
 config=$M04_HOME/leitura-dados/queries/cnpjs-por-licitacao.json $M06_HOME/fractal-mpmg.sh
 config=$M04_HOME/leitura-dados/queries/vinculos-societarios.json $M06_HOME/fractal-mpmg.sh
+config=$M04_HOME/leitura-dados/queries/vinculos-com-datas.json $M06_HOME/fractal-mpmg.sh
 tput setaf 3; echo -e "Dados atualizados gerados e disponíveis no hdfs\n"; tput sgr0
 
 # Chamadas do hadoop para trazer os arquivos para o local 
 $HADOOP_HOME/bin/hdfs dfs -getmerge hdfs://hadoopgsiha/dados-fractal/read-database-licitacao.csv $M04_HOME/leitura-dados/raw-input/licitacoes.csv
 $HADOOP_HOME/bin/hdfs dfs -getmerge hdfs://hadoopgsiha/dados-fractal/read-database-cnpjs-por-licitacao.csv $M04_HOME/leitura-dados/raw-input/cnpjs-por-licitacao.csv
 $HADOOP_HOME/bin/hdfs dfs -getmerge hdfs://hadoopgsiha/dados-fractal/read-database-licitacao-socios-em-comum.csv $M04_HOME/leitura-dados/raw-input/vinculos-societarios.csv
+$HADOOP_HOME/bin/hdfs dfs -getmerge hdfs://hadoopgsiha/dados-fractal/read-database-vinculos-societarios-com-datas.csv $M04_HOME/leitura-dados/raw-input/vinculos-com-datas.csv
 tput setaf 3; echo -e "Dados atualizados copiados para o local\n"; tput sgr0
 
 # PEGAR DADOS COMPLETOS AQUI E MANDAR PARA O BANCO DE DADOS
@@ -34,7 +36,7 @@ tput setaf 3; echo -e "Dados atualizados copiados para o local\n"; tput sgr0
 
 # Chamadas de scripts auxiliares que limpam os dados e deixam apenas o que é necessário
 python3 $M04_HOME/leitura-dados/validation.py
-
+python3 $M04_HOME/leitura-dados/bond-weights.py
 
 size_licitacoes=$(wc -c "${M04_HOME}/leitura-dados/raw-input/treated_licitacoes.csv" | awk '{print $1}')
 if [ $size_licitacoes -gt 0 ] 
@@ -52,6 +54,12 @@ size_socios=$(wc -c "${M04_HOME}/leitura-dados/raw-input/treated_vinculos-societ
 if [ $size_socios -gt 0 ] 
 then
   mv "${M04_HOME}/leitura-dados/raw-input/treated_vinculos-societarios.csv" "${M04_HOME}/modulo-grafos/input/read-database-licitacao-socios-em-comum.csv"
+fi
+
+size_socios_com_data = $(wc -c "${M04_HOME}/leitura-dados/raw-input/vinculos_com_pesos.csv" | awk '{print $1}')
+if [ $size_socios_com_data -gt 0 ]
+then
+  mv "${M04_HOME}/leitura-dados/raw-input/vinculos_com_pesos.csv" "${M04_HOME}/modulo-grafos/input/vinculos-com-pesos.csv"
 fi
 
 tput setaf 3; echo -e "Dados atualizados tratados e colocados na pasta correta\n"; tput sgr0
