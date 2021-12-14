@@ -56,7 +56,7 @@ then
   mv "${M04_HOME}/leitura-dados/raw-input/treated_vinculos-societarios.csv" "${M04_HOME}/modulo-grafos/input/read-database-licitacao-socios-em-comum.csv"
 fi
 
-size_socios_com_data = $(wc -c "${M04_HOME}/leitura-dados/raw-input/vinculos_com_pesos.csv" | awk '{print $1}')
+size_socios_com_data=$(wc -c "${M04_HOME}/leitura-dados/raw-input/vinculos_com_pesos.csv" | awk '{print $1}')
 if [ $size_socios_com_data -gt 0 ]
 then
   mv "${M04_HOME}/leitura-dados/raw-input/vinculos_com_pesos.csv" "${M04_HOME}/modulo-grafos/input/vinculos-com-pesos.csv"
