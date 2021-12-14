@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from   networkx.algorithms import approximation as appr
 from   random import randint
-from   scipy import stats
+
 
 ###################################################################################
 ##### funcao para calcular min                                                 ####
