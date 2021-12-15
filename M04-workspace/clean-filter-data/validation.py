@@ -1,4 +1,5 @@
 import os
+import sys
 import pandas as pd
 
 # Função auxiliar que valida CNPJs. Casos conhecidos de falha:
@@ -72,8 +73,29 @@ def trata_socios(filepath, dump_path):
 
 	df.to_csv(dump_path, sep=';', index=False)
 
+# Helper function intended to get arguments passed to the program
+def get_args(argv):
+	if(len(argv) < 2):
+		print("You have to pass at least the input path as the first parameter.")
+		exit(1)
+	input_folder = sys.argv[1]
+
+	other_args = sys.argv[2:]
+	for index, arg in enumerate(other_args):
+		arg = arg.split('=')
+		arg[0] = arg[0][2:]
+		other_args[index] = arg
+
+	other_args = dict(other_args)
+
+	return [input_folder, other_args]
+
 def main():
-	input_folder = os.environ['M04_HOME'] + '/leitura-dados/raw-input/'
+	[input_folder, args] = get_args(sys.argv)
+	
+	start_date = args['start-date']
+	end_date = args['end-date']
+	max_value = int(args['max-value'])
 
 	licitacoes_file = input_folder + 'licitacoes.csv'
 	licitantes_file = input_folder + 'cnpjs-por-licitacao.csv'

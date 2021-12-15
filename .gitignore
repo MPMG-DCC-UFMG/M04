@@ -19,3 +19,5 @@ build
 # Ignore object files generated at compilation time
 *.o
 
+# Ignore environment files
+venv
