@@ -1,5 +1,6 @@
 import sys
 import pandas as pd
+from datetime import date
 
 # Função auxiliar que valida CNPJs. Casos conhecidos de falha:
 # Conter elementos não numéricos
@@ -39,16 +40,48 @@ def cnpj_valido(cnpj):
 	if(dig_2 != dig_ver_2) : return False
 
 	return True
-		
+
+
+# Helper function that converts a string date into a Datetime Date object 
+# that allows for comparison
+def get_date_obj(date_string):
+	[day, month, year] = date_string.split('/')
+	formatted_date = date(year=int(year), month=int(month), day=int(day))
+	return formatted_date
+
+# Helper functions that checks whether a bidding has happened during a given
+# period of time
+def in_given_period(start_date, end_date, bidding_date):
+	bidding_date = get_date_obj(bidding_date)
+
+	if(start_date):
+		start_date = get_date_obj(start_date)
+		if bidding_date < start_date : return False
+
+	if(end_date):
+		end_date = get_date_obj(end_date)
+		if bidding_date > end_date : return False
+
+	return True
+
 # Realiza tratamento das licitações. 
 # No momento, isso quer dizer apenas descartar as colunas não utilizadas 
 # e os dados que não fazem sentido
-def trata_licitacoes(filepath, dump_path):
+def trata_licitacoes(filepath, dump_path, start_date, end_date, max_value):
 	df = pd.read_csv(filepath, delimiter=';')
 
 	# Descarta colunas não utilizadas pelo programa
 	df = df.loc[:,['id_licitacao', 'nome_orgao_show', 'sigla_uf', 'nome_modalidade_show', 'num_modalidade', 'ano_referencia', 'mes_referencia', 'dsc_objeto_licitacao_show', 'vlr_licitacao']]
+
+	# Descarta licitações que não se enquadram no período buscado ou no valor máximo
+	if max_value : df.drop(df[df.vlr_licitacao > int(max_value)].index, inplace=True)
+	df.drop(df[df.vlr_licitacao<=0].index, inplace=True)
+	df = df[df.apply(lambda row: in_given_period(start_date, end_date, f'01/{row.mes_referencia}/{row.ano_referencia}'), axis=1)]
+
+	# Descarta dados duplicados ou incompletos
 	df = df.dropna()
+	df.drop_duplicates(inplace=True)
+
 
 	df.to_csv(dump_path, sep=';', index=False)
 
@@ -56,8 +89,13 @@ def trata_licitacoes(filepath, dump_path):
 # No momento, isso quer dizer descartar dados nulos e CNPJs claramente inválidos
 def trata_licitantes(filepath, dump_path):
 	df = pd.read_csv(filepath, delimiter=';')
-	df = df.dropna()
+
+	# Descarta dados com CNPJs inválidos
 	df = df[df['num_cpf_cnpj_show'].map(lambda cnpj: cnpj_valido(cnpj))]
+
+	# Descarta dados duplicados ou incompletos
+	df = df.dropna()
+	df.drop_duplicates(inplace=True)
 
 	df.to_csv(dump_path, sep=';', index=False)
 
@@ -66,9 +104,15 @@ def trata_licitantes(filepath, dump_path):
 # não fazem sentido e descartar colunas não utilizadas
 def trata_socios(filepath, dump_path):
 	df = pd.read_csv(filepath, delimiter=';')
-	df = df.dropna()
+	# Descarta dados com CNPJs inválidos
 	df = df[df.apply(lambda row: cnpj_valido(row.cnpj1) and cnpj_valido(row.cnpj2), axis=1)]
+
+	# Descarta colunas não utilizadas
 	df = df.loc[:,['cnpj1', 'cnpj2', 'id_licitacao']]
+
+	# Descarta dados duplicados ou incompletos
+	df = df.dropna()
+	df.drop_duplicates(inplace=True)
 
 	df.to_csv(dump_path, sep=';', index=False)
 
@@ -92,19 +136,19 @@ def get_args(argv):
 def main():
 	[input_folder, args] = get_args(sys.argv)
 	
-	start_date = args['start-date']
-	end_date = args['end-date']
-	max_value = int(args['max-value'])
+	start_date = args.get('start-date')
+	end_date = args.get('end-date')
+	max_value = args.get('max-value')
 
-	licitacoes_file = input_folder + 'licitacoes.csv'
-	licitantes_file = input_folder + 'cnpjs-por-licitacao.csv'
-	socios_file = input_folder + 'vinculos-societarios.csv'
+	licitacoes_file = input_folder + '/licitacoes.csv'
+	licitantes_file = input_folder + '/cnpjs-por-licitacao.csv'
+	socios_file = input_folder + '/vinculos-societarios.csv'
 
-	treated_licitacoes_file = input_folder + 'treated_licitacoes.csv'
-	treated_licitantes_file = input_folder + 'treated_cnpjs-por-licitacao.csv'
-	treated_socios_file = input_folder + 'treated_vinculos-societarios.csv'
+	treated_licitacoes_file = input_folder + '/treated_licitacoes.csv'
+	treated_licitantes_file = input_folder + '/treated_cnpjs-por-licitacao.csv'
+	treated_socios_file = input_folder + '/treated_vinculos-societarios.csv'
 
-	trata_licitacoes(licitacoes_file, treated_licitacoes_file)
+	trata_licitacoes(licitacoes_file, treated_licitacoes_file, start_date, end_date, max_value)
 	trata_licitantes(licitantes_file, treated_licitantes_file)
 	trata_socios(socios_file, treated_socios_file)
 	
