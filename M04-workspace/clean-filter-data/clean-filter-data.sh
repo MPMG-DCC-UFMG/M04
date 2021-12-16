@@ -62,7 +62,7 @@ then
   mv "${TEMP_INPUT}/vinculos-com-datas.csv" "${RAW_INPUT}/vinculos-com-datas.csv"
 fi
 
-rm -rf TEMP_INPUT
+rm -rf $TEMP_INPUT
 
 # Chamadas de scripts auxiliares que limpam os dados e deixam apenas o que é necessário
 python3 $M04_HOME/clean-filter-data/validation.py $RAW_INPUT "${@:2}"
