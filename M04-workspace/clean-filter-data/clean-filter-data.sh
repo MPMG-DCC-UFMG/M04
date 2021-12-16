@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configuração das variáveis de ambiente, que às vezes não são carregadas
-# source ~/.bashrc
+source ~/.bashrc
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
