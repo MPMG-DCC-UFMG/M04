@@ -1,15 +1,21 @@
 
-import sys
-import pandas as pd
 import networkx as nx
-from   networkx.algorithms import approximation as appr
-import pickle
-import matplotlib
+from pathlib import Path
 
-G = nx.read_gpickle(r"C:\Users\samli\M04\M04-workspace\graph-modeling-module\tests\mocked_datagraph.p")
 
-print(G)
+base_path = Path(__file__).parent
+file_path = (base_path / "graph.p").resolve()
+G = nx.read_gpickle(file_path)
 
-for l in G[0].keys():
 
-    print(G[0][l].edges)
+print("grafo 1 :")
+print(G[1].edges ,"\n")
+assert list(G[1].edges()) == [(1, 2)] 
+print("grafo 2 :")
+print(G[2].edges ,"\n")
+assert list(G[2].edges()) ==  [(1, 2), (1, 3)]   
+print("grafo 3 :")
+print(G[3].edges ,"\n")
+assert list(G[3].edges()) == [(1, 3), (1, 2), (2, 3)]
+
+print("3/3 sucesfull tests")

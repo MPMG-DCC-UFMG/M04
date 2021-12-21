@@ -23,9 +23,9 @@ O uso ideal do módulo é usando  um ambiente virtual e instalando
 os requerimentos disponiveis em requirements.txt
 
 ## Uso 
-    Um uso tipico do modulo é :
+Um uso tipico do modulo é :
 
--  python3 source/m04-grafos.py input output peso-socios peso-endereços peso-telefones
+    python3 source/m04-grafos.py input output peso-socios peso-endereços peso-telefones
 
 ## saida
 
@@ -33,13 +33,13 @@ a saida é uma lista com  3 dicionarios , cada  dicionario representa um grafo p
 tipo de vinculo e a ordem da lista é : socios, endereços e telefone. Então para utilzar 
 a saida do programa utilizamos:
 
-- G = nx.read_gpickle("Path_to_pickled_data")
+    G = nx.read_gpickle("Path_to_pickled_data")
 
 
 
 ## To do
 
-- criar script bash para rodar os teste e fazer alguns asserts
+- confirmar se os testes mocados estao certos
 
 - criar o requirements.txt
 
