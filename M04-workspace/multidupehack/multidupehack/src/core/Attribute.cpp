@@ -826,7 +826,7 @@ Attribute* Attribute::chooseValue(const vector<Attribute*>& attributes)
 #ifdef VERBOSE_ELEMENT_CHOICE
   	  cout << "Multiplicative partitions of attribute " << internal2ExternalAttributeOrder[currentAttribute->id] << "'s floor(epsilon) + 1: " << epsilonVector[currentAttribute->id] / noisePerUnit + 1 << '\n';
 #endif
-  	  vector<Attribute*>::const_iterator nextAttributeIt = orderedAttributes.erase(orderedAttributeIt);
+  	  vector<Attribute*>::iterator nextAttributeIt = orderedAttributes.erase(orderedAttributeIt);
   	  vector<unsigned int> factorization;
   	  factorization.reserve(maxId - 1);
 	  currentAttribute->multiplicativePartition(epsilonVector[currentAttribute->id] / noisePerUnit + 1, maxId - 1, 1, orderedAttributes, factorization, bestCost, bestAttribute);
