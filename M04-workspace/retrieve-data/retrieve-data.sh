@@ -1,29 +1,41 @@
 #!/bin/bash
 
-# Configuração das variáveis de ambiente, que às vezes não são carregadas
-source ~/.bashrc
-
+# Setting up colors for logging
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}Executando o Shell Script 'retrieve-data.sh'\n${NC}"
+echo -e "${GREEN}Executing the Retrieve Data Module\n${NC}"
 
-# Criação da pasta de eventos temporários do spark, que às vezes não está criada
+# Setting up environment variables
+JAVA_HOME="/usr/lib/jvm/java-1.8.0-openjdk/"
+SPARK_HOME="/home/ufmg.m06dcc/repositories/spark-hw"
+SPARK_CONF_DIR="/home/ufmg.m06dcc/repositories/spark-hw/conf/etc/spark2/3.1.5.0-152/0"
+HADOOP_HOME="/home/ufmg.m06dcc/repositories/hadoop-3.1.1"
+HADOOP_CONF_DIR="/home/ufmg.m06dcc/repositories/hadoop-3.1.1/etc/hadoop/"
+HDP_VERSION="3.1.5.0-152"
+HADOOP_USER_NAME="trilhasgsi"
+YARN_CONF_DIR="/home/ufmg.m06dcc/repositories/hadoop-3.1.1/etc/hadoop/"
+FRACTAL_PATH="/home/ufmg.m06dcc/M06"
+M04_PATH="/home/ufmg.m06dcc/M04-master/M04/M04-workspace"
+
+# Creation of the temporary events directory, which Spark requires
 mkdir /tmp/spark-events
 
-echo -e "${YELLOW}Arquivos de configuração de consulta criados\n${NC}"
+echo -e "${YELLOW}Initial setup done\n${NC}"
 
-QUERIES="${M04_HOME}/leitura-dados/queries"
+SCRIPT=$(readlink -f "$0")
+MODULE_PATH=$(dirname "$SCRIPT")
+QUERIES_PATH="$MODULE_PATH/queries"
 
-# Chamadas do módulo de leitura de dados do fractal
-config=QUERIES/licitacoes.json $M06_HOME/fractal-mpmg.sh
-config=QUERIES/cnpjs-por-licitacao.json $M06_HOME/fractal-mpmg.sh
-config=QUERIES/vinculos-societarios.json $M06_HOME/fractal-mpmg.sh
-config=QUERIES/vinculos-com-datas.json $M06_HOME/fractal-mpmg.sh
+for file in $(ls "$QUERIES_PATH");
+do
+  FULL_PATH="$QUERIES_PATH/$file"
+  config=$FULL_PATH $FRACTAL_PATH/fractal-mpmg.sh
+done
 
-echo -e "${YELLOW}Dados atualizados gerados e disponíveis no hdfs\n${NC}"
+echo -e "${YELLOW}Data updated and available in the Hadoop File System\n${NC}"
 
-echo -e "${GREEN}Encerrando execução do Shell Script 'retrieve-data.sh'${NC}"
+echo -e "${GREEN}Finished execution of the data fetching module${NC}"
