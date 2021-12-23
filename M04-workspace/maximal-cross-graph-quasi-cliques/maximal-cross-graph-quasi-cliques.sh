@@ -59,29 +59,29 @@ IFS=\;
 TMP=`mktemp -dt maximal-cross-graph-quasi-cliques.sh.XXXXXX`
 trap "rm -r $TMP 2>/dev/null" 0
 
-# Pre-computing all neighorhoods.
-mkdir $TMP/neighborhoods
-awk -F \; -v out_dir=$TMP/neighborhoods/ '
-{
-    print ";" $1 ";" >> out_dir $2
-    print ";" $2 ";" >> out_dir $1 }' "$1"
-for neighborhood in $TMP/neighborhoods/*
-do
-    sort -u "$neighborhood" -o "$neighborhood"
-done
+# # Pre-computing all neighorhoods.
+# mkdir $TMP/neighborhoods
+# awk -F \; -v out_dir=$TMP/neighborhoods/ '
+# {
+#     print ";" $1 ";" >> out_dir $2
+#     print ";" $2 ";" >> out_dir $1 }' "$1"
+# for neighborhood in $TMP/neighborhoods/*
+# do
+#     sort -u "$neighborhood" -o "$neighborhood"
+# done
 
 maximal_cross_graph_3_quasi_cliques_or_more() {
     # $cnpj1 and $cnpj2 must be in the maximal cross-graph quasi-cliques listed at this iteration.
     printf "0;$cnpj1,$cnpj2
 " > $TMP/edge
     # Select the distinct vertices that can be associated with cnpj1 and cnpj2.
-    sort -mu "$TMP/neighborhoods/$cnpj1" "$TMP/neighborhoods/$cnpj2" > $TMP/vertex_sel
-    # # Alternative selection not requiring pre-computed neirboorhoods (a little slower on my system).
-    # grep -e "^$cnpj1;" -e "^$cnpj2;" -e ";$cnpj1;" -e ";$cnpj2;" "$1" |
-    # 	cut -d \; -f -2 |
-    # 	tr \; \\n |
-    # 	sort -u |
-    # 	awk '{ print ";" $0 ";" }' > $TMP/vertex_sel
+    #sort -mu "$TMP/neighborhoods/$cnpj1" "$TMP/neighborhoods/$cnpj2" > $TMP/vertex_sel
+    # Alternative selection not requiring pre-computed neirboorhoods (a little slower on my system).
+     grep -e "^$cnpj1;" -e "^$cnpj2;" -e ";$cnpj1;" -e ";$cnpj2;" "$1" |
+     	cut -d \; -f -2 |
+     	tr \; \\n |
+     	sort -u |
+     	awk '{ print ";" $0 ";" }' > $TMP/vertex_sel
     # Give to multidupehack the directed edges between the selected vertices (until awk) so that it lists the maximal cross-graph quasi-clique (with at most one edge missing in each procurement; two in the directed graphs) involving $cnpj1 and $cnpj2 (option -g) and at least another CNPJ (option -s 3); finally print $cnpj1,$cnpj2;$procurements if no maximal cross-graph quasi-cliques with a superset of $procurements has just been found (grep).
     sed 's/;/^/' $TMP/vertex_sel |
 	grep -f - "$1" |
