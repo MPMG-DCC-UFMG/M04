@@ -26,7 +26,7 @@ M04_PATH: Path to the root of the 2021 M04 pipeline
 ```
 ## Usage
 Once properly configured with the aforementioned environment variables, this module's behavior is as described initially, fetching the data from Hadoop, processing it and outputting it. The base hadoop URL, the input and output filenames and the output directory are to be specified in the config.json file, as well as the desired filters. If a given filter is not to be applied, it suffices to leave it as an empty string.
-The module is used by calling the main shell script, `clean-filter-data.sh` 
+The module is used by calling the main shell script, `clean-filter-data.sh`, passing as it's only argument the config file. 
 ```
 // config.json 
 {
