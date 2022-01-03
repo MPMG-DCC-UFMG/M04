@@ -92,8 +92,8 @@ One such config file is exemplified below:
 }
 ```
 The most relevant part and the one that will vary is the "app" values:
-- "name" should never change for this module
-- "query" is the SQL query to be run against the database
-- "output_path" is the hdfs destination path
-- "delimiter" is the delimiter to be used in the CSV output file
-- "show_header" determines whether the output CSV should contain the header of each column or not.
+- `"name"` should never change for this module
+- `"query"` is the SQL query to be run against the database
+- `"output_path"` is the hdfs destination path
+- `"delimiter"` is the delimiter to be used in the CSV output file
+- `"show_header"` determines whether the output CSV should contain the header of each column or not.
