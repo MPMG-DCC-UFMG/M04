@@ -1,0 +1,33 @@
+{
+  "baseHadoopURL": "hdfs://hadoopgsiha/dados-fractal",
+  "outputDirectory": "/M04/test-output-dir",
+  "startDate": "02/04/2018",
+  "endDate": "31/12/2018", 
+  "maxValue": "100000",
+  "files": [
+    {
+      "fileName": "read-database-licitacao.csv",
+      "outputFileName": "read-database-licitacao.csv",
+      "columns": ["id_licitacao", "nome_orgao_show", "sigla_uf", "nome_modalidade_show", "num_modalidade", "ano_referencia", "mes_referencia", "dsc_objeto_licitacao_show", "vlr_licitacao"],
+      "extraTreatments": ["maxValue", "startDate", "endDate"]
+    },
+    {
+      "fileName": "read-database-cnpjs-por-licitacao.csv",
+      "outputFileName": "read-database-cnpjs-por-licitacao.csv",
+      "columns": [],
+      "extraTreatments": ["validate1CNPJ"]
+    },
+    {
+      "fileName": "read-database-licitacao-socios-em-comum.csv",
+      "outputFileName": "read-database-licitacao-socios-em-comum.csv",
+      "columns": ["cnpj1", "cnpj2", "id_licitacao"],
+      "extraTreatments": ["validate2CNPJs"]
+    },
+    {
+      "fileName": "read-database-vinculos-societarios-com-datas.csv",
+      "outputFileName": "vinculos-com-datas.csv",
+      "columns": [],
+      "extraTreatments": []
+    }
+  ]
+}
