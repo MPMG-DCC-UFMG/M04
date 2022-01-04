@@ -1,9 +1,7 @@
 import pandas as pd
-import os
+import sys
 from datetime import date
 
-yearGt2020 = 0
-yearLt2021 = 0
 # Helper function that converts a string date into a Datetime Date object 
 # that allows for comparison
 def get_date_obj(date_string):
@@ -39,9 +37,9 @@ def main():
 	monthly_decay = 0.01
 
 	# Determination of key paths
-	dirname = os.environ['M04_HOME'] + '/leitura-dados/raw-input/'
-	input_file = dirname + 'vinculos-com-datas.csv'
-	dump_path = dirname + 'vinculos_com_pesos.csv'
+	dirname = sys.argv[1]
+	input_file = dirname + '/vinculos-com-datas.csv'
+	dump_path = dirname + '/vinculos_com_pesos.csv'
 
 	# Loading the input file
 	corporate_bonds = pd.read_csv(input_file, delimiter=';')
