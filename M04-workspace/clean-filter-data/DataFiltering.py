@@ -11,7 +11,15 @@ class DataFiltering(object):
         return os.path.join(output_dir, filename)
 
     def select_from_period(self, start_date: str, end_date: str) -> None:
-        self.df = self.df[self.df.apply(lambda row: self._in_given_period(start_date, end_date, f'01/{row.mes_referencia}/{row.ano_referencia}'), axis=1)]
+        
+        def within_period(row):
+            ref_date = f'01/{row.mes_referencia}/{row.ano_referencia}'
+            return self._in_given_period(start_date, end_date, ref_date)
+
+        self.df = self.df[self.df.apply(
+            lambda row: within_period(row),
+            axis=1
+        )]
 
     def remove_exceeding_value_biddings(self, max_value: str) -> None:
         self.df.drop(self.df[self.df.vlr_licitacao > int(max_value)].index, inplace=True)
