@@ -57,27 +57,3 @@ def main():
             # Saving the resulting file
             filterer.save_file()
             print(f'Acabou o {input_filename}')
-            
-
-
-    # licitacoes_file = input_folder + '/licitacoes.csv'
-    # licitantes_file = input_folder + '/cnpjs-por-licitacao.csv'
-    # socios_file = input_folder + '/vinculos-societarios.csv'
-    
-    # licitacoes = DataCleaning(licitacoes_file)
-    # cols = ['id_licitacao', 'nome_orgao_show', 'sigla_uf',
-    #         'nome_modalidade_show', 'num_modalidade', 'ano_referencia',
-    #         'mes_referencia', 'dsc_objeto_licitacao_show', 'vlr_licitacao']
-    # licitacoes.remove_columns(cols)
-    # licitacoes.remove_na()
-    # licitacoes.remove_invalid_cnpj()
-    # licitacoes.save_file()
-
-    # licitantes = DataCleaning(licitantes_file)
-    # licitantes.remove_na()
-    # licitantes.remove_invalid_cnpj()
-    # licitantes.save_file()
-
-    
-if __name__=="__main__":
-    main()
