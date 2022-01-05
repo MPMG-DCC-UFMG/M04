@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class graph_modeling(ABC):
+class GraphModelingBase(ABC):
     # def __init__(self, value):
     #     self.value = value
     #     super().__init__()
