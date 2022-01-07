@@ -26,12 +26,12 @@ then
 fi
 
 # Creation of the temporary files directory
-TEMP_INPUT="$M04_PATH/clean-filter-data/temp-input"
-if [ ! -d $TEMP_INPUT ]; then mkdir $TEMP_INPUT; fi
+TEMP_INPUT="$M04_PATH/clean-filter-data-module/temp-input"
+if [ ! -d "$TEMP_INPUT" ]; then mkdir "$TEMP_INPUT"; fi
 
 # Creation of the raw data directory
-RAW_INPUT="$M04_PATH/clean-filter-data/raw-input"
-if [ ! -d $RAW_INPUT ]; then mkdir $RAW_INPUT; fi
+RAW_INPUT="$M04_PATH/clean-filter-data-module/raw-input"
+if [ ! -d "$RAW_INPUT" ]; then mkdir "$RAW_INPUT"; fi
 
 # Calling the python script that fetches all of the data from the hdfs
 # For each given file, it checks whether the fetched file is non-empty
@@ -43,8 +43,8 @@ echo -e "${YELLOW}Raw data fetched and brought to local\n${NC}"
 
 # Calling the cleaning and filtering scripts. Each file is processed according to
 # what is defined in its entry on the config.json file 
-python3 "$M04_PATH/clean-filter-data/data-processing.py" $CONFIG_FILE
+python3 "$M04_PATH/clean-filter-data-module/data-processing.py" $CONFIG_FILE
 
-echo -e "${YELLOW}Dados atualizados tratados e colocados na pasta correta\n${NC}"
+echo -e "${YELLOW}Data updated and allocated to the output directory\n${NC}"
 
-echo -e "${GREEN}Encerrando execução do Shell Script 'clean-filter-data.sh'${NC}"
+echo -e "${GREEN}End of execution of the Clean and Filter Data Module\n${NC}"

@@ -7,7 +7,7 @@ from DataCleaning import DataCleaning
 from DataFiltering import DataFiltering
 
 def main():
-    base_dir = os.environ['M04_PATH'] + '/clean-filter-data'
+    base_dir = os.environ['M04_PATH'] + '/clean-filter-data-module'
     input_dir = base_dir + '/raw-input'
     config_file = sys.argv[1]
 
@@ -56,4 +56,5 @@ def main():
             
             # Saving the resulting file
             filterer.save_file()
-            print(f'Acabou o {input_filename}')
+
+main()
