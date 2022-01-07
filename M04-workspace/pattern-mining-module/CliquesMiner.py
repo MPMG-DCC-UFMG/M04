@@ -19,7 +19,8 @@ class CliquesMiner(GeneralPatternMiner):
         for bidding, graph in self.graphs.items():
             cliques = list(nx.find_cliques(graph))
             cliques_larger_than_one = [clique for clique in cliques if len(clique) > 1]
-            self.cliques_per_bidding[bidding] = cliques_larger_than_one
+            if len(cliques_larger_than_one) > 0:
+                self.cliques_per_bidding[bidding] = cliques_larger_than_one
         
     def _export_patterns(self):
         with open(self.output_path, "w") as outfile:
@@ -29,9 +30,3 @@ class CliquesMiner(GeneralPatternMiner):
         self._ingest_data()
         self._mine_patterns()
         self._export_patterns()
-
-input_path = '/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Pickle/pickledata.pkl'
-output_path = '/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Patterns/cliques.json'
-
-cliqueMiner = CliquesMiner(input_path, output_path)
-cliqueMiner.pipeline()
