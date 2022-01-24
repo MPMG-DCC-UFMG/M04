@@ -1,0 +1,12 @@
+[
+  {
+    "moduleName": "biddingCliques",
+    "inputFile": "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Pickle/pickledata.pkl",
+    "outputFile": "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Patterns/cliques.json"
+  },
+  {
+    "moduleName": "crossGraphQuasiCliques",
+    "inputFile": "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Pickle/pickledata.pkl",
+    "outputFile": "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Patterns/cliques.json"
+  }
+]
