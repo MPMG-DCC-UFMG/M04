@@ -21,3 +21,6 @@ build
 
 # Ignore environment files
 venv
+
+# Ignore queries
+queries
