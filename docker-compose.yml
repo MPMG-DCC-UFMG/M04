@@ -1,0 +1,26 @@
+services:
+  clean-filter-data-module:
+    build: ./clean-filter-data-module
+    container_name: clean-filter-data-module
+    volumes: 
+      - ./clean-filter-data-module/output:/home/output
+    tty: true
+
+  graph-modeling-module:
+    build:  ./graph-modeling-module
+    container_name: graph-modeling-module
+    volumes:
+      - ./clean-filter-data-module/output:/home/source/data
+      - ./graph-modeling-module/output:/home/output
+    tty: true
+
+  pattern-mining-module:
+    build:  ./pattern-mining-module
+    container_name:  pattern-mining-module
+    volumes:
+      - ./graph-modeling-module/output:/home/input
+      - ./pattern-mining-module/output:/home/output
+    
+    tty: true
+
+

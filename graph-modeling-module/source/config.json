@@ -1,0 +1,28 @@
+
+{
+  "graphs_info":{
+    "path": "/home/source/data/read-database-licitacao.csv",
+    "id": "id_licitacao"
+  },
+  "nodes_per_graph":{
+    "path": "/home/source/data/read-database-cnpjs-por-licitacao.csv",
+    "node": "num_cpf_cnpj_show",
+    "graph":"id_licitacao"
+  },
+  "edges_info":{
+    "path":"/home/source/data/vinculos-com-datas.csv",
+    "node1_enters":"data_entrada_sociedade_cnpj1",
+    "node2_enters":"data_entrada_sociedade_cnpj2",
+    "node1_leaves":"data_saida_sociedade_cnpj1",
+    "node2_leaves":"data_saida_sociedade_cnpj2",
+    "graph_node_matrix_1":"num_cpf_cnpj_matriz1",
+    "graph_node_matrix_2":"num_cpf_cnpj_matriz2",
+    "reference_data":"data_referencia",
+    "monthly_decay":0.1
+  },
+  "output":{
+    "format":"",
+    "output_path":"/home/output/result.pkl"
+
+  }
+}
