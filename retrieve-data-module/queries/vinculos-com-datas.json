@@ -1,0 +1,61 @@
+{
+  "spark_fractal": [
+    {
+      "name": "spark.master",
+      "value": "local[*]"
+    },
+    { 
+      "name": "spark.driver.host",
+      "value": "10.21.0.127"
+    },
+    { 
+      "name": "spark.driver.memory",
+      "value": "200g"
+    },
+    { 
+      "name": "spark.executor.cores",
+      "value": "5"
+    },
+    { 
+      "name": "spark.executor.instances",
+      "value": "4"
+    },
+    { 
+      "name": "spark.executor.memory",
+      "value": "40g"
+    }
+  ],
+  "spark_database": [
+    {
+      "name": "spark.master",
+      "value": "yarn"
+    },
+    {
+      "name": "spark.driver.host",
+      "value": "10.21.0.127"
+    },
+    {
+      "name": "spark.executor.memory",
+      "value": "6g"
+    },
+    {
+      "name": "spark.hadoop.hive.llap.daemon.service.hosts",
+      "value": "@llap0"
+    },
+    {
+      "name": "spark.sql.hive.hiveserver2.jdbc.url",
+      "value": "jdbc:hive2://hadoopmn-gsi-prod01.mpmg.mp.br:2181,hadoopmn-gsi-prod02.mpmg.mp.br:2181,hadoopmn-gsi-prod03.mpmg.mp.br:2181/dataset;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2;AuthMech=3;password=<PASSWORD>;user=<USER>"
+    },
+    {
+      "name": "spark.datasource.hive.warehouse.exec.results.max",
+      "value": "2147483647"
+    }
+  ],
+  "app": {
+    "name" : "read_database",
+	"query":"SELECT num_cpf_cnpj1, num_cpf_cnpj_matriz1, num_cpf_cnpj2, num_cpf_cnpj_matriz2, id_licitacao, date_Format(data_referencia, 'dd/MM/yyyy') AS data_referencia, num_cpf_cnpj_socio, date_Format(data_entrada_sociedade_cnpj1, 'dd/MM/yyyy') AS data_entrada_sociedade_cnpj1, date_Format(data_saida_sociedade_cnpj1, 'dd/MM/yyyy') AS data_saida_sociedade_cnpj1, date_Format(data_entrada_sociedade_cnpj2, 'dd/MM/yyyy') AS data_entrada_sociedade_cnpj2, date_Format(data_saida_sociedade_cnpj2, 'dd/MM/yyyy') AS data_saida_sociedade_cnpj2 FROM graph.m04_vinculo_sociedade_licitacoes",
+    "output_path": "hdfs://hadoopgsiha/dados-fractal/read-database-vinculos-societarios-com-datas.csv",
+    "delimiter" : ";",
+    "show_header": "true"	
+  }
+}

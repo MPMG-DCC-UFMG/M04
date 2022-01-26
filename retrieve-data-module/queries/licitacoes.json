@@ -1,0 +1,61 @@
+{
+  "spark_fractal": [
+    {
+      "name": "spark.master",
+      "value": "local[*]"
+    },
+    { 
+      "name": "spark.driver.host",
+      "value": "10.21.0.127"
+    },
+    { 
+      "name": "spark.driver.memory",
+      "value": "200g"
+    },
+    { 
+      "name": "spark.executor.cores",
+      "value": "5"
+    },
+    { 
+      "name": "spark.executor.instances",
+      "value": "4"
+    },
+    { 
+      "name": "spark.executor.memory",
+      "value": "40g"
+    }
+  ],
+  "spark_database": [
+    {
+      "name": "spark.master",
+      "value": "yarn"
+    },
+    {
+      "name": "spark.driver.host",
+      "value": "10.21.0.127"
+    },
+    {
+      "name": "spark.executor.memory",
+      "value": "6g"
+    },
+    {
+      "name": "spark.hadoop.hive.llap.daemon.service.hosts",
+      "value": "@llap0"
+    },
+    {
+      "name": "spark.sql.hive.hiveserver2.jdbc.url",
+      "value": "jdbc:hive2://hadoopmn-gsi-prod01.mpmg.mp.br:2181,hadoopmn-gsi-prod02.mpmg.mp.br:2181,hadoopmn-gsi-prod03.mpmg.mp.br:2181/dataset;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2;AuthMech=3;password=<PASSWORD>;user=<USER>"
+    },
+    {
+      "name": "spark.datasource.hive.warehouse.exec.results.max",
+      "value": "2147483647"
+    }
+  ],
+  "app": {
+    "name" : "read_database",
+    "query": "SELECT l.id_licitacao, nome_orgao_show, sigla_uf, nome_modalidade_show, num_modalidade, ano_referencia, dsc_objeto_licitacao_show, h.vlr_licitacao, mes_exercicio as mes_referencia, id_orgao, cod_orgao, cod_nome_tipo_orgao_show, nome_tipo_orgao_show, nome_regiaoplanejamento_show, id_unidade, cod_unidade, dsc_unidade, cod_subunidade, dsc_subunidade, num_processo, ano_processo, cod_tipo_cadastro_show, nome_tipo_cadastro_show, cod_modalidade_show, cod_nat_processo_show, nome_nat_processo_show, data_abert_proc_adm_show, data_conv_edital_show, data_pub_edital_show, data_receb_prev_doc_show, num_exercicio_edital, cod_tipo_licitacao_show, nome_tipo_licitacao_show, nome_nat_objeto_show, cod_unid_medida_show, dsc_unid_medida_show, dsc_criterio_aceit_show, cod_criterio_adjud_show, nome_criterio_adjud_show, dsc_processo_lote_show, dsc_ind_pref_micro_show dsc_ind_exclusiva_micro_show, dsc_ind_sub_contrato_micro_show, dsc_ind_reserv_micro_show, num_cpf_cnpj_municipio, cod_ibge_municipio, cod_siafi, nome_cidade_show, ibge_microrregiao_id_microrregiao, nome_microrregiao_show, ibge_mesorregiao_id_mesorregiao, nome_mesorregiao_show, ibge_regiao_imediata_id_regiao_imediata, nome_regiao_imediata_show, ibge_regiao_intermediaria_id_regiao_intermediaria, nome_regiao_intermediaria_show, id_uf, longitude, latitude FROM dataset_v2.sicom_20210109_licitacao AS l INNER JOIN( SELECT hom.id_licitacao, SUM(hom.qtde_item_show * hom.vlr_unitario_show) AS vlr_licitacao FROM dataset_v2.sicom_20210109_licitacao_homologado AS hom GROUP BY hom.id_licitacao) AS h ON l.id_licitacao = h.id_licitacao ORDER BY ano_referencia, mes_exercicio , nome_cidade_show , nome_orgao_show",
+    "output_path": "hdfs://hadoopgsiha/dados-fractal/read-database-licitacao.csv",
+    "delimiter" : ";",
+    "show_header": "true"	
+  }
+}
