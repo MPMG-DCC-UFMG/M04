@@ -33,5 +33,7 @@ column that acts as a unique id for the nodes and graph is the name of the colum
 with the graph id's.
 
 edges_info has the infomation to create the bonds between nodes using a decay.
+Monthly_decay is used to calculate the exponential decay , and the other keys are 
+the names of the  csv collums.
 
 output has the output path.
