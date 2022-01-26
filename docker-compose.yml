@@ -5,7 +5,7 @@ services:
     volumes: 
       - ./clean-filter-data-module/output:/home/output
       # - ./test:/home/input
-      - /home/ufmg.m06dcc/M04-master/M04/M04-workspace/input :/home/raw-input
+      - /home/ufmg.m06dcc/M04-master/M04/M04-workspace/leitura-dados/raw-input:/home/raw-input
     tty: true
 
   graph-modeling-module:

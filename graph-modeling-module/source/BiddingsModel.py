@@ -56,7 +56,8 @@ class BiddingsModel(GraphModelingBase):
 
             graph_id = int(getattr(row, self.graph_id))
             node_id = int(getattr(row, self.node_id))
-            (self.dict_graphs[graph_id]).add_node(int(node_id))
+            if graph_id in self.dict_graphs:
+                (self.dict_graphs[graph_id]).add_node(int(node_id))
 
     def define_edges(self):
         # Helper function that converts a string date into a Datetime Date object
@@ -129,8 +130,9 @@ class BiddingsModel(GraphModelingBase):
         # update graphs with edges and weights
         for cnpj1, cnpj2, bidding in bonds_dict:
             weight = bonds_dict[(cnpj1, cnpj2, bidding)]
-            self.dict_graphs[bidding].add_edge(
-                int(cnpj1), int(cnpj2), weight=weight)
+            if bidding in self.dict_graphs:
+                self.dict_graphs[bidding].add_edge(
+                    int(cnpj1), int(cnpj2), weight=weight)
 
     def save_graphs(self):
         nx.write_gpickle(self.dict_graphs, self.output)
