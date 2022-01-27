@@ -18,6 +18,7 @@ build
 
 # Ignore object files generated at compilation time
 *.o
+__pycache__
 
 # Ignore environment files
 venv
