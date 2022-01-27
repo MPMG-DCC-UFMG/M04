@@ -1,0 +1,10 @@
+[
+  {
+    "fraudDetectionMethod": "rankCnpj",
+    "inputFilepaths": {
+      "biddingInfo": "/fake/file/path/biddingInfo.csv",
+      "linksInfo": "/fake/file/path/linksInfo.csv"
+    },
+    "outputFilepath": "/fake/file/path/output.csv"
+  }
+]
