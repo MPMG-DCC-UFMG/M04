@@ -4,7 +4,7 @@ This module is responsible for the fraud detection part of the pipeline being de
 
 It consists of a script that instantiates different classes, each one corresponding to one of the ranking systems. Each class should be able to handle its data ingestion, its data treatment and its data exporting procedures.
 
-As of now, there's one implemented class, which ranks CNPJs based on their participations on biddings and gives them an alarm number, which is based on the biddings it took part in and on the value of those biddings. This class will be explained further down the document.
+As of now, there are two implemented classes. the first one ranks CNPJs based on their participations on biddings and gives them an alarm number, which is based on the biddings it took part in and on the value of those biddings. The second one ranks the different biddings by one of the metrics determined in the previous module. They will both be explained further down the document.
 
 ## Requirements for running
 * Python 3
@@ -13,10 +13,10 @@ As of now, there's one implemented class, which ranks CNPJs based on their parti
 ## Usage
 Once properly downloaded, this module's behavior is as described initially, running the different ranking algorithms, with it's different inputs, and generating it's desired outputs. The input filepaths, the output filepath and the algorithms to be run are specified in the config file, as described below.
 
-The config file consists of an array of objects, each one with the following properties:
+The config file consists of an array of objects, each one with at least the following properties:
 * `fraudDetectionMethod`: specifies the fraud detection algorithms to be run. Current available options are:
   * `rankCnpj`: assigns an alert value to each CNPJ based on the values of the biddings it took part on.
-  * `rankCrossGraphQuasiCliques`: under development.
+  * `rankByMetric`: returns all the calculated metrics for a given bidding, ordering by a chosen metric either in ascending or descending order.
 * `inputFilepaths`: this is an object which takes as its keys the type of info of the input and as the values the filepaths of said files
 * `outputFilepath`: filepath of the output file for the ranked entities
 ```
@@ -31,10 +31,11 @@ The config file consists of an array of objects, each one with the following pro
     "outputFilepath": "/fake/file/path/output.csv"
   },
   {
-    "fraudDetectionMethod": "rankCrossGraphQuasiCliques",
+    "fraudDetectionMethod": "rankByMetric",
+    "metric": "competition",
+    "ascending": false,
     "inputFilepaths": {
-      "biddingInfo": "/fake/file/path/biddingInfo.csv",
-      "linksInfo": "/fake/file/path/linksInfo.csv"
+      "metricsInfo": "/fake/file/path/metrics.csv"
     },
     "outputFilepath": "/fake/file/path/output2.csv"
   }
@@ -57,3 +58,19 @@ The output is a CSV with the following columns:
 * `cnpj`: CNPJ that is under analysis
 * `participations`: list of biddings it took part on
 * `alert`: alert value
+
+### RankByMetric
+To execute the pipeline of this class, it is necessary to pass it one CSV file, with all of the metrics calculated for each bidding.
+Besides, the configuration of this class also takes the following parameters:
+* `metric`: the metric to be used to rank the biddings. Current available options are:
+  * `density`
+  * `competition`
+  * `nbOfNodes`
+  * `nbOfEdges`
+  * `nbOfCliques`
+  * `sizeOfLargestClique`
+* `ascending`: if true, the biddings will be ranked in ascending order according to the chosen metric, otherwise, descending order.
+
+The only input the module requires is the filepath of the metrics file, which should be in CSV format:
+* `metricsInfo`: path to the metrics file
+
