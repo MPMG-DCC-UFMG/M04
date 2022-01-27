@@ -2,9 +2,16 @@
   {
     "fraudDetectionMethod": "rankCnpj",
     "inputFilepaths": {
-      "biddingInfo": "/fake/file/path/biddingInfo.csv",
-      "linksInfo": "/fake/file/path/linksInfo.csv"
+      "biddingInfo": "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Treated/read-database-licitacao.csv",
+      "linksInfo": "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/vinculos_com_pesos.csv"
     },
-    "outputFilepath": "/fake/file/path/output.csv"
+    "outputFilepath": "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Rankings/rank_cnpj.csv"
+  },
+  {
+    "fraudDetectionMethod": "rankByMetric",
+    "metric": "competition",
+    "ascending": false,
+    "inputFilepath": "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Metrics/metrics.csv",
+    "outputFilepath": "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Rankings/ranked_by_competition.csv"
   }
 ]
