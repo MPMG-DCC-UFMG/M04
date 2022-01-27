@@ -1,5 +1,5 @@
  
-# Pattern mining
+# Fraud detection
 This module is responsible for the fraud detection part of the pipeline being developed by the M04 team of the PCA - MPMG program during the years of 2021 and 2022. It tries to detect frauds by generating multiple rankings, each one highlighting biddings and CNPJs that deserve further looking into, because they show unexpected behaviors.
 
 It consists of a script that instantiates different classes, each one corresponding to one of the ranking systems. Each class should be able to handle its data ingestion, its data treatment and its data exporting procedures.
