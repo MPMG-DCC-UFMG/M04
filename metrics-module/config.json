@@ -1,0 +1,46 @@
+{
+  "inputFiles": {
+    "generalData": "path/to/file.csv",
+    "graphData": "path/to/file.pkl",
+    "cliquesData": "path/to/file.json"
+  },
+  "outputFile": "path/to/output_file.csv",
+  "desiredMetrics": [
+    {
+      "metric": "density",
+      "requiredInputs": [
+        "graphData"
+      ]
+    },
+    {
+      "metric": "competition",
+      "requiredInputs": [
+        "graphData"
+      ]
+    },
+    {
+      "metric": "nbOfNodes",
+      "requiredInputs": [
+        "graphData"
+      ]
+    },
+    {
+      "metric": "nbOfEdges",
+      "requiredInputs": [
+        "graphData"
+      ]
+    },
+    {
+      "metric": "nbOfCliques",
+      "requiredInputs": [
+        "cliquesData"
+      ]
+    },
+    {
+      "metric": "sizeOfLargestClique",
+      "requiredInputs": [
+        "cliquesData"
+      ]
+    }
+  ]
+}
