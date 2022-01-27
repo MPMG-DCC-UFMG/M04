@@ -1,10 +1,10 @@
 {
   "inputFiles": {
-    "generalData": "path/to/file.csv",
-    "graphData": "path/to/file.pkl",
-    "cliquesData": "path/to/file.json"
+    "generalData": "/home/input/csv/read-database-licitacao.csv",
+    "graphData": "/home/input/graph/result.pkl",
+    "cliquesData": "/home/input/json/cliques.json"
   },
-  "outputFile": "path/to/output_file.csv",
+  "outputFile": "/home/output/metrics-file.csv",
   "desiredMetrics": [
     {
       "metric": "density",

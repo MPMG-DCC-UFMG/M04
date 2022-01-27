@@ -10,7 +10,7 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}Executing the Metrics Module\n${NC}"
 
 # Setting up the base directory
-BASE_DIR="$(dirname "$(realpath "$0")")"
+# BASE_DIR="$(dirname "$(realpath "$0")")"
 
 CONFIG_FILE=$1
 
@@ -22,6 +22,6 @@ fi
 
 # Calling the python script that calls the different metrics generators
 # It calls the modules specified in the config file
-python3 "$BASE_DIR/get-metrics.py" $CONFIG_FILE
+python3 "/home/get-metrics.py" $CONFIG_FILE
 
 echo -e "${GREEN}\nEnd of execution of the Metrics Module\n${NC}"
