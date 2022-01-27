@@ -43,3 +43,17 @@ The config file consists of an array of objects, each one with the following pro
 The module is used by calling the main shell script, `fraud-detection.sh`, passing as it's only argument the config file, e.g.:
 
 `fraud-detection.sh config.json`
+## Available classes
+### RankCnpj
+To execute the pipeline of this class, it is necessary to pass it two CSV files. The first one regards the general information about the biddings, and the second one the information about the links CNPJs that partake on the biddings, with each link having a weight.
+They should be as follows:
+
+* `biddingInfo`: should contain one column named `id_licitacao`, which is the id of the bidding, and another column named `vlr_licitacao`, which is the value of said bidding. It could have other columns, but they will be ignored. The file should be in CSV format.
+* `linksInfo`: should contain one column named `id_licitacao`, which is the id of the bidding, one column namesd `cnpj1` and one named `cnpj2`, which represent both enterprises which have a link, and a column called `peso`, which represents the weight of the bond. The file should be in CSV format.
+
+This algorithm assigns an alert value to each CNPJ based on the values of the biddings it took part on and ranks them according to this alert value.
+
+The output is a CSV with the following columns:
+* `cnpj`: CNPJ that is under analysis
+* `participations`: list of biddings it took part on
+* `alert`: alert value
