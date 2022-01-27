@@ -69,15 +69,3 @@ class RankCnpj(object):
                 rank_cnpj_dic[cnpj]['participations'][bidding] += 1
             else:
                 rank_cnpj_dic[cnpj]['participations'][bidding] = 1
-        
-
-# if __name__ == "__main__":
-#     FILE_IN_1 = "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/vinculos_com_pesos.csv"
-#     FILE_IN_2 = "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/valores_lic.csv"
-    
-#     link_data_df = pd.read_csv(FILE_IN_1, sep=';')
-#     bidding_info_df = pd.read_csv(FILE_IN_2, sep=';')
-
-#     output_path = '/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Rankings/rank_cnpj.csv'
-
-#     RankCnpj(link_data_df, bidding_info_df, output_path)
