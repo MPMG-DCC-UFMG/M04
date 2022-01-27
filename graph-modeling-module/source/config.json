@@ -22,7 +22,8 @@
   },
   "output":{
     "format":"",
-    "output_path":"/home/output/result.pkl"
+    "output_path_graph":"/home/output/result.pkl",
+    "output_path_csv":"/home/output/vinculos-com-peso.csv"
 
   }
 }

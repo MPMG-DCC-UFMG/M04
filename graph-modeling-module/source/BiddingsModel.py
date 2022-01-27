@@ -30,7 +30,8 @@ class BiddingsModel(GraphModelingBase):
         self.reference_data = data["edges_info"]["reference_data"]
         self.monthly_decay = data["edges_info"]["monthly_decay"]
         # output info
-        self.output = data["output"]["output_path"]
+        self.output = data["output"]["output_path_graph"]
+        self.csv_output = data["output"]["output_path_csv"]
     # the input is a file with all biddings that will be represented by a graph
     # uses bidding_info_file to generate dictionary of graphs
 
@@ -56,7 +57,8 @@ class BiddingsModel(GraphModelingBase):
 
             graph_id = int(getattr(row, self.graph_id))
             node_id = int(getattr(row, self.node_id))
-            (self.dict_graphs[graph_id]).add_node(int(node_id))
+            if graph_id in self.dict_graphs:
+                (self.dict_graphs[graph_id]).add_node(int(node_id))
 
     def define_edges(self):
         # Helper function that converts a string date into a Datetime Date object
@@ -126,21 +128,35 @@ class BiddingsModel(GraphModelingBase):
         # Takes the maximum of the weights and sets it as the sole value in the dict
         for bond_key in bonds_dict:
             bonds_dict[bond_key] = max(bonds_dict[bond_key])
+        bonds_list = []
         # update graphs with edges and weights
         for cnpj1, cnpj2, bidding in bonds_dict:
             weight = bonds_dict[(cnpj1, cnpj2, bidding)]
-            self.dict_graphs[bidding].add_edge(
-                int(cnpj1), int(cnpj2), weight=weight)
+            if bidding in self.dict_graphs:
+                self.dict_graphs[bidding].add_edge(
+                    int(cnpj1), int(cnpj2), weight=weight)
+                bonds_list.append([cnpj1, cnpj2, bidding, weight])
+        self.bonds_list =bonds_list
+
+       
+
+     
+
 
     def save_graphs(self):
         nx.write_gpickle(self.dict_graphs, self.output)
+
+    def save_csv(self):
+        bonds_df = pd.DataFrame(self.bonds_list, columns=['cnpj1', 'cnpj2', 'id_licitacao', 'peso'])
+        bonds_df = bonds_df.sort_values(by='cnpj1')
+        bonds_df.to_csv(self.csv_output, sep=';', index=False)
 
     def pipeline(self):
         self.define_graphs()
         self.populate_graphs()
         self.define_edges()
         self.save_graphs()
-
+        self.save_csv()
 
 obj = BiddingsModel()
 obj.pipeline()
