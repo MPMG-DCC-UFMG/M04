@@ -11,7 +11,9 @@
     "fraudDetectionMethod": "rankByMetric",
     "metric": "competition",
     "ascending": false,
-    "inputFilepath": "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Metrics/metrics.csv",
+    "inputFilepaths": {
+      "metricsInfo": "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Metrics/metrics.csv"
+    },
     "outputFilepath": "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Rankings/ranked_by_competition.csv"
   }
 ]
