@@ -40,6 +40,7 @@ services:
     volumes:
       - ./clean-filter-data-module/output:/home/input/cleaned-data
       - ./graph-modeling-module/output:/home/input/bond-weights-data
+      - ./metrics-module/output:/home/input/metrics-data
       - ./fraud-detection-module/output:/home/output
     tty: true
 

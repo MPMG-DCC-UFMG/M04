@@ -12,7 +12,7 @@
     "metric": "competition",
     "ascending": false,
     "inputFilepaths": {
-      "metricsInfo": "/fake/file/path/input.csv"
+      "metricsInfo": "/home/input/metrics-data/metrics-file.csv"
     },
     "outputFilepath": "/home/output/fraud2.csv"
   }
