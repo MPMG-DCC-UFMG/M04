@@ -10,13 +10,13 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}Executing the Filter and Clean Data Module\n${NC}"
 
 Setting up environment variables
-HADOOP_HOME="/home/ufmg.m06dcc/repositories/hadoop-3.1.1"
-HADOOP_CONF_DIR="/home/ufmg.m06dcc/repositories/hadoop-3.1.1/etc/hadoop/"
-HDP_VERSION="3.1.5.0-152"
-HADOOP_USER_NAME="trilhasgsi"
-YARN_CONF_DIR="/home/ufmg.m06dcc/repositories/hadoop-3.1.1/etc/hadoop/"
+export HADOOP_HOME="/home/ufmg.m06dcc/repositories/hadoop-3.1.1"
+export HADOOP_CONF_DIR="/home/ufmg.m06dcc/repositories/hadoop-3.1.1/etc/hadoop/"
+export HDP_VERSION="3.1.5.0-152"
+export HADOOP_USER_NAME="trilhasgsi"
+export YARN_CONF_DIR="/home/ufmg.m06dcc/repositories/hadoop-3.1.1/etc/hadoop/"
 # M04_PATH="/home"
-BASE_DIR="$(dirname "$(realpath "$0")")"
+export BASE_DIR="$(dirname "$(realpath "$0")")"
 
 CONFIG_FILE=$1
 
