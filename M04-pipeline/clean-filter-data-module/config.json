@@ -1,6 +1,6 @@
 {
   "baseHadoopURL": "hdfs://hadoopgsiha/dados-fractal",
-  "outputDirectory": "/home/output",
+  "outputDirectory": "/home/ufmg.m06dcc/data/treated",
   "startDate": "02/04/2015",
   "endDate": "31/12/2022", 
   "maxValue": "1000000",

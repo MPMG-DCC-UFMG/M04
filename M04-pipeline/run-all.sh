@@ -1,9 +1,10 @@
-
 BASE_DIR="$(dirname "$(realpath "$0")")"
 
 # Run undockerized modules
 sh "$BASE_DIR/retrieve-data-module/retrieve-data.sh"
 sh "$BASE_DIR/clean-filter-data-module/clean-filter-data.sh" "$BASE_DIR/clean-filter-data-module/config.json"
+
+# Run dockerized modules
 # docker exec clean-filter-data-module /home/clean-filter-data.sh /home/config.json
 docker exec graph-modeling-module /home/graph-modeling-module.sh /home/source/config.json
 docker exec pattern-mining-module /home/mine-patterns.sh /home/config.json
