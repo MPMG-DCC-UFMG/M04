@@ -7,7 +7,7 @@ from DataCleaning import DataCleaning
 from DataFiltering import DataFiltering
 
 def main():
-    base_dir =  '/home'
+    base_dir =  os.environ['BASE_DIR']
     input_dir = base_dir + '/raw-input'
     config_file = sys.argv[1]
 

@@ -3,7 +3,7 @@ import os
 import sys
 
 def main():
-    base_dir = os.environ['M04_PATH'] + '/clean-filter-data'
+    base_dir = os.environ['BASE_DIR']
     temp_dir = base_dir + '/temp-input'
     output_dir = base_dir + '/raw-input'
     hadoop_home = os.environ['HADOOP_HOME']
