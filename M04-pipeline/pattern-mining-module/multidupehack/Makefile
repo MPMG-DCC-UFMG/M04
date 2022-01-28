@@ -1,7 +1,7 @@
 NAME = multidupehack
 INSTALL_DIR = /usr/bin
-CXX = clang++ -Ofast -flto -DBOOST_MATH_OVERFLOW_ERROR_POLICY=ignore_error -Wall -Wextra -Weffc++ -std=c++11 -pedantic -Wno-overloaded-virtual -Wno-unused-parameter
-# CXX = g++ -Ofast -flto -DBOOST_MATH_OVERFLOW_ERROR_POLICY=ignore_error -Wall -Wextra -Weffc++ -std=c++11 -pedantic -Wno-unused-parameter # with g++-9, the executable is ~10% slower than with clang++-9
+# CXX = clang++ -Ofast -flto -DBOOST_MATH_OVERFLOW_ERROR_POLICY=ignore_error -Wall -Wextra -Weffc++ -std=c++11 -pedantic -Wno-overloaded-virtual -Wno-unused-parameter
+CXX = g++ -Ofast -flto -DBOOST_MATH_OVERFLOW_ERROR_POLICY=ignore_error -Wall -Wextra -Weffc++ -std=c++11 -pedantic -Wno-unused-parameter # with g++-9, the executable is ~10% slower than with clang++-9
 # CXX = g++ -g -DBOOST_MATH_OVERFLOW_ERROR_POLICY=ignore_error -Wall -Wextra -Weffc++ -std=c++11 -pedantic -Wno-unused-parameter
 EXTRA_CXXFLAGS = -lboost_program_options
 HELP2MAN = help2man -n 'List every (closed) noise-tolerant n-set satisfying given constraints and/or optimizing given measures' -N
