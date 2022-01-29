@@ -9,7 +9,7 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}Executing the Filter and Clean Data Module\n${NC}"
 
-Setting up environment variables
+# Setting up environment variables
 export HADOOP_HOME="/home/ufmg.m06dcc/repositories/hadoop-3.1.1"
 export HADOOP_CONF_DIR="/home/ufmg.m06dcc/repositories/hadoop-3.1.1/etc/hadoop/"
 export HDP_VERSION="3.1.5.0-152"
