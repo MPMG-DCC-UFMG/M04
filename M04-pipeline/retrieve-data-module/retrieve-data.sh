@@ -26,9 +26,11 @@ mkdir /tmp/spark-events
 
 echo -e "${YELLOW}Initial setup done\n${NC}"
 
-SCRIPT=$(readlink -f "$0")
-MODULE_PATH=$(dirname "$SCRIPT")
-QUERIES_PATH="$MODULE_PATH/queries"
+# SCRIPT=$(readlink -f "$0")
+# MODULE_PATH=$(dirname "$SCRIPT")
+
+BASE_DIR="$(dirname "$(realpath "$0")")"
+QUERIES_PATH="$BASE_DIR/queries"
 
 for file in $(ls "$QUERIES_PATH");
 do
