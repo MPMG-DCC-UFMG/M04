@@ -1,18 +1,19 @@
 services:
-  clean-filter-data-module:
-    build: ./clean-filter-data-module
-    container_name: clean-filter-data-module
-    volumes: 
-      - ./clean-filter-data-module/output:/home/output
-      # - ./test:/home/input
-      # - /home/ufmg.m06dcc/M04-master/M04/M04-workspace/leitura-dados/raw-input:/home/raw-input
-    tty: true
+  # clean-filter-data-module:
+  #   build: ./clean-filter-data-module
+  #   container_name: clean-filter-data-module
+  #   volumes: 
+  #     - ./clean-filter-data-module/output:/home/output
+  #     # - ./test:/home/input
+  #     - /home/ufmg.m06dcc/M04-master/M04/M04-workspace/leitura-dados/raw-input:/home/raw-input
+  #   tty: true
 
   graph-modeling-module:
     build:  ./graph-modeling-module
     container_name: graph-modeling-module
     volumes:
-      - ./clean-filter-data-module/output:/home/source/data
+      # - ./clean-filter-data-module/output:/home/source/data
+      - /home/ufmg.m06dcc/data/treated:/home/source/data # UNDOCKERIZED
       - ./graph-modeling-module/output:/home/output
     tty: true
 
@@ -30,7 +31,8 @@ services:
     container_name:  metrics-module
     volumes:
       - ./graph-modeling-module/output:/home/input/graph
-      - ./clean-filter-data-module/output:/home/input/csv
+      # - ./clean-filter-data-module/output:/home/input/csv
+      - /home/ufmg.m06dcc/data/treated:/home/input/csv # UNDOCKERIZED
       - ./pattern-mining-module/output:/home/input/json
       - ./metrics-module/output:/home/output
     tty: true
@@ -38,13 +40,10 @@ services:
     build:  ./fraud-detection-module
     container_name: fraud-detection-module
     volumes:
-      - ./clean-filter-data-module/output:/home/input/cleaned-data
+      # - ./clean-filter-data-module/output:/home/input/cleaned-data
+      - /home/ufmg.m06dcc/data/treated:/home/input/cleaned-data # UNDOCKERIZED
       - ./graph-modeling-module/output:/home/input/bond-weights-data
       - ./metrics-module/output:/home/input/metrics-data
       - ./pattern-mining-module/output:/home/input/max-clique
       - ./fraud-detection-module/output:/home/output
-      
     tty: true
-
-
-

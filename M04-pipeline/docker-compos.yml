@@ -1,0 +1,50 @@
+services:
+  # clean-filter-data-module:
+  #   build: ./clean-filter-data-module
+  #   container_name: clean-filter-data-module
+  #   volumes: 
+  #     - ./clean-filter-data-module/output:/home/output
+  #     # - ./test:/home/input
+  #     # - /home/ufmg.m06dcc/M04-master/M04/M04-workspace/leitura-dados/raw-input:/home/raw-input
+  #   tty: true
+
+  graph-modeling-module:
+    build:  ./graph-modeling-module
+    container_name: graph-modeling-module
+    volumes:
+      - ./clean-filter-data-module/output:/home/source/data
+      - ./graph-modeling-module/output:/home/output
+    tty: true
+
+  pattern-mining-module:
+    build:  ./pattern-mining-module
+    container_name:  pattern-mining-module
+    volumes:
+      - ./graph-modeling-module/output:/home/input
+      - ./pattern-mining-module/output:/home/output
+    
+    tty: true
+
+  metrics-module:
+    build:  ./metrics-module
+    container_name:  metrics-module
+    volumes:
+      - ./graph-modeling-module/output:/home/input/graph
+      - ./clean-filter-data-module/output:/home/input/csv
+      - ./pattern-mining-module/output:/home/input/json
+      - ./metrics-module/output:/home/output
+    tty: true
+  fraud-detection-module:
+    build:  ./fraud-detection-module
+    container_name: fraud-detection-module
+    volumes:
+      - ./clean-filter-data-module/output:/home/input/cleaned-data
+      - ./graph-modeling-module/output:/home/input/bond-weights-data
+      - ./metrics-module/output:/home/input/metrics-data
+      - ./pattern-mining-module/output:/home/input/max-clique
+      - ./fraud-detection-module/output:/home/output
+      
+    tty: true
+
+
+
