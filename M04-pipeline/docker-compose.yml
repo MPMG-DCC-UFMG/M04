@@ -44,6 +44,7 @@ services:
       - /home/ufmg.m06dcc/data/treated:/home/input/cleaned-data # UNDOCKERIZED
       - ./graph-modeling-module/output:/home/input/bond-weights-data
       - ./metrics-module/output:/home/input/metrics-data
+      - ./pattern-mining-module/output:/home/input/max-clique
       - ./fraud-detection-module/output:/home/output
     tty: true
 
