@@ -5,7 +5,7 @@ services:
     volumes: 
       - ./clean-filter-data-module/output:/home/output
       # - ./test:/home/input
-      - /home/ufmg.m06dcc/M04-master/M04/M04-workspace/leitura-dados/raw-input:/home/raw-input
+      # - /home/ufmg.m06dcc/M04-master/M04/M04-workspace/leitura-dados/raw-input:/home/raw-input
     tty: true
 
   graph-modeling-module:
@@ -41,7 +41,9 @@ services:
       - ./clean-filter-data-module/output:/home/input/cleaned-data
       - ./graph-modeling-module/output:/home/input/bond-weights-data
       - ./metrics-module/output:/home/input/metrics-data
+      - ./pattern-mining-module/output:/home/input/max-clique
       - ./fraud-detection-module/output:/home/output
+      
     tty: true
 
 

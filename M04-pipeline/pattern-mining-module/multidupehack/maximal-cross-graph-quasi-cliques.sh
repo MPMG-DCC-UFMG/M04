@@ -87,8 +87,7 @@ maximal_cross_graph_3_quasi_cliques_or_more() {
 	grep -f - "$1" |
 	grep -f $TMP/vertex_sel |
 	awk -F \; '{ print; print $2 ";" $1 ";" $3 ";" $4 }' |
-	./multidupehack --ids \; --ods \; -e "2147483648 2147483648 $epsilon" -c 0\ 1 -s 3 -g $TMP/edge --pn |
-	./canonical-output.awk -F \;
+	/home/multidupehack/multidupehack --ids \; --ods \; -e "2147483648 2147483648 $epsilon" -c 0\ 1 -s 3 -g $TMP/edge --pn ;
 }
 
 maximal_cross_graph_2_quasi_clique() {
