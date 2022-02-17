@@ -1,0 +1,111 @@
+{
+  "baseHadoopURL": "hdfs://hadoopgsiha/dados-fractal",
+  "outputDirectory": "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Treated/",
+  "files": [
+    {
+      "fileName": "itens-vlr-global.csv",
+      "outputFileName": "itens-vlr-global.csv",
+      "columns": [
+        "id_licitacao",
+        "id_item_licitacao",
+        "ano_exercicio",
+        "mes_licitacao",
+        "sigla_uf",
+        "num_lote",
+        "nome_lote",
+        "num_item",
+        "nome_item",
+        "nome_cidade",
+        "vlr_global_minimo",
+        "nb_of_participants"
+      ],
+      "extraTreatments": {
+        "maxValue": {
+          "value": 1000000,
+          "column": "vlr_global_minimo"
+        },
+        "minValue": {
+          "value": 1,
+          "column": "vlr_global_minimo"
+        },
+        "startDate": {
+          "value": "02/04/2015",
+          "columns": {
+            "ano_referencia": "ano_exercicio",
+            "mes_referencia": "mes_licitacao"
+          }
+        },
+        "endDate": {
+          "value": "31/12/2022",
+          "columns": {
+            "ano_referencia": "ano_exercicio",
+            "mes_referencia": "mes_licitacao"
+          }
+        }
+      },
+      "renameColumns": {
+        "vlr_global_minimo": "vlr_total",
+        "nb_of_participants": "num_licitantes"
+      }
+    },
+    {
+      "fileName": "participacoes-itens-vlr-global.csv",
+      "outputFileName": "participacoes-itens-vlr-global.csv",
+      "columns": [
+        "id_licitacao",
+        "id_item_licitacao",
+        "num_cpf_cnpj_licitante"
+      ],
+      "extraTreatments": {
+        "validateCNPJ": {
+          "columns": [
+            "num_cpf_cnpj_licitante"
+          ]
+        }
+      },
+      "renameColumns": {
+        "id_item_licitacao": "id_item",
+        "num_cpf_cnpj_licitante": "cnpj"
+      }
+    },
+    {
+      "fileName": "vinculos-societarios.csv",
+      "outputFileName": "vinculos-societarios.csv",
+      "columns": [],
+      "extraTreatments": {
+        "validateCNPJ": {
+          "columns": [
+            "num_cpf_cnpj1",
+            "num_cpf_cnpj2"
+          ]
+        }
+      }
+    },
+    {
+      "fileName": "vinculos-telefonicos.csv",
+      "outputFileName": "vinculos-telefonicos.csv",
+      "columns": [],
+      "extraTreatments": {
+        "validateCNPJ": {
+          "columns": [
+            "num_cpf_cnpj1",
+            "num_cpf_cnpj2"
+          ]
+        }
+      }
+    },
+    {
+      "fileName": "vinculos-enderecos.csv",
+      "outputFileName": "vinculos-enderecos.csv",
+      "columns": [],
+      "extraTreatments": {
+        "validateCNPJ": {
+          "columns": [
+            "num_cpf_cnpj1",
+            "num_cpf_cnpj2"
+          ]
+        }
+      }
+    }
+  ]
+}
