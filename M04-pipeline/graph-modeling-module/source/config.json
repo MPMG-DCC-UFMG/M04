@@ -1,29 +1,58 @@
 
 {
   "graphs_info":{
-    "path": "/home/source/data/read-database-licitacao.csv",
-    "id": "id_licitacao"
+    "path": "/dados01/workspace/ufmg_2021_m04/data/itens-vlr-global.csv",
+    "id": "id_licitacao",
+    "mes_referencia":"mes_licitacao",
+    "ano_referencia":"ano_exercicio"
+
   },
   "nodes_per_graph":{
-    "path": "/home/source/data/read-database-cnpjs-por-licitacao.csv",
-    "node": "num_cpf_cnpj_show",
+    "path": "/dados01/workspace/ufmg_2021_m04/data/participacoes-itens-vlr-global.csv",
+    "node": "num_cpf_cnpj_municipio",
     "graph":"id_licitacao"
   },
   "edges_info":{
-    "path":"/home/source/data/vinculos-com-datas.csv",
+    "corporative_bonds":{
+    "path":"/dados01/workspace/ufmg_2021_m04/data/vinculos-com-datas.csv",
     "node1_enters":"data_entrada_sociedade_cnpj1",
     "node2_enters":"data_entrada_sociedade_cnpj2",
     "node1_leaves":"data_saida_sociedade_cnpj1",
     "node2_leaves":"data_saida_sociedade_cnpj2",
     "graph_node_matrix_1":"num_cpf_cnpj_matriz1",
     "graph_node_matrix_2":"num_cpf_cnpj_matriz2",
-    "reference_data":"data_referencia",
-    "monthly_decay":0.1
+    "graph_id":"id_licitacao",
+    "default_weight":1
+    
+    } ,
+    "adress_bonds":{
+      "path":"/dados01/workspace/ufmg_2021_m04/data/vinculos-enderecos.csv",
+      "node1_enters":"data_inicio1",
+      "node2_enters":"data_inicio2",
+      "node1_leaves":"data_fim1",
+      "node2_leaves":"data_fim2",
+      "graph_node_matrix_1":"num_cpf_cnpj_matriz1",
+      "graph_node_matrix_2":"num_cpf_cnpj_matriz2",
+      "graph_id":"id_licitacao",
+      "default_weight":0.8
+      },
+      "telephone_bonds":{
+      "path":"/dados01/workspace/ufmg_2021_m04/data/vinculos-telefonicos.csv",
+      "node1_enters":"data_inicio1",
+      "node2_enters":"data_inicio2",
+      "node1_leaves":"data_fim1",
+      "node2_leaves":"data_fim2",
+      "graph_node_matrix_1":"num_cpf_cnpj_matriz1",
+      "graph_node_matrix_2":"num_cpf_cnpj_matriz2",
+      "graph_id":"id_licitacao",
+      "default_weight":0.6
+      }
+   
   },
   "output":{
     "format":"",
-    "output_path_graph":"/home/output/result.pkl",
-    "output_path_csv":"/home/output/vinculos-com-peso.csv"
+    "output_path_graph":"output/result.pkl",
+    "output_path_csv":"output/vinculos-com-peso.csv"
 
   }
 }
