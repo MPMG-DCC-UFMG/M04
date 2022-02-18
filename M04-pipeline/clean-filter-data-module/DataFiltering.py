@@ -19,9 +19,9 @@ class DataFiltering(object):
     def select_from_period(self, date_columns: dict, start_date: str, end_date: str) -> None:
         def within_period(row):
 
-            day = row[date_columns['dia']] if 'dia' in date_columns else '01'
-            month = row[date_columns['mes']] if 'mes' in date_columns else '01'
-            year = row[date_columns['ano']] if 'ano' in date_columns else '1900'
+            day = row[date_columns['day']] if 'day' in date_columns else '01'
+            month = row[date_columns['month']] if 'month' in date_columns else '01'
+            year = row[date_columns['year']] if 'year' in date_columns else '1900'
 
             ref_date = f'{day}/{month}/{year}'
             return self._in_given_period(start_date, end_date, ref_date)

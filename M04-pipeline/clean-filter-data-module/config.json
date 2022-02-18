@@ -40,16 +40,16 @@
           "treatmentName": "startDate",
           "date": "02/02/2020",
           "columns": {
-            "ano": "ano_exercicio",
-            "mes": "mes_licitacao"
+            "year": "ano_exercicio",
+            "month": "mes_licitacao"
           }
         },
         {
           "treatmentName": "endDate",
           "date": "30/03/2021",
           "columns": {
-            "ano": "ano_exercicio",
-            "mes": "mes_licitacao"
+            "year": "ano_exercicio",
+            "month": "mes_licitacao"
           }
         }
       ],
