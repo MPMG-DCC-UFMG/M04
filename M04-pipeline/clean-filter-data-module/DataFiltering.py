@@ -10,10 +10,20 @@ class DataFiltering(object):
     def _get_out_file_path(self, filename: str, output_dir: str) -> str:  
         return os.path.join(output_dir, filename)
 
-    def select_from_period(self, start_date: str, end_date: str) -> None:
-        
+    def max_value(self, column: str, value: str):
+        self.df.drop(self.df[self.df[column] > int(value)].index, inplace=True)
+
+    def min_value(self, column: str, value: str):
+        self.df.drop(self.df[self.df[column] < int(value)].index, inplace=True)
+
+    def select_from_period(self, date_columns: dict, start_date: str, end_date: str) -> None:
         def within_period(row):
-            ref_date = f'01/{row.mes_referencia}/{row.ano_referencia}'
+
+            day = row[date_columns['day']] if 'day' in date_columns else '01'
+            month = row[date_columns['month']] if 'month' in date_columns else '01'
+            year = row[date_columns['year']] if 'year' in date_columns else '1900'
+
+            ref_date = f'{day}/{month}/{year}'
             return self._in_given_period(start_date, end_date, ref_date)
 
         self.df = self.df[self.df.apply(
@@ -21,9 +31,14 @@ class DataFiltering(object):
             axis=1
         )]
 
-    def remove_exceeding_value_biddings(self, max_value: str) -> None:
-        self.df.drop(self.df[self.df.vlr_licitacao > int(max_value)].index, inplace=True)
-        pass
+    def after_date(self, date_columns: dict, start_date: str) -> None:
+        self.select_from_period(date_columns, start_date, None)
+
+    def before_date(self, date_columns: dict, end_date: str) -> None:
+        self.select_from_period(date_columns, None, end_date)
+
+    def rename_column(self, old_name: str, new_name: str):
+        self.df.rename(columns={old_name: new_name}, inplace=True)
 
     # Helper functions that check whether a bidding has happened during a given
     # period of time
