@@ -1,55 +1,129 @@
 {
   "baseHadoopURL": "hdfs://hadoopgsiha/dados-fractal",
-  "outputDirectory": "/home/ufmg.m06dcc/data/treated",
-  "startDate": "02/04/2015",
-  "endDate": "31/12/2022", 
-  "maxValue": "1000000",
+  "outputDirectory": "/media/hdd/Arquivos/Documents/Estudo/UFMG/PCA - DCC/data/Treated/",
   "files": [
     {
-      "fileName": "read-database-licitacao.csv",
-      "outputFileName": "read-database-licitacao.csv",
+      "fileName": "itens-vlr-global.csv",
+      "outputFileName": "itens-vlr-global.csv",
       "columns": [
         "id_licitacao",
-        "nome_orgao_show",
+        "id_item_licitacao",
+        "ano_exercicio",
+        "mes_licitacao",
         "sigla_uf",
-        "nome_modalidade_show",
-        "num_modalidade",
-        "ano_referencia",
-        "mes_referencia",
-        "dsc_objeto_licitacao_show",
-        "vlr_licitacao"
+        "num_lote",
+        "nome_lote",
+        "num_item",
+        "nome_item",
+        "nome_cidade",
+        "vlr_global_minimo",
+        "nb_of_participants"
       ],
       "extraTreatments": [
-        "maxValue",
-        "startDate", 
-        "endDate"
-      ]
+        {
+          "treatmentName": "removeNA"
+        },
+        {
+          "treatmentName": "removeDuplicates"
+        },
+        {
+          "treatmentName": "maxValue",
+          "value": 1000000,
+          "column": "vlr_global_minimo"
+        },
+        {
+          "treatmentName": "minValue",
+          "value": 1,
+          "column": "vlr_global_minimo"
+        },
+        {
+          "treatmentName": "startDate",
+          "date": "02/02/2020",
+          "columns": {
+            "ano": "ano_exercicio",
+            "mes": "mes_licitacao"
+          }
+        },
+        {
+          "treatmentName": "endDate",
+          "date": "30/03/2021",
+          "columns": {
+            "ano": "ano_exercicio",
+            "mes": "mes_licitacao"
+          }
+        }
+      ],
+      "renameColumns": {
+        "vlr_global_minimo": "vlr_total",
+        "nb_of_participants": "num_licitantes"
+      }
     },
     {
-      "fileName": "read-database-cnpjs-por-licitacao.csv",
-      "outputFileName": "read-database-cnpjs-por-licitacao.csv",
-      "columns": [],
-      "extraTreatments": [
-        "validate1CNPJ"
-      ]
-    },
-    {
-      "fileName": "read-database-licitacao-socios-em-comum.csv",
-      "outputFileName": "read-database-licitacao-socios-em-comum.csv",
+      "fileName": "participacoes-itens-vlr-global.csv",
+      "outputFileName": "participacoes-itens-vlr-global.csv",
       "columns": [
-        "cnpj1", 
-        "cnpj2", 
-        "id_licitacao"
+        "id_licitacao",
+        "id_item_licitacao",
+        "num_cpf_cnpj_licitante"
       ],
       "extraTreatments": [
-        "validate2CNPJs"
-      ]
+        {
+          "treatmentName": "validateCNPJ",
+          "column": "num_cpf_cnpj_licitante"
+        }
+      ],
+      "renameColumns": {
+        "id_item_licitacao": "id_item",
+        "num_cpf_cnpj_licitante": "cnpj"
+      }
     },
     {
-      "fileName": "read-database-vinculos-societarios-com-datas.csv",
-      "outputFileName": "vinculos-com-datas.csv",
+      "fileName": "vinculos-societarios.csv",
+      "outputFileName": "vinculos-societarios.csv",
       "columns": [],
-      "extraTreatments": []
+      "extraTreatments": [
+        {
+          "treatmentName": "validateCNPJ",
+          "column": "num_cpf_cnpj1"
+        },
+        {
+          "treatmentName": "validateCNPJ",
+          "column": "num_cpf_cnpj2"
+        }
+      ],
+      "renameColumns": {}
+    },
+    {
+      "fileName": "vinculos-telefonicos.csv",
+      "outputFileName": "vinculos-telefonicos.csv",
+      "columns": [],
+      "extraTreatments": [
+        {
+          "treatmentName": "validateCNPJ",
+          "column": "num_cpf_cnpj1"
+        },
+        {
+          "treatmentName": "validateCNPJ",
+          "column": "num_cpf_cnpj2"
+        }
+      ],
+      "renameColumns": {}
+    },
+    {
+      "fileName": "vinculos-enderecos.csv",
+      "outputFileName": "vinculos-enderecos.csv",
+      "columns": [],
+      "extraTreatments": [
+        {
+          "treatmentName": "validateCNPJ",
+          "column": "num_cpf_cnpj1"
+        },
+        {
+          "treatmentName": "validateCNPJ",
+          "column": "num_cpf_cnpj2"
+        }
+      ],
+      "renameColumns": {}
     }
   ]
 }

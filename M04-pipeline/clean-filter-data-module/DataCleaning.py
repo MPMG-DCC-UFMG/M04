@@ -14,21 +14,18 @@ class DataCleaning(object):
 
     def remove_na(self) -> None:
         self.df = self.df.dropna()
+
+    def remove_duplicates(self) -> None:
         self.df.drop_duplicates(inplace=True)
     
-    def remove_invalid_cnpj_bidding(self) -> None:
-        self.df = self.df[self.df['num_cpf_cnpj_show'].map(
-            lambda cnpj: self._check_cnpj(str(cnpj))
-        )]
-        
-    def remove_invalid_cnpj_bond(self) -> None:
+    def validate_cnpj(self, column: str) -> None:
         self.df = self.df[self.df.apply(
-            lambda row: self._check_cnpj(row.cnpj1) and self._check_cnpj(row.cnpj2), axis=1
+            lambda row: self._check_cnpj(row[column]), axis=1
         )]
 
     def _check_cnpj(self, cnpj: str) -> bool:
+        cnpj = str(cnpj).zfill(14)
         if not str(cnpj).isdecimal() : return False
-        if not len(str(cnpj)) == 14 : return False
 
         # Até aqui descartamos CNPJs com problema de formatação. 
         # Agora verificaremos os dígitos verificadores
