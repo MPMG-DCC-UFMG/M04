@@ -1,0 +1,67 @@
+
+{
+  "graphs_info":{
+    "path": "teste/read-database-licitacao.csv",
+    "id": "id_licitacao",
+    "mes_referencia":"mes_referencia",
+    "ano_referencia":"ano_referencia"
+
+  },
+  "nodes_per_graph":{
+    "path": "teste/read-database-cnpjs-por-licitacao.csv",
+    "node": "num_cpf_cnpj_show",
+    "graph":"id_licitacao"
+  },
+  "edges_info":{
+    "corporative_bonds":{
+    "path":"teste/vinculos-com-datas.csv",
+    "node1_enters":"data_entrada_sociedade_cnpj1",
+    "node2_enters":"data_entrada_sociedade_cnpj2",
+    "node1_leaves":"data_saida_sociedade_cnpj1",
+    "node2_leaves":"data_saida_sociedade_cnpj2",
+    "graph_node_matrix_1":"num_cpf_cnpj_matriz1",
+    "graph_node_matrix_2":"num_cpf_cnpj_matriz2",
+    "graph_id":"id_licitacao",
+    "immunity_period":90,
+    "decay_constant_after":0.004,
+    "decay_constant_before":0.002,
+    "default_weight":1
+    
+    } ,
+    "adress_bonds":{
+      "path":"teste/vinculos-enderecos.csv",
+      "node1_enters":"data_inicio1",
+      "node2_enters":"data_inicio2",
+      "node1_leaves":"data_fim1",
+      "node2_leaves":"data_fim2",
+      "graph_node_matrix_1":"num_cpf_cnpj_matriz1",
+      "graph_node_matrix_2":"num_cpf_cnpj_matriz2",
+      "graph_id":"id_licitacao",
+      "immunity_period":90,
+      "decay_constant_after":0.004,
+      "decay_constant_before":0.002,
+      "default_weight":0.8
+      },
+      "telephone_bonds":{
+      "path":"teste/vinculos-telefonicos.csv",
+      "node1_enters":"data_inicio1",
+      "node2_enters":"data_inicio2",
+      "node1_leaves":"data_fim1",
+      "node2_leaves":"data_fim2",
+      "graph_node_matrix_1":"num_cpf_cnpj_matriz1",
+      "graph_node_matrix_2":"num_cpf_cnpj_matriz2",
+      "graph_id":"id_licitacao",
+      "immunity_period":90,
+      "decay_constant_after":0.004,
+      "decay_constant_before":0.002,
+      "default_weight":0.6
+      }
+   
+  },
+  "output":{
+    "format":"",
+    "output_path_graph":"output/result.pkl",
+    "output_path_csv":"output/vinculos-com-peso.csv"
+
+  }
+}

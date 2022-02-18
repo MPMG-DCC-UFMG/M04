@@ -22,7 +22,7 @@ class BiddingsModel(GraphModelingBase):
         # nodes per graph info
         self.nodes_per_graph_path = data["nodes_per_graph"]["path"]
         self.node_id = data["nodes_per_graph"]["node"]
-        self.graph_id = data["nodes_per_graph"]["graph"]
+        # self.graph_id = data["nodes_per_graph"]["graph"]
         # output info
         self.output = data["output"]["output_path_graph"]
         self.csv_output = data["output"]["output_path_csv"]
@@ -66,7 +66,8 @@ class BiddingsModel(GraphModelingBase):
             return formatted_date
         # Function that determines the weight of a given bond based on when the bidding
         # happened and when the bond was existant
-        def __determine_weight(base_weight,node_1_in, node_2_in, node_1_out, node_2_out, graph_id):
+        def __determine_weight(base_weight,node_1_in, node_2_in, node_1_out, node_2_out, 
+            graph_id,i_period,dca,dcb):
            
 
             node_1_in = __get_date_obj(node_1_in)
@@ -84,19 +85,19 @@ class BiddingsModel(GraphModelingBase):
             delta_end =(graph_date - bond_end).days
             delta_start =(graph_date - bond_start).days
             
-            #if the graph date was beetwen the existance of the bond +-(90 days)
+            #if the graph date was beetwen the existance of the bond +-(i_period days)
             #return full weight
-            if delta_start+90 > 0 and delta_end -90 <0 :
+            if delta_start+i_period > 0 and delta_end -i_period <0 :
                 
                 return base_weight
-            #if the graph date is more than 90 days after the bond ends , the weigth begin to decay
-            if delta_end -90 >=0 :
+            #if the graph date is more than i_period days after the bond ends , the weigth begin to decay
+            if delta_end -i_period >=0 :
                 #half life= 1 year
-                return base_weight*(e**(-0.002*(abs(delta_start)-90)))
-            #if the graph date is more than 90 days before the bond start, they weigth begin to decay 
-            if delta_start +90 <=0 :
+                return base_weight*(e**(-dca*(abs(delta_start)-i_period)))
+            #if the graph date is more than i_period days before the bond start, they weigth begin to decay 
+            if delta_start +i_period <=0 :
                 #half life= 6 months
-                return base_weight*(e**(-0.004*(abs(delta_end)-90)))
+                return base_weight*(e**(-dcb*(abs(delta_end)-i_period)))
   
 
         bonds_dict = {}
@@ -108,10 +109,11 @@ class BiddingsModel(GraphModelingBase):
             node2_leaves = self.config["edges_info"][i]["node2_leaves"]
             graph_node_matrix_1 = self.config["edges_info"][i]["graph_node_matrix_1"]
             graph_node_matrix_2 = self.config["edges_info"][i]["graph_node_matrix_2"]
-           
+            i_period =self.config["edges_info"][i]["immunity_period"]
             graph_id =self.config["edges_info"][i]["graph_id"]
             default_weight= self.config["edges_info"][i]["default_weight"]
-
+            dcb=self.config["edges_info"][i]["decay_constant_before"]
+            dca=self.config["edges_info"][i]["decay_constant_after"]
             bonds = pd.read_csv(edges_info_path, delimiter=';')
 
             bonds = bonds[bonds[node1_enters]
@@ -129,7 +131,9 @@ class BiddingsModel(GraphModelingBase):
                                             row[node1_leaves],
                                             row[node2_leaves],
                                             row[graph_id],
-                           
+                                            i_period,
+                                            dcb,
+                                            dca
                                             ), axis=1)
 
             # Creates a dictionaty with all the cnpj1, cnpj2, bidding-id trios as keys
