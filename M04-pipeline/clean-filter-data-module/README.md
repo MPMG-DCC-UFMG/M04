@@ -4,8 +4,8 @@ This module is responsible for the data cleaning and filtering part of the pipel
 It executes the following tasks:
 
 1. Fetches the raw data from the configured Hadoop filesystem
-2. Cleans the data, excluding null values, repeated values and invalid values
-3. Filters the data, be it by date or by maximum bidding value (other filter may be added in the future)
+2. Cleans the data, excluding null values, repeated values and invalid values, if wanted
+3. Filters the data, be it by date or by value (other filter may be added in the future)
 4. Outputs the treated files to the defined output directory.
 
 ## Requirements for running
@@ -32,26 +32,128 @@ The module is used by calling the main shell script, `clean-filter-data.sh`, pas
 {
   "baseHadoopURL": "hdfs:hadoop-base-url-here",
   "outputDirectory": "path-to-output-directory-here",
-  "startDate": "20/09/2020", // if not necessary, leave as an empty string. The format should be DD/MM/YYYY
-  "endDate": "20/09/2021", // if not necessary, leave as an empty string. The format should be DD/MM/YYYY
-  "maxValue": "10000000", // if not necessary, leave as an empty string
   "files": [ 
   // array that lists all of the files to be fetched and processed
   // each of the entries should have the following format
     {
-      "fileName": "read-database-licitacao.csv", // Filename as is in the Hadoop Filesystem
-      "outputFileName": "read-database-licitacao.csv", // Desired output filename, once treated
-      "columns": ["id_licitacao", "nome_orgao_show", "sigla_uf", "nome_modalidade_show", "num_modalidade", "ano_referencia", "mes_referencia", "dsc_objeto_licitacao_show", "vlr_licitacao"], 
+      "fileName": "itens-vlr-global.csv", // Filename as is in the Hadoop Filesystem
+      "outputFileName": "itens-vlr-global.csv", // Desired output filename, once treated
+      "columns": [
+        "id_licitacao",
+        "id_item_licitacao",
+        "ano_exercicio",
+        "mes_licitacao",
+        "sigla_uf",
+        "num_lote",
+        "nome_lote",
+        "num_item",
+        "nome_item",
+        "nome_cidade",
+        "vlr_global_minimo",
+        "nb_of_participants"
+      ], 
       // Array of columns to be kept. If all columns are to be kept, leave as an empty array
-      "extraTreatments": ["maxValue", "startDate", "endDate"] 
-      // Array of extra treatments that can be applied to the data. If no treatment is to be applied, leave it as an empty array
+      "extraTreatments": [
+        {
+          "treatmentName": "removeNA"
+        },
+        {
+          "treatmentName": "removeDuplicates"
+        },
+        {
+          "treatmentName": "maxValue",
+          "value": 1000000,
+          "column": "vlr_global_minimo"
+        },
+        {
+          "treatmentName": "minValue",
+          "value": 1,
+          "column": "vlr_global_minimo"
+        },
+        {
+          "treatmentName": "startDate",
+          "date": "02/02/2020",
+          "columns": {
+            "year": "ano_exercicio",
+            "month": "mes_licitacao"
+          }
+        },
+        {
+          "treatmentName": "endDate",
+          "date": "30/03/2021",
+          "columns": {
+            "year": "ano_exercicio",
+            "month": "mes_licitacao"
+          }
+        }
+      ] 
+      // Array of extra treatments that can be applied to the data. If no treatment is to be applied, leave it as an empty array. Each treatment is an object which has the property "treatmentName" and the other properties that might be needed for that specific treatment.
     }
-  ]
+  ],
+  "renameColumns": {
+    "vlr_global_minimo": "vlr_total",
+    "nb_of_participants": "num_licitantes"
+  }
+  // Object that maps the old column names to the new ones. If no renaming is to be applied, leave it as an empty object. Take note that the renaming of columns is done after the extra treatments.
 }
 ```
 Currently, the `"extraTreatments"` available are:
-* `"maxValue"`: drops any bidding which exceeds the stipulated maximum value
-* `"startDate"`: drops any bidding which happens before the stipulated start date.
-* `"endDate"`: drops any bidding which happens after the stipulated end date.
-* `"validate1CNPJ"`: drops any bidding participation from a CNPJ that is deemed invalid
-* `"validate2CNPJs"`: drops any bond between CNPJs in which at least one is deemed invalid
+* `"removeNA"`: Removes all rows with null values. Doesn't take any parameters.
+```
+{
+  "treatmentName": "removeNA"
+}
+```
+* `"removeDuplicates"`: Removes all rows with repeated values. Doesn't take any parameters.
+```
+{
+  "treatmentName": "removeDuplicates"
+}
+```
+* `"maxValue"`: Removes all rows with values greater than the given value. Takes the value and the column as parameters.
+```
+{
+  "treatmentName": "maxValue",
+  "value": 1000000,
+  "column": "vlr_global_minimo"
+}
+```
+* `"minValue"`: Removes all rows with values less than the given value. Takes the value and the column as parameters.
+```
+{
+  "treatmentName": "minValue",
+  "value": 1,
+  "column": "vlr_global_minimo"
+}
+```
+* `"startDate"`: Removes all rows with dates before the given date. Takes the date and the columns as parameters. The date must be in the format `"DD/MM/YYYY"`. The columns are to be given in an object which should contain one key for each column. You can pass only a year, a year and a month or a year, a month and a day. If month or day are not provided, they default to 01.
+```
+{
+  "treatmentName": "startDate",
+  "date": "02/02/2020",
+  "columns": {
+    "year": "ano_exercicio",
+    "month": "mes_licitacao",
+    "day": "dia_licitacao"
+  }
+}
+```
+* `"endDate"`: Removes all rows with dates after the given date. Takes the date and the columns as parameters. The date must be in the format `"DD/MM/YYYY"`. The columns are to be given in an object which should contain one key for each column. You can pass only a year, a year and a month or a year, a month and a day. If month or day are not provided, they default to 01.
+```
+{
+  "treatmentName": "endDate",
+  "date": "30/03/2021",
+  "columns": {
+    "year": "ano_exercicio",
+    "month": "mes_licitacao",
+    "day": "dia_licitacao"
+  }
+}
+```
+* `"validateCNPJ"`: Validates the CNPJ of the given column and drops invalid values. Takes the column as parameter.
+```
+{
+  "treatmentName": "validateCNPJ",
+  "column": "cnpj_fornecedor"
+}
+```

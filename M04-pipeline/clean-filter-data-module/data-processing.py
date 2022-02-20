@@ -17,9 +17,6 @@ def main():
         # Getting the configs that are common to all the files
         output_dir = configs['outputDirectory']
         files = configs['files']
-        start_date = configs.get('startDate')
-        end_date = configs.get('endDate')
-        max_value = configs.get('maxValue')
 
         for file in files:
             # Getting the configs specific to each file
@@ -27,32 +24,40 @@ def main():
             output_filename = file['outputFileName']
             columns = file['columns']
             extra_treatments = file["extraTreatments"]
+            column_renames = file["renameColumns"]
 
             # Cleaning stage
-            df = pd.read_csv(f'{input_dir}/{input_filename}', sep=';')
+            df = pd.read_csv(f'{input_dir}/{input_filename}', sep=';', low_memory=False)
             cleaner = DataCleaning(df, output_filename, output_dir)
 
             # Cleaning treaments that should only happen to certain files, when specified
             if len(columns) > 0 :
                 cleaner.select_columns(columns)
-            if len(extra_treatments) > 0 :
-                if 'validate1CNPJ' in extra_treatments: cleaner.remove_invalid_cnpj_bidding()
-                if 'validate2CNPJs' in extra_treatments: cleaner.remove_invalid_cnpj_bond()
 
-            # Cleaning treatments that should happen to every file
-            cleaner.remove_na()
+            for treatment in extra_treatments:
+                if treatment['treatmentName'] == 'validateCNPJ':
+                    cleaner.validate_cnpj(treatment['column'])
+                elif treatment['treatmentName'] == 'removeNA':
+                    cleaner.remove_na()
+                elif treatment['treatmentName'] == 'removeDuplicates':
+                    cleaner.remove_duplicates()
 
             # Filtering stage        
             filterer = DataFiltering(cleaner.df, output_filename, output_dir)
 
-            if len(extra_treatments) > 0 :
-                # Filtering by value
-                if 'maxValue' in extra_treatments and bool(max_value):
-                    filterer.remove_exceeding_value_biddings(max_value)
-            
-                # Filtering by period
-                if 'startDate' in extra_treatments or 'endDate' in extra_treatments:
-                    filterer.select_from_period(start_date, end_date)
+            for treatment in extra_treatments:
+                if treatment['treatmentName'] == 'maxValue':
+                    filterer.max_value(treatment['column'], treatment['value'])
+                elif treatment['treatmentName'] == 'minValue':
+                    filterer.min_value(treatment['column'], treatment['value'])
+                elif treatment['treatmentName'] == 'startDate':
+                    filterer.after_date(treatment['columns'], treatment['date'])
+                elif treatment['treatmentName'] == 'endDate':
+                    filterer.before_date(treatment['columns'], treatment['date'])
+
+            # Renaming columns
+            for old_name, new_name in column_renames.items():
+                filterer.rename_column(old_name, new_name)
             
             # Saving the resulting file
             filterer.save_file()
