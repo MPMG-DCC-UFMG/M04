@@ -1,6 +1,6 @@
 {
   "inputFiles": {
-    "generalData": "/home/input/csv/read-database-licitacao.csv",
+    "generalData": "/home/input/csv/itens-vlr-global.csv",
     "graphData": "/home/input/graph/result.pkl",
     "cliquesData": "/home/input/json/cliques.json"
   },

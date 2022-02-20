@@ -1,20 +1,20 @@
 
 {
     "graphs_info":{
-      "path": "/dados01/workspace/ufmg_2021_m04/data/itens-vlr-global.csv",
+      "path": "/home/source/data/itens-vlr-global.csv",
       "id": "id_licitacao",
       "mes_referencia":"mes_licitacao",
       "ano_referencia":"ano_exercicio"
   
     },
     "nodes_per_graph":{
-      "path": "/dados01/workspace/ufmg_2021_m04/data/participacoes-itens-vlr-global.csv",
+      "path": "/home/source/data/participacoes-itens-vlr-global.csv",
       "node": "num_cpf_cnpj_municipio",
       "graph":"id_licitacao"
     },
     "edges_info":{
       "corporative_bonds":{
-      "path":"/dados01/workspace/ufmg_2021_m04/data/vinculos-societarios.csv",
+      "path":"/home/source/data/vinculos-societarios.csv",
       "node1_enters":"data_entrada_sociedade_cnpj1",
       "node2_enters":"data_entrada_sociedade_cnpj2",
       "node1_leaves":"data_saida_sociedade_cnpj1",
@@ -29,7 +29,7 @@
       
       } ,
       "adress_bonds":{
-        "path":"/dados01/workspace/ufmg_2021_m04/data/vinculos-enderecos.csv",
+        "path":"/home/source/data/vinculos-enderecos.csv",
         "node1_enters":"data_inicio1",
         "node2_enters":"data_inicio2",
         "node1_leaves":"data_fim1",
@@ -43,7 +43,7 @@
         "default_weight":0.8
         },
         "telephone_bonds":{
-        "path":"/dados01/workspace/ufmg_2021_m04/data/vinculos-telefonicos.csv",
+        "path":"/home/source/data/vinculos-telefonicos.csv",
         "node1_enters":"data_inicio1",
         "node2_enters":"data_inicio2",
         "node1_leaves":"data_fim1",

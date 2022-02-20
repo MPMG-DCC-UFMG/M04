@@ -2,7 +2,7 @@
   {
     "fraudDetectionMethod": "rankCnpj",
     "inputFilepaths": {
-      "biddingInfo": "/home/input/cleaned-data/read-database-licitacao.csv",
+      "biddingInfo": "/home/input/cleaned-data/itens-vlr-global.csv",
       "linksInfo": "/home/input/bond-weights-data/vinculos-com-peso.csv"
     },
     "outputFilepath": "/home/output/fraud.csv"
