@@ -2,11 +2,12 @@ import pandas as pd
 
 class RankCnpj(object):
     def __init__(self, link_data_df: pd.DataFrame, bidding_info_df: pd.DataFrame, output_path: str,configs) -> None:
+        self.graphId=  configs["columnNames"]["graphId"]
+        self.graphValues = configs["columnNames"]["graphValue"]
         link_data_dic = self._get_link_data(link_data_df,configs)
         biddings_dic = self._get_bidding_values(bidding_info_df,configs)
         rank_cnpj = self.rank_cnpj(link_data_dic, biddings_dic, 1,configs)
-        self.graphId=  configs["columnNames"]["graphId"]
-        self.graphValues = configs["columnNames"]["graphValue"]
+    
         # Sort by alarm value
         sort_rank_cnpj =  {k: v for k, v in sorted(
             rank_cnpj.items(), key = lambda x: x[1]['alarm'], reverse=True)}
