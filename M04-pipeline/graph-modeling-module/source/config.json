@@ -13,7 +13,12 @@
       "graph":"id_licitacao",
       "graph_id_2":"id_item_licitacao"
     },
-    
+    "item_per_graph":{
+      "path":"/home/source/data/participacoes-itens-vlr-global.csv",
+      "graph":"id_licitacao",
+      "id_item":"id_item",
+      "node_id":"cnpj"
+    },
     "edges_info":{
       "corporative_bonds":{
       "path":"/home/source/data/vinculos-societarios.csv",

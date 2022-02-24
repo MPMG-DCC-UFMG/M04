@@ -26,6 +26,10 @@ class BiddingsModel(GraphModelingBase):
         # output info
         self.output = data["output"]["output_path_graph"]
         self.csv_output = data["output"]["output_path_csv"]
+
+        #itens per graph file
+        self.item_graph= pd.read_csv(self.config["item_per_graph"]["path"])
+        
     # the input is a file with all biddings that will be represented by a graph
     # uses bidding_info_file to generate dictionary of graphs
 
@@ -72,7 +76,7 @@ class BiddingsModel(GraphModelingBase):
         # Function that determines the weight of a given bond based on when the bidding
         # happened and when the bond was existant
         def __determine_weight(base_weight,node_1_in, node_2_in, node_1_out, node_2_out,
-            graph_id,i_period,dca,dcb,id_item1,id_item2):
+            graph_id,i_period,dca,dcb,id_item1,id_item2,id_item_col ):
 
 
             node_1_in = __get_date_obj(node_1_in)
@@ -92,11 +96,19 @@ class BiddingsModel(GraphModelingBase):
 
             delta_end =(graph_date - bond_end).days
             delta_start =(graph_date - bond_start).days
-            #if two nodes have diferente secondary ids weight gets halved
-            same_secondary_id=1
-            if id_item1!=id_item2:
+            #if two nodes have diferent secondary ids weight goes to 0
+            same_secondary_id =1
+            df_item1= self.item_graph.loc[(self.item_graph[self.graph_id]==graph_id
+                                                    & self.item_graph["cnpj"] == id_item1
+                                                    )][id_item_col]
+            df_item2= self.item_graph.loc[(self.item_graph[self.graph_id]==graph_id
+                                                    & self.item_graph["cnpj"] == id_item2
+                                                    )][id_item_col]
+            inter= pd.merge(df_item1, df_item2, how='inner', on=["id_licitacao","id_item","cnpj"])
+            if inter.empty:
                 same_secondary_id=0
-
+            if id_item2!=id_item1:
+                same_secondary_id=0
             #if the graph date was beetwen the existance of the bond +-(i_period days)
             #return full weight
             
@@ -111,8 +123,7 @@ class BiddingsModel(GraphModelingBase):
             if delta_start +i_period <=0 :
                 #half life= 6 months
                 return base_weight*(e**(-dcb*(abs(delta_end)-i_period)))*same_secondary_id
-  
-
+      
         bonds_dict = {}
         for i in self.config["edges_info"]:
             edges_info_path = self.config["edges_info"][i]["path"]
@@ -127,22 +138,16 @@ class BiddingsModel(GraphModelingBase):
             default_weight= self.config["edges_info"][i]["default_weight"]
             dcb=self.config["edges_info"][i]["decay_constant_before"]
             dca=self.config["edges_info"][i]["decay_constant_after"]
+            id_item_col = self.config['nodes_per_graph']['graph_id_2']
             bonds = pd.read_csv(edges_info_path, delimiter=';')
-
             bonds = bonds[bonds[node1_enters]!= node1_enters]
+            
             # #constructing reference data from all graphs file 
             # #self.graph_id is the name of the collum
             # # and graph id is the real value of the row beign processed
             # reference_date=self.df_node_info.loc[self.df_node_info[self.graph_id]==graph_id][[self.month,self.year]]
             # reference_date = date(year=int(reference_date[self.year]),month=int(reference_date[self.month]))
-            try:
-                id_item1=self.df_node_info.loc[(self.df_node_info[self.graph_id]== graph_node_matrix_1)]
-            except:
-                return 0
-            try:
-                id_item2=self.df_node_info.loc[(self.df_node_info[self.graph_id]== graph_node_matrix_2)]
-            except:
-                return 0
+           
             bonds['weight'] = bonds.apply(
                 lambda row: __determine_weight(default_weight,
                                             row[node1_enters],
@@ -153,8 +158,9 @@ class BiddingsModel(GraphModelingBase):
                                             i_period,
                                             dcb,
                                             dca,
-                                            id_item1,
-                                            id_item2,
+                                            row[graph_node_matrix_1],
+                                            row[graph_node_matrix_2],
+                                            id_item_col 
 
                                             ), axis=1)
 
