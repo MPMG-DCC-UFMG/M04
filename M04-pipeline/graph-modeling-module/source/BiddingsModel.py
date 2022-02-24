@@ -22,7 +22,7 @@ class BiddingsModel(GraphModelingBase):
         # nodes per graph info
         self.nodes_per_graph_path = data["nodes_per_graph"]["path"]
         self.node_id = data["nodes_per_graph"]["node"]
-        # self.graph_id = data["nodes_per_graph"]["graph"]
+        
         # output info
         self.output = data["output"]["output_path_graph"]
         self.csv_output = data["output"]["output_path_csv"]
@@ -59,45 +59,58 @@ class BiddingsModel(GraphModelingBase):
         # Helper function that converts a string date into a Datetime Date object
         # that allows for comparison
         def __get_date_obj(date_string):
+            info =date_string.split('/')
+            if len(info)==3:
+                formatted_date =date(year=int(info[2]),month=int(info[1]),day=int(info[0]))
+                return formatted_date
+            else:
+                info =date_string.split('-')
+                info[2]=info[2].split(' ')[0]
+                formatted_date = date(year=int(info[0]),month=int(info[1]),day=int(info[2]))
 
-            [day, month, year] = date_string.split('/')
-            formatted_date = date(
-                year=int(year), month=int(month), day=int(day))
-            return formatted_date
+                return formatted_date
         # Function that determines the weight of a given bond based on when the bidding
         # happened and when the bond was existant
-        def __determine_weight(base_weight,node_1_in, node_2_in, node_1_out, node_2_out, 
-            graph_id,i_period,dca,dcb):
-           
+        def __determine_weight(base_weight,node_1_in, node_2_in, node_1_out, node_2_out,
+            graph_id,i_period,dca,dcb,id_item1,id_item2):
+
 
             node_1_in = __get_date_obj(node_1_in)
             node_2_in = __get_date_obj(node_2_in)
             node_1_out = __get_date_obj(node_1_out)
             node_2_out = __get_date_obj(node_2_out)
-           
-            graph_date=self.df_node_info.loc[(self.df_node_info[self.graph_id]==graph_id)]
+            try:
+                graph_date=self.df_node_info.loc[(self.df_node_info[self.graph_id]==graph_id)]
+            except:
+                return 0
+            if graph_date.shape[0]!=1 :
+                return 0
             graph_date = date(year=int(graph_date[self.year]),month=int(graph_date[self.month]),day =1)
-
             #getting bond start and end by intersection 
             bond_start = node_1_in if (node_1_in >= node_2_in) else node_2_in
             bond_end = node_1_out if (node_1_out <= node_2_out) else node_2_out
 
             delta_end =(graph_date - bond_end).days
             delta_start =(graph_date - bond_start).days
-            
+            #if two nodes have diferente secondary ids weight gets halved
+            same_secondary_id=1
+            if id_item1!=id_item2:
+                same_secondary_id=0
+
             #if the graph date was beetwen the existance of the bond +-(i_period days)
             #return full weight
+            
             if delta_start+i_period > 0 and delta_end -i_period <0 :
                 
-                return base_weight
+                return base_weight*same_secondary_id
             #if the graph date is more than i_period days after the bond ends , the weigth begin to decay
             if delta_end -i_period >=0 :
                 #half life= 1 year
-                return base_weight*(e**(-dca*(abs(delta_start)-i_period)))
+                return base_weight*(e**(-dca*(abs(delta_start)-i_period)))*same_secondary_id
             #if the graph date is more than i_period days before the bond start, they weigth begin to decay 
             if delta_start +i_period <=0 :
                 #half life= 6 months
-                return base_weight*(e**(-dcb*(abs(delta_end)-i_period)))
+                return base_weight*(e**(-dcb*(abs(delta_end)-i_period)))*same_secondary_id
   
 
         bonds_dict = {}
@@ -116,14 +129,20 @@ class BiddingsModel(GraphModelingBase):
             dca=self.config["edges_info"][i]["decay_constant_after"]
             bonds = pd.read_csv(edges_info_path, delimiter=';')
 
-            bonds = bonds[bonds[node1_enters]
-                                            != node1_enters]
+            bonds = bonds[bonds[node1_enters]!= node1_enters]
             # #constructing reference data from all graphs file 
             # #self.graph_id is the name of the collum
             # # and graph id is the real value of the row beign processed
             # reference_date=self.df_node_info.loc[self.df_node_info[self.graph_id]==graph_id][[self.month,self.year]]
-            
             # reference_date = date(year=int(reference_date[self.year]),month=int(reference_date[self.month]))
+            try:
+                id_item1=self.df_node_info.loc[(self.df_node_info[self.graph_id]== graph_node_matrix_1)]
+            except:
+                return 0
+            try:
+                id_item2=self.df_node_info.loc[(self.df_node_info[self.graph_id]== graph_node_matrix_2)]
+            except:
+                return 0
             bonds['weight'] = bonds.apply(
                 lambda row: __determine_weight(default_weight,
                                             row[node1_enters],
@@ -133,7 +152,10 @@ class BiddingsModel(GraphModelingBase):
                                             row[graph_id],
                                             i_period,
                                             dcb,
-                                            dca
+                                            dca,
+                                            id_item1,
+                                            id_item2,
+
                                             ), axis=1)
 
             # Creates a dictionaty with all the cnpj1, cnpj2, bidding-id trios as keys
@@ -179,8 +201,10 @@ class BiddingsModel(GraphModelingBase):
         nx.write_gpickle(self.dict_graphs, self.output)
 
     def save_csv(self):
-        bonds_df = pd.DataFrame(self.bonds_list, columns=['cnpj1', 'cnpj2', 'id_licitacao', 'peso'])
-        bonds_df = bonds_df.sort_values(by='cnpj1')
+        col = self.config["output"]["csv_columns_names"]
+        sb = self.config["output"]["sort_csv_by"]
+        bonds_df = pd.DataFrame(self.bonds_list, columns=col)
+        bonds_df = bonds_df.sort_values(by=sb)
         bonds_df.to_csv(self.csv_output, sep=';', index=False)
 
     def pipeline(self):

@@ -17,7 +17,7 @@ def rankCnpj(method: dict) -> None:
     bidding_info_df = pd.read_csv(bidding_info_path, sep=';')
 
     # Run the rankCnpj pipeline
-    RankCnpj(link_data_df, bidding_info_df, output_path)
+    RankCnpj(link_data_df, bidding_info_df, output_path,method)
 
 def rankByMetric(method: dict) -> None:
     input_path = method['inputFilepaths']['metricsInfo']

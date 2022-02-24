@@ -9,9 +9,11 @@
     },
     "nodes_per_graph":{
       "path": "/home/source/data/participacoes-itens-vlr-global.csv",
-      "node": "num_cpf_cnpj_municipio",
-      "graph":"id_licitacao"
+      "node": "cnpj",
+      "graph":"id_licitacao",
+      "graph_id_2":"id_item_licitacao"
     },
+    
     "edges_info":{
       "corporative_bonds":{
       "path":"/home/source/data/vinculos-societarios.csv",
@@ -61,7 +63,9 @@
     "output":{
       "format":"",
       "output_path_graph":"output/result.pkl",
-      "output_path_csv":"output/vinculos-com-peso.csv"
+      "output_path_csv":"output/vinculos-com-peso.csv",
+      "csv_columns_names":["cnpj1", "cnpj2", "id_licitacao", "peso"],
+      "sort_csv_by":"cnpj1"
   
     }
   }

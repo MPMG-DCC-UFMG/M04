@@ -2,7 +2,11 @@
   "inputFiles": {
     "generalData": "/home/input/csv/itens-vlr-global.csv",
     "graphData": "/home/input/graph/result.pkl",
-    "cliquesData": "/home/input/json/cliques.json"
+    "cliquesData": "/home/input/json/cliques.json",
+    "columnNames": {
+      "graphId": "id_licitacao",
+      "graphValue": "vlr_total"
+    }
   },
   "outputFile": "/home/output/metrics-file.csv",
   "desiredMetrics": [

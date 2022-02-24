@@ -1,6 +1,6 @@
 {
   "baseHadoopURL": "hdfs://hadoopgsiha/dados-fractal",
-  "outputDirectory": "/home/ufmg.m06dcc/data/treated",
+  "outputDirectory": "/home/output",
   "files": [
     {
       "fileName": "itens-vlr-global.csv",

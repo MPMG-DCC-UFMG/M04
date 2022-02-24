@@ -5,6 +5,11 @@
       "biddingInfo": "/home/input/cleaned-data/itens-vlr-global.csv",
       "linksInfo": "/home/input/bond-weights-data/vinculos-com-peso.csv"
     },
+    "columnNames": {
+      "graphId": "id_licitacao",
+      "graphValue": "vlr_total"
+
+    },
     "outputFilepath": "/home/output/fraud.csv"
   },
   {
