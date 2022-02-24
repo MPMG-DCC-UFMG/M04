@@ -28,7 +28,7 @@ class BiddingsModel(GraphModelingBase):
         self.csv_output = data["output"]["output_path_csv"]
 
         #itens per graph file
-        self.item_graph= pd.read_csv(self.config["item_per_graph"]["path"])
+        self.item_graph= pd.read_csv(self.config["item_per_graph"]["path"],delimiter=';')
         
     # the input is a file with all biddings that will be represented by a graph
     # uses bidding_info_file to generate dictionary of graphs
@@ -96,19 +96,20 @@ class BiddingsModel(GraphModelingBase):
 
             delta_end =(graph_date - bond_end).days
             delta_start =(graph_date - bond_start).days
-            #if two nodes have diferent secondary ids weight goes to 0
+            #if two nodes have diferent secondary id's, weight goes to 0
             same_secondary_id =1
-            df_item1= self.item_graph.loc[(self.item_graph[self.graph_id]==graph_id
-                                                    & self.item_graph["cnpj"] == id_item1
-                                                    )][id_item_col]
-            df_item2= self.item_graph.loc[(self.item_graph[self.graph_id]==graph_id
-                                                    & self.item_graph["cnpj"] == id_item2
-                                                    )][id_item_col]
-            inter= pd.merge(df_item1, df_item2, how='inner', on=["id_licitacao","id_item","cnpj"])
+            df_item1= self.item_graph.loc[(self.item_graph[self.graph_id]==graph_id)
+                                                    & (self.item_graph["cnpj"] == id_item1
+                                                    )]
+            df_item2= self.item_graph.loc[(self.item_graph[self.graph_id]==graph_id)
+                                                    & (self.item_graph["cnpj"] == id_item2
+                                                    )]
+            inter= pd.merge(df_item1, df_item2, how='inner', on=["id_item"])
+            #if there is no intersection in between df_item1 and df_item2
+            #weights goes to 0
             if inter.empty:
                 same_secondary_id=0
-            if id_item2!=id_item1:
-                same_secondary_id=0
+
             #if the graph date was beetwen the existance of the bond +-(i_period days)
             #return full weight
             
@@ -179,10 +180,11 @@ class BiddingsModel(GraphModelingBase):
                 graph = row[graph_id]
                 if (node1, node2, graph) not in bonds_dict:
                     bonds_dict[(node1, node2, graph)] = []
+                # appends name of the bond and weight
                 bonds_dict[(node1, node2, graph)].append([i,row['weight']])
 
         bonds_list = []
-        # Takes the maximum of the weights and sets it as the sole value in the dict
+    
       
         for node1, node2, graph in bonds_dict:
             # Takes the maximum of the weights and sets it as the sole value in the dict
@@ -190,10 +192,10 @@ class BiddingsModel(GraphModelingBase):
             bonds_dict[(node1,node2,graph)] = max(bonds_dict[(node1,node2,graph)],key=lambda x: x[1])
            
             weight = bonds_dict[(node1, node2, graph)][1]
-
-            if graph in self.dict_graphs:
-                self.dict_graphs[graph].add_edge(
-                    int(node1), int(node2), weight=weight)
+            if weight!=0:
+                if graph in self.dict_graphs:
+                    self.dict_graphs[graph].add_edge(
+                        int(node1), int(node2), weight=weight)
                 bonds_list.append([node1, node2, graph, weight])
 
         self.bonds_list =bonds_list
@@ -207,6 +209,7 @@ class BiddingsModel(GraphModelingBase):
         nx.write_gpickle(self.dict_graphs, self.output)
 
     def save_csv(self):
+
         col = self.config["output"]["csv_columns_names"]
         sb = self.config["output"]["sort_csv_by"]
         bonds_df = pd.DataFrame(self.bonds_list, columns=col)

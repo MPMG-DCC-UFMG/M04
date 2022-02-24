@@ -67,8 +67,8 @@
     },
     "output":{
       "format":"",
-      "output_path_graph":"output/result.pkl",
-      "output_path_csv":"output/vinculos-com-peso.csv",
+      "output_path_graph":"/home/output/result.pkl",
+      "output_path_csv":"/home/output/vinculos-com-peso.csv",
       "csv_columns_names":["cnpj1", "cnpj2", "id_licitacao", "peso"],
       "sort_csv_by":"cnpj1"
   

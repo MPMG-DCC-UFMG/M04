@@ -72,8 +72,8 @@ def main():
     input_paths = configs['inputFiles']
     output_path = configs['outputFile']
     metrics = configs['desiredMetrics']
-    graphId= configs['inputFiles']['columnNames']['id_licitacao']
-    graphValue = configs['inputFiles']['columnNames']['vlr_total']
+    graphId= configs['inputFiles']['columnNames']['graphId']
+    graphValue = configs['inputFiles']['columnNames']['graphValue']
     metric_list = [metric_entry['metric'] for metric_entry in metrics]
     
     general_data, graph_data, cliques_data = read_files(input_paths)
