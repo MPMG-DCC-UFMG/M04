@@ -1,5 +1,7 @@
-import pandas as pd
 import os
+import pandas as pd
+import dask.dataframe as dd
+from dask.multiprocessing import get
 
 class DataCleaning(object):
     def __init__(self, df: pd.DataFrame, output_filename: str, output_dir: str) -> None:
@@ -19,9 +21,16 @@ class DataCleaning(object):
         self.df.drop_duplicates(inplace=True)
     
     def validate_cnpj(self, column: str) -> None:
-        self.df = self.df[self.df.apply(
-            lambda row: self._check_cnpj(row[column]), axis=1
-        )]
+        ddf = dd.from_pandas(self.df, npartitions=30)
+
+        valid_cnpj = ddf[column].map(self._check_cnpj).compute()
+        self.df['valid_cnpj'] = valid_cnpj
+        self.df = self.df.loc[self.df['valid_cnpj'] == True]
+        self.df.drop(columns=['valid_cnpj'], inplace=True)
+
+        # self.df = self.df[self.df.apply(
+        #     lambda row: self._check_cnpj(row[column]), axis=1
+        # )]
 
     def _check_cnpj(self, cnpj: str) -> bool:
         cnpj = str(cnpj).zfill(14)

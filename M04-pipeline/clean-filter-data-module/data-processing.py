@@ -27,12 +27,19 @@ def main():
             column_renames = file["renameColumns"]
 
             # Cleaning stage
-            df = pd.read_csv(f'{input_dir}/{input_filename}', sep=';', low_memory=False)
-            cleaner = DataCleaning(df, output_filename, output_dir)
+            # df = pd.read_csv(f'{input_dir}/{input_filename}', sep=';', low_memory=False)
+            # cleaner = DataCleaning(df, output_filename, output_dir)
 
             # Cleaning treaments that should only happen to certain files, when specified
+            df = None
             if len(columns) > 0 :
-                cleaner.select_columns(columns)
+                # cleaner.select_columns(columns)
+                df = pd.read_csv(f'{input_dir}/{input_filename}',
+                                 sep=';', low_memory=False, usecols=columns)
+            else:
+                df = pd.read_csv(f'{input_dir}/{input_filename}', sep=';', low_memory=False)
+
+            cleaner = DataCleaning(df, output_filename, output_dir)
 
             for treatment in extra_treatments:
                 if treatment['treatmentName'] == 'validateCNPJ':

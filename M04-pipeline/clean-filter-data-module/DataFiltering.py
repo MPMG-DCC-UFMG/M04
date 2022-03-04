@@ -11,10 +11,14 @@ class DataFiltering(object):
         return os.path.join(output_dir, filename)
 
     def max_value(self, column: str, value: str):
-        self.df.drop(self.df[self.df[column] > int(value)].index, inplace=True)
+        ddf = dd.from_pandas(self.df, npartitions=30)
+        self.df = ddf.loc[ddf[column] <= value].compute()
+        # self.df.drop(self.df[self.df[column] > int(value)].index, inplace=True)
 
     def min_value(self, column: str, value: str):
-        self.df.drop(self.df[self.df[column] < int(value)].index, inplace=True)
+        ddf = dd.from_pandas(self.df, npartitions=30)
+        self.df = ddf.loc[ddf[column] >= value].compute()
+        # self.df.drop(self.df[self.df[column] < int(value)].index, inplace=True)
 
     def select_from_period(self, date_columns: dict, start_date: str, end_date: str) -> None:
         def within_period(row):
@@ -26,10 +30,12 @@ class DataFiltering(object):
             ref_date = f'{day}/{month}/{year}'
             return self._in_given_period(start_date, end_date, ref_date)
 
-        self.df = self.df[self.df.apply(
-            lambda row: within_period(row),
-            axis=1
-        )]
+        ddf = dd.from_pandas(self.df, npartitions=30)
+        self.df = ddf.loc[ddf.apply(within_period, axis=1)].compute()
+        # self.df = self.df[self.df.apply(
+        #     lambda row: within_period(row),
+        #     axis=1
+        # )]
 
     def after_date(self, date_columns: dict, start_date: str) -> None:
         self.select_from_period(date_columns, start_date, None)
