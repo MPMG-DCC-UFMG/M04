@@ -1,63 +1,46 @@
 
 {
-    "graphs_info":{
-      "path": "/home/source/data/itens-vlr-global.csv",
-      "id": "id_licitacao",
-      "mes_referencia":"mes_licitacao",
-      "ano_referencia":"ano_exercicio"
-  
-    },
-    "nodes_per_graph":{
-      "path": "/home/source/data/participacoes-itens-vlr-global.csv",
-      "node": "cnpj",
-      "graph":"id_licitacao",
-      "graph_id_2":"id_item_licitacao"
-    },
-    "item_per_graph":{
-      "path":"/home/source/data/participacoes-itens-vlr-global.csv",
-      "graph":"id_licitacao",
-      "id_item":"id_item",
-      "node_id":"cnpj"
-    },
     "edges_info":{
       "corporative_bonds":{
       "path":"/home/source/data/vinculos-societarios.csv",
+      "graph_date":"data_referencia",
       "node1_enters":"data_entrada_sociedade_cnpj1",
       "node2_enters":"data_entrada_sociedade_cnpj2",
       "node1_leaves":"data_saida_sociedade_cnpj1",
       "node2_leaves":"data_saida_sociedade_cnpj2",
       "graph_node_matrix_1":"num_cpf_cnpj_matriz1",
       "graph_node_matrix_2":"num_cpf_cnpj_matriz2",
-      "graph_id":"id_licitacao",
+      "graph_id":"id_item_licitacao",
       "immunity_period":90,
       "decay_constant_after":0.004,
       "decay_constant_before":0.002,
       "default_weight":1
-      
       } ,
       "adress_bonds":{
         "path":"/home/source/data/vinculos-enderecos.csv",
+        "graph_date":"data_referencia",
         "node1_enters":"data_inicio1",
         "node2_enters":"data_inicio2",
         "node1_leaves":"data_fim1",
         "node2_leaves":"data_fim2",
         "graph_node_matrix_1":"num_cpf_cnpj_matriz1",
         "graph_node_matrix_2":"num_cpf_cnpj_matriz2",
-        "graph_id":"id_licitacao",
+        "graph_id":"id_item_licitacao",
         "immunity_period":90,
         "decay_constant_after":0.004,
         "decay_constant_before":0.002,
         "default_weight":0.8
         },
-        "telephone_bonds":{
+      "telephone_bonds":{
         "path":"/home/source/data/vinculos-telefonicos.csv",
+        "graph_date":"data_referencia",
         "node1_enters":"data_inicio1",
         "node2_enters":"data_inicio2",
         "node1_leaves":"data_fim1",
         "node2_leaves":"data_fim2",
         "graph_node_matrix_1":"num_cpf_cnpj_matriz1",
         "graph_node_matrix_2":"num_cpf_cnpj_matriz2",
-        "graph_id":"id_licitacao",
+        "graph_id":"id_item_licitacao",
         "immunity_period":90,
         "decay_constant_after":0.004,
         "decay_constant_before":0.002,

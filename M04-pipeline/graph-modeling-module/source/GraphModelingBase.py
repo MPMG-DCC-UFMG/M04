@@ -5,14 +5,14 @@ class GraphModelingBase(ABC):
     #     self.value = value
     #     super().__init__()
     
-    @abstractmethod
-    #create dictionary of graphs  yet be populated
-    def define_graphs(self):
-        pass
-    #populate the graphs with nodes 
-    @abstractmethod
-    def populate_graphs(self):
-        pass
+    # @abstractmethod
+    # #create dictionary of graphs  yet be populated
+    # def define_graphs(self):
+    #     pass
+    # #populate the graphs with nodes 
+    # @abstractmethod
+    # def populate_graphs(self):
+    #     pass
     @abstractmethod
     def define_edges(self):
         pass
