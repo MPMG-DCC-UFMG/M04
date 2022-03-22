@@ -18,6 +18,8 @@ class BiddingsModel(GraphModelingBase):
         self.output = data["output"]["output_path_graph"]
         self.csv_output = data["output"]["output_path_csv"]
         self.nodes_per_graph_path =data["node_info"]["path"]
+        self.graph_id =  data["node_info"]["graph_id"]
+        self.node_id =  data["node_info"]["node_id"]
         self.dict_graphs={}
 
     def populate_graphs(self):
