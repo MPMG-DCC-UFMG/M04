@@ -3,64 +3,15 @@
   "outputDirectory": "/home/output",
   "files": [
     {
-      "fileName": "itens-vlr-global.csv",
-      "outputFileName": "itens-vlr-global.csv",
+      "fileName": "itens_valores.csv.csv",
+      "outputFileName": "itens_valores.csv.csv",
       "columns": [
-        "id_licitacao",
-        "id_item_licitacao",
-        "ano_exercicio",
-        "mes_licitacao",
-        "sigla_uf",
-        "num_lote",
-        "nome_lote",
-        "num_item",
-        "nome_item",
-        "nome_cidade",
-        "vlr_global_minimo",
-        "nb_of_participants"
-      ],
-      "extraTreatments": [
-        {
-          "treatmentName": "removeNA"
-        },
-        {
-          "treatmentName": "removeDuplicates"
-        },
-        {
-          "treatmentName": "maxValue",
-          "value": 1000000,
-          "column": "vlr_global_minimo"
-        },
-        {
-          "treatmentName": "minValue",
-          "value": 1,
-          "column": "vlr_global_minimo"
-        },
-        {
-          "treatmentName": "startDate",
-          "date": "02/02/2020",
-          "columns": {
-            "year": "ano_exercicio",
-            "month": "mes_licitacao"
-          }
-        },
-        {
-          "treatmentName": "endDate",
-          "date": "30/03/2021",
-          "columns": {
-            "year": "ano_exercicio",
-            "month": "mes_licitacao"
-          }
-        }
-      ],
-      "renameColumns": {
-        "vlr_global_minimo": "vlr_total",
-        "nb_of_participants": "num_licitantes"
-      }
+        "id_item",
+        "vlr_item"]
     },
     {
-      "fileName": "participacoes-itens-vlr-global.csv",
-      "outputFileName": "participacoes-itens-vlr-global.csv",
+      "fileName": "participacoes-itens.csv.csv",
+      "outputFileName": "participacoes-itens.csv.csv",
       "columns": [
         "id_licitacao",
         "id_item_licitacao",
