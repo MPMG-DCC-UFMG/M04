@@ -1,5 +1,11 @@
 
 {
+    "node_info":{
+      "path":"/home/source/data/participacoes-itens.csv",
+      "graph_id":"id_item_licitacao",
+      "node_id":"num_cpf_cnpj_licitante"
+    },
+
     "edges_info":{
       "corporative_bonds":{
       "path":"/home/source/data/vinculos-societarios.csv",

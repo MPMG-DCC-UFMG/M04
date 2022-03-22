@@ -17,8 +17,22 @@ class BiddingsModel(GraphModelingBase):
         self.config =data
         self.output = data["output"]["output_path_graph"]
         self.csv_output = data["output"]["output_path_csv"]
+        self.nodes_per_graph_path =data["node_info"]["path"]
         self.dict_graphs={}
-        
+
+    def populate_graphs(self):
+        nodes_per_graph_info = pd.read_csv(self.nodes_per_graph_path, delimiter=';')
+        for row in nodes_per_graph_info.itertuples(index=False):
+
+            graph_id = int(getattr(row, self.graph_id))
+            node_id = int(getattr(row, self.node_id))
+            if graph_id in self.dict_graphs:
+                (self.dict_graphs[graph_id]).add_node(int(node_id))
+            else:
+                self.dict_graphs[graph_id]=nx.Graph()
+                (self.dict_graphs[graph_id]).add_node(int(node_id))
+
+
     def define_edges(self):
         # Helper function that converts a string date into a Datetime Date object
         # that allows for comparison
@@ -172,7 +186,7 @@ class BiddingsModel(GraphModelingBase):
         bonds_df.to_csv(self.csv_output, sep=';', index=False)
         
     def pipeline(self):
-      
+        self.populate_graphs()
         self.define_edges()
         self.save_graphs()
         self.save_csv()

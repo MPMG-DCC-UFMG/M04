@@ -3,15 +3,18 @@
   "outputDirectory": "/home/output",
   "files": [
     {
-      "fileName": "itens_valores.csv.csv",
-      "outputFileName": "itens_valores.csv.csv",
+      "fileName": "itens_valores.csv",
+      "outputFileName": "itens_valorescsv",
       "columns": [
         "id_item",
-        "vlr_item"]
+        "vlr_item"],
+      "extraTreatments":[],
+      "renameColumns": {}
     },
+    
     {
-      "fileName": "participacoes-itens.csv.csv",
-      "outputFileName": "participacoes-itens.csv.csv",
+      "fileName": "participacoes-itens.csv",
+      "outputFileName": "participacoes-itens.csv",
       "columns": [
         "id_licitacao",
         "id_item_licitacao",
