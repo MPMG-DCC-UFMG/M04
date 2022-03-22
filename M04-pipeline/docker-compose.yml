@@ -4,7 +4,7 @@ services:
     container_name: clean-filter-data-module
     volumes: 
       - ./clean-filter-data-module/output:/home/output
-      - /dados01/workspace/ufmg_2021_m04/data:/home/raw-input
+      - /dados01/workspace/ufmg_2021_m04/data/final_data:/home/raw-input
     tty: true
 
   graph-modeling-module:
