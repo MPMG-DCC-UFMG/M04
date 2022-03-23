@@ -6,8 +6,8 @@
       "linksInfo": "/home/input/bond-weights-data/vinculos-com-peso.csv"
     },
     "columnNames": {
-      "graphId": "id_licitacao",
-      "graphValue": "vlr_total"
+      "graphId": "id_item",
+      "graphValue": "vlr_item"
 
     },
     "outputFilepath": "/home/output/fraud.csv"

@@ -61,7 +61,7 @@ def get_metrics_dict():
 
 def output_metrics(metrics: dict, output_file_path: str, metric_list: list):
     metrics_df = pd.DataFrame.from_dict(metrics, orient='index', 
-                                        columns=["id_licitacao", *metric_list, "vlr_licitacao"])
+                                        columns=["id_item", *metric_list, "vlr_item"])
     metrics_df.to_csv(output_file_path, sep=';', index=False)
     pass
 

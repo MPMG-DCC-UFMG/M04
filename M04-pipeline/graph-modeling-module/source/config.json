@@ -2,8 +2,8 @@
 {
     "node_info":{
       "path":"/home/source/data/participacoes-itens.csv",
-      "graph_id":"id_item_licitacao",
-      "node_id":"num_cpf_cnpj_licitante"
+      "graph_id":"id_item",
+      "node_id":"cnpj"
     },
 
     "edges_info":{
