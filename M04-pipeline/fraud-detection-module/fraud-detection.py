@@ -4,7 +4,7 @@ import pandas as pd
 
 from RankCnpj import RankCnpj
 from RankByMetric import RankByMetric
-
+import time 
 def rankCnpj(method: dict) -> None:
 
     input_paths = method['inputFilepaths']
@@ -31,6 +31,7 @@ def rankByMetric(method: dict) -> None:
     RankByMetric(metrics_info_df, metric, asc, output_path)
 
 def main():
+    start= time.time()
     configs_path = sys.argv[1]
     configs = json.load(open(configs_path))
 
@@ -47,5 +48,6 @@ def main():
             rankByMetric(method)
             
         print(f'Finished the execution of the \'{fraud_detection_method}\' method')
-
+    end = time.time()
+    print("Execution time: " ,end - start)
 main()

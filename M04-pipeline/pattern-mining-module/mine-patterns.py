@@ -2,8 +2,9 @@ import json
 import sys
 
 from CliquesMiner import CliquesMiner
-
+import time 
 def main():
+    start=time.time()
     configs_path = sys.argv[1]
     configs = json.load(open(configs_path))
 
@@ -24,4 +25,6 @@ def main():
             pass
         else:
             print(f'There\'s no \'{module_name}\' module')
+    end=time.time()
+    print("Execution time: " ,end - start)
 main()

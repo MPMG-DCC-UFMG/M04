@@ -4,7 +4,7 @@
   "files": [
     {
       "fileName": "itens_valores.csv",
-      "outputFileName": "itens_valorescsv",
+      "outputFileName": "itens_valores.csv",
       "columns": [
         "id_item",
         "vlr_item"],

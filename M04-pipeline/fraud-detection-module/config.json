@@ -10,7 +10,7 @@
       "graphValue": "vlr_item"
 
     },
-    "outputFilepath": "/home/output/fraud.csv"
+    "outputFilepath": "/home/output/rank_cnpj.csv"
   },
   {
     "fraudDetectionMethod": "rankByMetric",
@@ -19,6 +19,6 @@
     "inputFilepaths": {
       "metricsInfo": "/home/input/metrics-data/metrics-file.csv"
     },
-    "outputFilepath": "/home/output/fraud2.csv"
+    "outputFilepath": "/home/output/rank_metrics.csv"
   }
 ]

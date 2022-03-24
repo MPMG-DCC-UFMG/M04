@@ -24,5 +24,5 @@ fi
 # It calls the modules specified in the config file
 python3 "$BASE_DIR/fraud-detection.py" $CONFIG_FILE
 
-echo -e "${GREEN}\nEnd of execution of the Pattern Mining Module\n${NC}"
+echo -e "${GREEN}\nEnd of execution of the Fraud  Detection Module\n${NC}"
 

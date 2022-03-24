@@ -4,6 +4,8 @@
 # e-mail: lcerf@dcc.ufmg.br
 
 # multidupehack must be installed.
+start=`date +%s`
+
 
 EPSILON_2_CLIQUE=0.999999999
 EPSILON_3_CLIQUE_OR_MORE=1
@@ -158,3 +160,8 @@ then
     done < $TMP/pairs_for_3_cliques_or_more >> $TMP/maximal-cross-graph-3+-quasi-cliques
 fi
 sort -u $TMP/maximal-cross-graph-3+-quasi-cliques
+
+end=`date +%s`
+
+runtime=$((end-start))
+echo "$runtime"

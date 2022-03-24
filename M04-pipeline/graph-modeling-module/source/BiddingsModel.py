@@ -7,6 +7,7 @@ from datetime import date
 from GraphModelingBase import GraphModelingBase
 import sys
 from math import e
+import time
 
 class BiddingsModel(GraphModelingBase):
 
@@ -43,12 +44,7 @@ class BiddingsModel(GraphModelingBase):
             if len(info)==3:
                 formatted_date =date(year=int(info[2]),month=int(info[1]),day=int(info[0]))
                 return formatted_date
-            # else:
-            #     info =date_string.split('-')
-            #     info[2]=info[2].split(' ')[0]
-            #     formatted_date = date(year=int(info[0]),month=int(info[1]),day=int(info[2]))
-
-            #     return formatted_date
+           
         # Function that determines the weight of a given bond based on when the bidding
         # happened and when the bond was existant
         def __determine_weight(base_weight,node_1_in, node_2_in, node_1_out, node_2_out,
@@ -74,15 +70,15 @@ class BiddingsModel(GraphModelingBase):
             
             if delta_start+i_period > 0 and delta_end -i_period <0 :
                 
-                return base_weight
+                return  base_weight
             #if the graph date is more than i_period days after the bond ends , the weigth begin to decay
             if delta_end -i_period >=0 :
                 #half life= 1 year
-                return base_weight*(e**(-dca*(abs(delta_start)-i_period)))
+                return  round(base_weight*(e**(-dca*(abs(delta_start)-i_period))),5)
             #if the graph date is more than i_period days before the bond start, they weigth begin to decay 
             if delta_start +i_period <=0 :
                 #half life= 6 months
-                return base_weight*(e**(-dcb*(abs(delta_end)-i_period)))
+                return  round(base_weight*(e**(-dcb*(abs(delta_end)-i_period))),5)
       
         bonds_dict = {}
         for i in self.config["edges_info"]:
@@ -148,10 +144,11 @@ class BiddingsModel(GraphModelingBase):
             bonds_dict[(node1,node2,graph)] = max(bonds_dict[(node1,node2,graph)],key=lambda x: x[1])
            
             weight = bonds_dict[(node1, node2, graph)][1]
-            if weight!=0:
+            if weight!=0 and int(node1)>0 and int(node2)>0:
                 #checks if the graph and nodes already exists
                 
                 if graph in self.dict_graphs:
+                    
                     if not self.dict_graphs[graph].has_node(int(node1)) :
                         self.dict_graphs[graph].add_node(int(node1))
                     if not self.dict_graphs[graph].has_node(int(node2)) :
@@ -161,19 +158,16 @@ class BiddingsModel(GraphModelingBase):
                         int(node1), int(node2), weight=weight)
                 else:
                 #if graph doestn exist, create the graph, create the nodes and add the edge
+                    
                     self.dict_graphs[graph]=nx.Graph()
                     self.dict_graphs[graph].add_node(int(node1))
                     self.dict_graphs[graph].add_node(int(node2))
                     self.dict_graphs[graph].add_edge(
                         int(node1), int(node2), weight=weight)
+                
                 bonds_list.append([node1, node2, graph, weight])
 
         self.bonds_list =bonds_list
-
-       
-
-     
-
 
     def save_graphs(self):
        
@@ -188,10 +182,14 @@ class BiddingsModel(GraphModelingBase):
         bonds_df.to_csv(self.csv_output, sep=';', index=False)
         
     def pipeline(self):
+        start=time.time()
         self.populate_graphs()
         self.define_edges()
         self.save_graphs()
         self.save_csv()
+        end=time.time()
+        print("Execution time: " ,end - start)
+        print("Number of bonds processed: ", len(self.bonds_list) )
 
 obj = BiddingsModel()
 obj.pipeline()

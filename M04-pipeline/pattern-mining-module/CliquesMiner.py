@@ -2,7 +2,7 @@ import networkx as nx
 import json
 
 from GeneralPatternMiner import GeneralPatternMiner
-
+import time 
 class CliquesMiner(GeneralPatternMiner):
 
     def __init__(self, input_path: str, output_path: str):
