@@ -76,11 +76,11 @@ class BiddingsModel(GraphModelingBase):
             #if the graph date is more than i_period days after the bond ends , the weigth begin to decay
             if delta_end -i_period >=0 :
                 #half life= 1 year
-                return  round(base_weight*(e**(dca*(abs(delta_start)-i_period))),5)
+                return  round(base_weight*(e**(dca*(-abs(delta_start)))),5)
             #if the graph date is more than i_period days before the bond start, they weigth begin to decay 
             if delta_start +i_period <=0 :
                 #half life= 6 months
-                return  round(base_weight*(e**(dcb*(abs(delta_end)-i_period))),5)
+                return  round(base_weight*(e**(dcb*(-abs(delta_end)))),5)
       
         bonds_dict = {}
         for i in self.config["edges_info"]:
