@@ -1,5 +1,6 @@
 
 
+from platform import node
 import pandas as pd
 import json
 import networkx as nx
@@ -24,16 +25,17 @@ class BiddingsModel(GraphModelingBase):
         self.dict_graphs={}
 
     def populate_graphs(self):
-        nodes_per_graph_info = pd.read_csv(self.nodes_per_graph_path, delimiter=';')
+        nodes_per_graph_info = pd.read_csv(self.nodes_per_graph_path, delimiter=';',usecols=[self.graph_id,self.node_id])
         for row in nodes_per_graph_info.itertuples(index=False):
 
             graph_id = int(getattr(row, self.graph_id))
             node_id = int(getattr(row, self.node_id))
-            if graph_id in self.dict_graphs:
-                (self.dict_graphs[graph_id]).add_node(int(node_id))
-            else:
-                self.dict_graphs[graph_id]=nx.Graph()
-                (self.dict_graphs[graph_id]).add_node(int(node_id))
+            if graph_id >0 and node_id >0:
+                if graph_id in self.dict_graphs:
+                    (self.dict_graphs[graph_id]).add_node(int(node_id))
+                else:
+                    self.dict_graphs[graph_id]=nx.Graph()
+                    (self.dict_graphs[graph_id]).add_node(int(node_id))
 
 
     def define_edges(self):
@@ -74,14 +76,15 @@ class BiddingsModel(GraphModelingBase):
             #if the graph date is more than i_period days after the bond ends , the weigth begin to decay
             if delta_end -i_period >=0 :
                 #half life= 1 year
-                return  round(base_weight*(e**(-dca*(abs(delta_start)-i_period))),5)
+                return  round(base_weight*(e**(dca*(abs(delta_start)-i_period))),5)
             #if the graph date is more than i_period days before the bond start, they weigth begin to decay 
             if delta_start +i_period <=0 :
                 #half life= 6 months
-                return  round(base_weight*(e**(-dcb*(abs(delta_end)-i_period))),5)
+                return  round(base_weight*(e**(dcb*(abs(delta_end)-i_period))),5)
       
         bonds_dict = {}
         for i in self.config["edges_info"]:
+            print("Processing ",i)
             edges_info_path = self.config["edges_info"][i]["path"]
             node1_enters = self.config["edges_info"][i]["node1_enters"]
             node2_enters = self.config["edges_info"][i]["node2_enters"]
@@ -95,7 +98,9 @@ class BiddingsModel(GraphModelingBase):
             dcb=self.config["edges_info"][i]["decay_constant_before"]
             dca=self.config["edges_info"][i]["decay_constant_after"]
             graph_date =self.config["edges_info"][i]["graph_date"]
-            bonds = pd.read_csv(edges_info_path, delimiter=';')
+            bonds = pd.read_csv(edges_info_path, delimiter=';',usecols=[node1_enters,
+            node2_enters,node1_leaves,node2_leaves,graph_node_matrix_1,graph_node_matrix_2,
+            graph_date])
             bonds = bonds[bonds[node1_enters]!= node1_enters]
             
             # #constructing reference data from all graphs file 
@@ -144,7 +149,7 @@ class BiddingsModel(GraphModelingBase):
             bonds_dict[(node1,node2,graph)] = max(bonds_dict[(node1,node2,graph)],key=lambda x: x[1])
            
             weight = bonds_dict[(node1, node2, graph)][1]
-            if weight!=0 and int(node1)>0 and int(node2)>0:
+            if weight!=0 and int(node1)>0 and int(node2)>0 and int(graph)>0:
                 #checks if the graph and nodes already exists
                 
                 if graph in self.dict_graphs:
