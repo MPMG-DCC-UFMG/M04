@@ -100,7 +100,7 @@ class BiddingsModel(GraphModelingBase):
             graph_date =self.config["edges_info"][i]["graph_date"]
             bonds = pd.read_csv(edges_info_path, delimiter=';',usecols=[node1_enters,
             node2_enters,node1_leaves,node2_leaves,graph_node_matrix_1,graph_node_matrix_2,
-            graph_date])
+            graph_date,graph_id])
             bonds = bonds[bonds[node1_enters]!= node1_enters]
             
             # #constructing reference data from all graphs file 
