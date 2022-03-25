@@ -54,8 +54,8 @@ class RankCnpj(object):
             if reg['bidding'] in bidding_values:
                 alarm = bidding_values[reg['bidding']] * reg['weight']
             else:
-                print('Bidding {} not in bidding values table'
-                      .format(reg['bidding']))
+                # print('Bidding {} not in bidding values table'
+                #       .format(reg['bidding']))
                 alarm = 0
             self.update_cnpj(reg['cnpj1'], alarm, reg['bidding'], rank_cnpj_dic)
             self.update_cnpj(reg['cnpj2'], alarm, reg['bidding'], rank_cnpj_dic)
