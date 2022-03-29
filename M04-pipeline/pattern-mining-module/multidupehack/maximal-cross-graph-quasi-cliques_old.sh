@@ -87,8 +87,7 @@ maximal_cross_graph_3_quasi_cliques_or_more() {
 	grep -f - "$1" |
 	grep -f $TMP/vertex_sel |
 	awk -F \; '{ print; print $2 ";" $1 ";" $3 ";" $4 }' |
-	./multidupehack --ids \; --ods \; -e "2147483648 2147483648 $epsilon" -c 0\ 1 -s 3 -g $TMP/edge --pn |
-	./canonical-output.awk -F \;
+	/home/multidupehack/multidupehack --ids \; --ods \; -e "2147483648 2147483648 $epsilon" -c 0\ 1 -s 3 -g $TMP/edge --pn ;
 }
 
 maximal_cross_graph_2_quasi_clique() {
@@ -128,9 +127,7 @@ do
     procurements=$(grep -e "^$cnpj1;$cnpj2" -e "^$cnpj2;$cnpj1" "$1" | awk -F \; -v threshold=$min_weight_for_2_cliques '$4 >= threshold { print $3 "#" 2 * (1 - $4) }' | sort -n | tr \\n , | sed 's/,$//')
     maximal_cross_graph_3_quasi_cliques_or_more "$1" |
 	tee -a $TMP/maximal-cross-graph-3+-quasi-cliques |
-	sed 's/#[^,;]*//g' |
-	./no_superset.awk -F \; -v procurements=$(printf $procurements | sed 's/#[^,]*//g') && maximal_cross_graph_2_quasi_clique
-	# grep -q ";.*\b$(printf $procurements | sed -e 's/#[^,]*//g' -e 's/,/\\b.*,.*\\b/g')\b" || maximal_cross_graph_2_quasi_clique would equivalently output the cross-graph 2-clique if no cross-graph 3+-quasi-cliques is a superpattern; however, the regular expression derived from $procurements may be too large for grep ("Argument list too long").
+	grep -q ";.*\b$(printf $procurements | sed -e 's/#[0-9.]*//g' -e 's/,/\\b.*,.*\\b/g')\b" || maximal_cross_graph_2_quasi_clique
 done
 # Every maximal cross-graph 3+-quasi-clique was found as many times as there are in it pairs of CNPJs connected at least once with weight $min_weight_for_3_cliques_or_more or more: below, sort -u removes repetitions.
 
@@ -144,9 +141,8 @@ then
 	# Support of the 2-quasi-clique.
 	procurements=$(grep -e "^$cnpj1;$cnpj2" -e "^$cnpj2;$cnpj1" "$1" | awk -F \; -v threshold=$min_weight_for_2_cliques '$4 >= threshold { print $3 "#" 2 * (1 - $4) }' | sort -n | tr \\n , | sed 's/,$//')
 	# Print $cnpj1,$cnpj2;$procurements if no maximal cross-graph 3+-quasi-cliques is a superpattern.
-	superset_of_procurements="\b.*;.*\b$(printf $procurements | sed -e 's/#[^,]*//g' -e 's/,/\\b.*,.*\\b/g')\b"
-	grep -qe "\b$cnpj1\b.*,$cnpj2$superset_of_procurements" -e "\b$cnpj2\b.*,$cnpj1$superset_of_procurements" $TMP/maximal-cross-graph-3+-quasi-cliques || maximal_cross_graph_2_quasi_clique
-	# FIXME: the regular expression derived from $procurements may be too large for grep ("Argument list too long").
+	superset_of_procurements="\b.*;.*\b$(printf $procurements | sed -e 's/#[0-9.]*//g' -e 's/,/\\b.*,.*\\b/g')\b"
+	grep -q -e "\b$cnpj1\b.*,$cnpj2$superset_of_procurements" -e "\b$cnpj2\b.*,$cnpj1$superset_of_procurements" $TMP/maximal-cross-graph-3+-quasi-cliques || maximal_cross_graph_2_quasi_clique
     done < $TMP/pairs_for_2_cliques
     cat $TMP/maximal-cross-graph-3+-quasi-cliques
     exit
