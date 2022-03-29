@@ -82,19 +82,18 @@ maximal_cross_graph_3_quasi_cliques_or_more() {
     # 	tr \; \\n |
     # 	sort -u |
     # 	awk '{ print ";" $0 ";" }' > $TMP/vertex_sel
-    # Give to multidupehack the directed edges between the selected vertices (until awk) so that it lists the maximal cross-graph quasi-clique (with at most one edge missing in each procurement; two in the directed graphs) involving $cnpj1 and $cnpj2 (option -g) and at least another CNPJ (option -s 3); finally print $cnpj1,$cnpj2;$procurements if no maximal cross-graph quasi-cliques with a superset of $procurements has just been found (grep).
+    # Give to multidupehack the directed edges between the selected vertices (until awk) so that it lists the maximal cross-graph quasi-cliques (with at most $EPSILON_3_CLIQUE_OR_MORE edge missing in each procurement; $epsilon in the directed graph) involving $cnpj1 and $cnpj2 (option -g) and at least another CNPJ (option -s 3).
     sed 's/;/^/' $TMP/vertex_sel |
 	grep -f - "$1" |
 	grep -f $TMP/vertex_sel |
 	awk -F \; '{ print; print $2 ";" $1 ";" $3 ";" $4 }' |
-	./multidupehack --ids \; --ods \; -e "2147483648 2147483648 $epsilon" -c 0\ 1 -s 3 -g $TMP/edge --pn |
-	./canonical-output.awk -F \;
+	/home/multidupehack/multidupehack --ids \; --ods \; -e "2147483648 2147483648 $epsilon" -c 0\ 1 -s 3 -g $TMP/edge --pn ;
 }
 
 maximal_cross_graph_2_quasi_clique() {
-    noise_per_cnpj=$(printf "$procurements" | awk -v RS='[,#]' '!(NR % 2) { sum += $0 } END { print sum / 2 }')
-    printf "$cnpj1#$noise_per_cnpj,$cnpj2#$noise_per_cnpj;$procurements
-"
+    noise_per_cnpj=$(awk -v RS='[,#]' '!(NR % 2) { sum += $0 } END { print sum / 2 }' $TMP/procurements)
+    printf "$cnpj1#$noise_per_cnpj,$cnpj2#$noise_per_cnpj;"
+    cat $TMP/procurements
 }
 
 # Computing the pairs of CNPJs connected at least once with a weight exceeding both $min_weight_for_2_cliques and $min_weight_for_3_cliques_or_more (written on the standard output) and those only exceeding at least once the smaller threshold (written in $TMP/pairs_for_2-cliques or in $TMP/pairs_for_3_cliques_or_more, depending what is the smaller threshold).
@@ -124,13 +123,18 @@ END {
             print pair >> out }' "$1" | while read cnpj1 cnpj2
 do
     # Maximal cross-graph 3+-quasi-cliques and 2-quasi-cliques with at least one weight exceeding both $min_weight_for_2_cliques and $min_weight_for_3_cliques_or_more.
-    # Support of the 2-quasi-clique.
-    procurements=$(grep -e "^$cnpj1;$cnpj2" -e "^$cnpj2;$cnpj1" "$1" | awk -F \; -v threshold=$min_weight_for_2_cliques '$4 >= threshold { print $3 "#" 2 * (1 - $4) }' | sort -n | tr \\n , | sed 's/,$//')
+    # $TMP/procurements is the support of the 2-quasi-clique, output only if no maximal cross-graph quasi-clique in mulltidupehack's last execution involves a superset of procurements (grep).
+    grep -e "^$cnpj1;$cnpj2" -e "^$cnpj2;$cnpj1" "$1" |
+	awk -F \; -v threshold=$min_weight_for_2_cliques '$4 >= threshold { print $3 "#" 2 * (1 - $4) }' |
+	sort -n |
+	tr \\n , |
+	sed 's/,$/\n/' |
+	tee $TMP/procurements |
+	sed -e 's/#[^,]*//g' -e 's/,/\\b.*,.*\\b/g' -e 's/^/;.*\\b/' -e 's/$/\\b/' > $TMP/superset_of_procurements
     maximal_cross_graph_3_quasi_cliques_or_more "$1" |
 	tee -a $TMP/maximal-cross-graph-3+-quasi-cliques |
 	sed 's/#[^,;]*//g' |
-	./no_superset.awk -F \; -v procurements=$(printf $procurements | sed 's/#[^,]*//g') && maximal_cross_graph_2_quasi_clique
-	# grep -q ";.*\b$(printf $procurements | sed -e 's/#[^,]*//g' -e 's/,/\\b.*,.*\\b/g')\b" || maximal_cross_graph_2_quasi_clique would equivalently output the cross-graph 2-clique if no cross-graph 3+-quasi-cliques is a superpattern; however, the regular expression derived from $procurements may be too large for grep ("Argument list too long").
+	grep -qf $TMP/superset_of_procurements || maximal_cross_graph_2_quasi_clique
 done
 # Every maximal cross-graph 3+-quasi-clique was found as many times as there are in it pairs of CNPJs connected at least once with weight $min_weight_for_3_cliques_or_more or more: below, sort -u removes repetitions.
 
@@ -141,12 +145,16 @@ then
     # Maximal cross-graph 2-quasi-cliques with no weight exceeding $min_weight_for_3_cliques_or_more.
     while read cnpj1 cnpj2
     do
-	# Support of the 2-quasi-clique.
-	procurements=$(grep -e "^$cnpj1;$cnpj2" -e "^$cnpj2;$cnpj1" "$1" | awk -F \; -v threshold=$min_weight_for_2_cliques '$4 >= threshold { print $3 "#" 2 * (1 - $4) }' | sort -n | tr \\n , | sed 's/,$//')
-	# Print $cnpj1,$cnpj2;$procurements if no maximal cross-graph 3+-quasi-cliques is a superpattern.
-	superset_of_procurements="\b.*;.*\b$(printf $procurements | sed -e 's/#[^,]*//g' -e 's/,/\\b.*,.*\\b/g')\b"
-	grep -qe "\b$cnpj1\b.*,$cnpj2$superset_of_procurements" -e "\b$cnpj2\b.*,$cnpj1$superset_of_procurements" $TMP/maximal-cross-graph-3+-quasi-cliques || maximal_cross_graph_2_quasi_clique
-	# FIXME: the regular expression derived from $procurements may be too large for grep ("Argument list too long").
+	# $TMP/procurements is the support of the 2-quasi-clique, output only if no maximal cross-graph quasi-clique, among all those with at least three CNPJs, involves a superset of procurements (grep).
+	grep -e "^$cnpj1;$cnpj2" -e "^$cnpj2;$cnpj1" "$1" |
+	    awk -F \; -v threshold=$min_weight_for_2_cliques '$4 >= threshold { print $3 "#" 2 * (1 - $4) }' |
+	    sort -n |
+	    tr \\n , |
+	    sed 's/,$/\n/' |
+	    tee $TMP/procurements |
+	    sed -e 's/#[^,]*//g' -e 's/,/\\b.*,.*\\b/g' |
+	    awk -v cnpj1="$cnpj1" -v cnpj2="$cnpj2" '{ print "\\b" cnpj1 "\\b.*," cnpj2 "\\b.*;.*\\b" $0 "\\b\n\\b" cnpj2 "\\b.*," cnpj1 "\\b.*;.*\\b" $0 "\\b" }' |
+	    grep -qf - $TMP/maximal-cross-graph-3+-quasi-cliques || maximal_cross_graph_2_quasi_clique
     done < $TMP/pairs_for_2_cliques
     cat $TMP/maximal-cross-graph-3+-quasi-cliques
     exit
