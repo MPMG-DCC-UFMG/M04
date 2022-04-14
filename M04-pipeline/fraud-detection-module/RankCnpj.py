@@ -22,7 +22,8 @@ class RankCnpj(object):
                     sort_rank_cnpj[cnpj]['alarm']))
 
         print('end')
-
+    
+    #parse information about bonds
     def _get_link_data(self, link_data: pd.DataFrame,configs) -> dict:
         link_data_dic = {}
         for index, row in link_data.iterrows():
@@ -34,7 +35,7 @@ class RankCnpj(object):
             }
         
         return link_data_dic
-
+    #parse information about nodes values
     def _get_bidding_values(self, biddings_info: pd.DataFrame,configs) -> dict:
         bidding_dic = {}
         
@@ -43,11 +44,12 @@ class RankCnpj(object):
         
         return bidding_dic
 
+    #read all bonds and for every pair of cnpj1 cnpj2 
     def rank_cnpj(self, links: dict, bidding_values: dict, weight: float,configs) -> dict:
         # CNPJs ranked by alarm level,
-        # only considering bonds with a unitary weight
+      
         rank_cnpj_dic = {}
-        new_links = {k: v for k, v in links.items() if v['weight'] == weight}
+        new_links = {k: v for k, v in links.items() }
         for reg_num in new_links:
             reg = links[reg_num]
 
@@ -63,12 +65,13 @@ class RankCnpj(object):
         return rank_cnpj_dic    
     
     def update_cnpj(self, cnpj: str, alarm: float, bidding: str, rank_cnpj_dic: dict) -> None:
+        
         if not cnpj in rank_cnpj_dic:
             rank_cnpj_dic[cnpj] = {
-               'alarm': alarm, 'participations': {bidding: 1}}
+               'alarm': alarm, 'participations': {bidding: alarm}}
         else:
-            rank_cnpj_dic[cnpj]['alarm'] += alarm
-            if bidding in rank_cnpj_dic[cnpj][ 'participations']:
-                rank_cnpj_dic[cnpj]['participations'][bidding] += 1
-            else:
-                rank_cnpj_dic[cnpj]['participations'][bidding] = 1
+            #only adds the alarm of a bidding once 
+            if bidding not in rank_cnpj_dic[cnpj][ 'participations']:
+                rank_cnpj_dic[cnpj]['alarm'] += alarm
+                rank_cnpj_dic[cnpj]['participations'][bidding] = alarm
+                

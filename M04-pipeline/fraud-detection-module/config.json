@@ -10,7 +10,7 @@
       "graphValue": "vlr_item"
 
     },
-    "outputFilepath": "/home/output/rank_cnpj.csv"
+    "outputFilepath": "/home/output/rank_cnpj_updated.csv"
   },
   {
     "fraudDetectionMethod": "rankByMetric",
