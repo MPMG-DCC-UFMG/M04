@@ -28,14 +28,14 @@ class BiddingsModel(GraphModelingBase):
         nodes_per_graph_info = pd.read_csv(self.nodes_per_graph_path, delimiter=';',usecols=[self.graph_id,self.node_id])
         for row in nodes_per_graph_info.itertuples(index=False):
 
-            graph_id = int(getattr(row, self.graph_id))
-            node_id = int(getattr(row, self.node_id))
+            graph_id = (getattr(row, self.graph_id))
+            node_id = (getattr(row, self.node_id))
             if graph_id >0 and node_id >0:
                 if graph_id in self.dict_graphs:
-                    (self.dict_graphs[graph_id]).add_node(int(node_id))
+                    (self.dict_graphs[graph_id]).add_node((node_id))
                 else:
                     self.dict_graphs[graph_id]=nx.Graph()
-                    (self.dict_graphs[graph_id]).add_node(int(node_id))
+                    (self.dict_graphs[graph_id]).add_node((node_id))
 
 
     def define_edges(self):
@@ -154,21 +154,21 @@ class BiddingsModel(GraphModelingBase):
                 
                 if graph in self.dict_graphs:
                     
-                    if not self.dict_graphs[graph].has_node(int(node1)) :
-                        self.dict_graphs[graph].add_node(int(node1))
-                    if not self.dict_graphs[graph].has_node(int(node2)) :
-                        self.dict_graphs[graph].add_node(int(node2))
+                    if not self.dict_graphs[graph].has_node((node1)) :
+                        self.dict_graphs[graph].add_node((node1))
+                    if not self.dict_graphs[graph].has_node((node2)) :
+                        self.dict_graphs[graph].add_node((node2))
                         
                     self.dict_graphs[graph].add_edge(
-                        int(node1), int(node2), weight=weight)
+                        (node1), (node2), weight=weight)
                 else:
                 #if graph doestn exist, create the graph, create the nodes and add the edge
                     
                     self.dict_graphs[graph]=nx.Graph()
-                    self.dict_graphs[graph].add_node(int(node1))
-                    self.dict_graphs[graph].add_node(int(node2))
+                    self.dict_graphs[graph].add_node((node1))
+                    self.dict_graphs[graph].add_node((node2))
                     self.dict_graphs[graph].add_edge(
-                        int(node1), int(node2), weight=weight)
+                        (node1), (node2), weight=weight)
                 
                 bonds_list.append([node1, node2, graph, weight])
 

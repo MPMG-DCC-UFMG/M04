@@ -18,7 +18,11 @@ class RankCnpj(object):
             for cnpj in sort_rank_cnpj:
                 f.write('{};{};{}\n'.format(
                     cnpj,
-                    list(sort_rank_cnpj[cnpj]['participations'].keys()),
+                    #sorts itens based on alarm , then returns list of just itens
+                    [x for (x,y) in (
+                    sorted(
+                        [(x,sort_rank_cnpj[cnpj]['participations'][x]) for x in sort_rank_cnpj[cnpj]['participations'] ], 
+                        key = lambda x: x[1]))],
                     sort_rank_cnpj[cnpj]['alarm']))
 
         print('end')
@@ -74,4 +78,3 @@ class RankCnpj(object):
             if bidding not in rank_cnpj_dic[cnpj][ 'participations']:
                 rank_cnpj_dic[cnpj]['alarm'] += alarm
                 rank_cnpj_dic[cnpj]['participations'][bidding] = alarm
-                
