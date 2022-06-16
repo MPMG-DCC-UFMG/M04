@@ -5,7 +5,7 @@ and generate outputs in networkX
 
 # use
 
-To use the model " BiddingsModel " already implemented is necessary
+To use the model " BiddingsModel " already implemented is necessary to
 instanciate the class with a path to a configuration file as a single argument.
 A template for the config file can be found in source/config.json
 

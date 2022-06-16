@@ -1,6 +1,6 @@
 
 
-from platform import node
+
 import pandas as pd
 import json
 import networkx as nx
@@ -12,8 +12,12 @@ import time
 
 class BiddingsModel(GraphModelingBase):
 
-    def __init__(self):
-        f= open(sys.argv[1])
+    def __init__(self,config=None):
+        print(config)
+        if config==None:
+            f= open(sys.argv[1])
+        else:
+            f=open(config)
         data = json.load(f)
         # all graph info
         self.config =data
@@ -76,11 +80,11 @@ class BiddingsModel(GraphModelingBase):
             #if the graph date is more than i_period days after the bond ends , the weigth begin to decay
             if delta_end -i_period >=0 :
                 #half life= 1 year
-                return  round(base_weight*(e**(dca*(-abs(delta_start)))),5)
+                return  round(base_weight*(e**(dca*(-abs(delta_end)))),5)
             #if the graph date is more than i_period days before the bond start, they weigth begin to decay 
             if delta_start +i_period <=0 :
                 #half life= 6 months
-                return  round(base_weight*(e**(dcb*(-abs(delta_end)))),5)
+                return  round(base_weight*(e**(dcb*(-abs(delta_start)))),5)
       
         bonds_dict = {}
         for i in self.config["edges_info"]:
@@ -119,8 +123,11 @@ class BiddingsModel(GraphModelingBase):
                                             i_period,
                                             dca,
                                             dcb,
-                                        
                                             ), axis=1)
+            
+            bonds['start'] = bonds.apply(lambda row:  __get_date_obj(row[node1_enters]) if __get_date_obj(row[node1_enters]) >= __get_date_obj(row[node2_enters]) else __get_date_obj(row[node2_enters]), axis=1)
+            bonds['end'] = bonds.apply(lambda row:  __get_date_obj(row[node1_leaves]) if __get_date_obj(row[node1_leaves]) <= __get_date_obj(row[node2_leaves]) else __get_date_obj(row[node2_leaves]), axis=1)
+            
 
             # Creates a dictionaty with all the cnpj1, cnpj2, bidding-id trios as keys
             # and the weights of the relationships as values
@@ -138,16 +145,18 @@ class BiddingsModel(GraphModelingBase):
                 if (node1, node2, graph) not in bonds_dict:
                     bonds_dict[(node1, node2, graph)] = []
                 # appends name of the bond and weight
-                bonds_dict[(node1, node2, graph)].append([i,row['weight']])
+                bonds_dict[(node1, node2, graph)].append([i,row['weight'],row['start'],row['end']])
 
         bonds_list = []
-    
-      
+        # all_bonds_list =[]
         for node1, node2, graph in bonds_dict:
             # Takes the maximum of the weights and sets it as the sole value in the dict
-            
+            # for i in bonds_dict[(node1,node2,graph)]:
+            #         all_bonds_list.append([node1, node2,i[2],i[3],i[0]])
             bonds_dict[(node1,node2,graph)] = max(bonds_dict[(node1,node2,graph)],key=lambda x: x[1])
-           
+            bond_type= bonds_dict[(node1,node2,graph)][0]
+            bond_start= bonds_dict[(node1,node2,graph)][2]
+            bond_end =bonds_dict[(node1,node2,graph)][3]
             weight = bonds_dict[(node1, node2, graph)][1]
             if weight!=0 and int(node1)>0 and int(node2)>0 and int(graph)>0:
                 #checks if the graph and nodes already exists
@@ -169,22 +178,28 @@ class BiddingsModel(GraphModelingBase):
                     self.dict_graphs[graph].add_node((node2))
                     self.dict_graphs[graph].add_edge(
                         (node1), (node2), weight=weight)
-                
-                bonds_list.append([node1, node2, graph, weight])
 
+
+                bonds_list.append([node1, node2, graph, weight,bond_start,bond_end,bond_type])
+            
         self.bonds_list =bonds_list
-
+        
     def save_graphs(self):
        
         nx.write_gpickle(self.dict_graphs, self.output)
 
     def save_csv(self):
 
-        col = self.config["output"]["csv_columns_names"]
+        all_col = self.config["output"]["csv_columns_all"]
+        col = self.config["output"]["csv_columns"]
         sb = self.config["output"]["sort_csv_by"]
-        bonds_df = pd.DataFrame(self.bonds_list, columns=col)
+        # bonds_df = pd.DataFrame(self.bonds_list, columns=col)
+        bonds_df_info = pd.DataFrame(self.bonds_list ,columns=all_col)
+        bonds_df = bonds_df_info[col]
         bonds_df = bonds_df.sort_values(by=sb)
         bonds_df.to_csv(self.csv_output, sep=';', index=False)
+        bonds_df_info.to_csv("/home/output/bonds.csv",sep=";",index=False)
+        []
         
     def pipeline(self):
         start=time.time()
@@ -196,5 +211,7 @@ class BiddingsModel(GraphModelingBase):
         print("Execution time: " ,end - start)
         print("Number of bonds processed: ", len(self.bonds_list) )
 
-obj = BiddingsModel()
-obj.pipeline()
+if __name__ == "__main__":
+    obj = BiddingsModel()
+    obj.pipeline() 
+

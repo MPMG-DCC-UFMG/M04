@@ -1,11 +1,11 @@
 services:
-  clean-filter-data-module:
-    build: ./clean-filter-data-module
-    container_name: clean-filter-data-module
-    volumes: 
-      - ./clean-filter-data-module/output:/home/output
-      - /dados01/workspace/ufmg_2021_m04/data/final_data:/home/raw-input
-    tty: true
+  # clean-filter-data-module:
+  #   build: ./clean-filter-data-module
+  #   container_name: clean-filter-data-module
+  #   volumes: 
+  #     - ./clean-filter-data-module/output:/home/output
+  #     - /dados01/workspace/ufmg_2021_m04/data/final_data:/home/raw-input
+  #   tty: true
 
   graph-modeling-module:
     build:  ./graph-modeling-module
@@ -15,35 +15,34 @@ services:
       # - /home/ufmg.m06dcc/data/treated:/home/source/data # UNDOCKERIZED
       - ./graph-modeling-module/output:/home/output
     tty: true
-
-  pattern-mining-module:
-    build:  ./pattern-mining-module
-    container_name:  pattern-mining-module
-    volumes:
-      - ./graph-modeling-module/output:/home/input
-      - ./pattern-mining-module/output:/home/output
     
-    tty: true
+  # pattern-mining-module:
+  #   build:  ./pattern-mining-module
+  #   container_name:  pattern-mining-module
+  #   volumes:
+  #     - ./graph-modeling-module/output:/home/input
+  #     - ./pattern-mining-module/output:/home/output
+  #   tty: true
 
-  metrics-module:
-    build:  ./metrics-module
-    container_name:  metrics-module
-    volumes:
-      - ./graph-modeling-module/output:/home/input/graph
-      - ./clean-filter-data-module/output:/home/input/csv
-      # - /home/ufmg.m06dcc/data/treated:/home/input/csv # UNDOCKERIZED
-      - ./pattern-mining-module/output:/home/input/json
-      - ./metrics-module/output:/home/output
-    tty: true
-  fraud-detection-module:
-    build:  ./fraud-detection-module
-    container_name: fraud-detection-module
-    volumes:
-      - ./clean-filter-data-module/output:/home/input/cleaned-data
-      # - /home/ufmg.m06dcc/data/treated:/home/input/cleaned-data # UNDOCKERIZED
-      - ./graph-modeling-module/output:/home/input/bond-weights-data
-      - ./metrics-module/output:/home/input/metrics-data
-      - ./pattern-mining-module/output:/home/input/max-clique
-      - ./fraud-detection-module/output:/home/output
-    tty: true
+  # metrics-module:
+  #   build:  ./metrics-module
+  #   container_name:  metrics-module
+  #   volumes:
+  #     - ./graph-modeling-module/output:/home/input/graph
+  #     - ./clean-filter-data-module/output:/home/input/csv
+  #     # - /home/ufmg.m06dcc/data/treated:/home/input/csv # UNDOCKERIZED
+  #     - ./pattern-mining-module/output:/home/input/json
+  #     - ./metrics-module/output:/home/output
+  #   tty: true
+  # fraud-detection-module:
+  #   build:  ./fraud-detection-module
+  #   container_name: fraud-detection-module
+  #   volumes:
+  #     - ./clean-filter-data-module/output:/home/input/cleaned-data
+  #     # - /home/ufmg.m06dcc/data/treated:/home/input/cleaned-data # UNDOCKERIZED
+  #     - ./graph-modeling-module/output:/home/input/bond-weights-data
+  #     - ./metrics-module/output:/home/input/metrics-data
+  #     - ./pattern-mining-module/output:/home/input/max-clique
+  #     - ./fraud-detection-module/output:/home/output
+  #   tty: true
 

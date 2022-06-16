@@ -34,4 +34,5 @@ RUN cd /home && wget http://downloads.sourceforge.net/project/boost/boost/1.60.0
 RUN cd /home/multidupehack && make
 RUN apt-get install bc
 RUN apt-get install libboost-all-dev -y
+RUN apt-get install gawk
 # RUN /home/make
