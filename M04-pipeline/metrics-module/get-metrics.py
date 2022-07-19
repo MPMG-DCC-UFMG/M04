@@ -22,7 +22,7 @@ def get_metrics_dict():
 
     def competition(graph: nx.Graph) -> float:
         if graph is None: return 1
-        connected_components = nx.number_connected_components(graph)
+        connected_components = nx.number_connected_components(graph) 
         vertices = graph.number_of_nodes()
         if vertices != 0:
             return connected_components / vertices
@@ -48,7 +48,7 @@ def get_metrics_dict():
             return max(len(clique) for clique in bidding_cliques)
         else:
             return 0
-
+    
     metric_generators = {
         "density": density,
         "competition": competition,

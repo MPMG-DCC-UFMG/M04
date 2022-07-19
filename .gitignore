@@ -9,12 +9,12 @@ build
 *.iml
 
 # Ignore CSV files
-**.CSV
-**.csv
-**.csv.crc
-**.CSV.crc
-**.crc
-**.CRC
+# **.CSV
+# **.csv
+# **.csv.crc
+# **.CSV.crc
+# **.crc
+# **.CRC
 
 # Ignore object files generated at compilation time
 *.o
