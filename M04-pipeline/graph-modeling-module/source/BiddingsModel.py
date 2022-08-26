@@ -54,7 +54,7 @@ class BiddingsModel(GraphModelingBase):
         # Function that determines the weight of a given bond based on when the bidding
         # happened and when the bond was existant
         def __determine_weight(base_weight,node_1_in, node_2_in, node_1_out, node_2_out,
-            graph_date,i_period,dca,dcb, ):
+            graph_date,i_period,dca,dcb, ) :
 
 
             node_1_in = __get_date_obj(node_1_in)
@@ -62,7 +62,9 @@ class BiddingsModel(GraphModelingBase):
             node_1_out = __get_date_obj(node_1_out)
             node_2_out = __get_date_obj(node_2_out)
             graph_date_parsed = __get_date_obj( graph_date)
+
             #getting bond start and end by intersection 
+
             bond_start = node_1_in if (node_1_in >= node_2_in) else node_2_in
             bond_end = node_1_out if (node_1_out <= node_2_out) else node_2_out
 
@@ -73,7 +75,6 @@ class BiddingsModel(GraphModelingBase):
 
             #if the graph date was beetwen the existance of the bond +-(i_period days)
             #return full weight
-            
             if delta_start+i_period > 0 and delta_end -i_period <0 :
                 
                 return  base_weight
