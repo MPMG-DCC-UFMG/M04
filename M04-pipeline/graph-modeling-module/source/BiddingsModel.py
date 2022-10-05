@@ -47,10 +47,13 @@ class BiddingsModel(GraphModelingBase):
         # that allows for comparison
         def __get_date_obj(date_string):
             info =date_string.split('/')
+            # if len(info)==3:
+            #     formatted_date =date(year=int(info[2]),month=int(info[1]),day=int(info[0]))
+            #     return formatted_date
+        
             if len(info)==3:
-                formatted_date =date(year=int(info[2]),month=int(info[1]),day=int(info[0]))
+                formatted_date =date(year=int(info[0]),month=int(info[1]),day=int(info[2][:2]))
                 return formatted_date
-           
         # Function that determines the weight of a given bond based on when the bidding
         # happened and when the bond was existant
         def __determine_weight(base_weight,node_1_in, node_2_in, node_1_out, node_2_out,
