@@ -1,0 +1,67 @@
+
+{
+    "node_info":{
+      "path":"/home/data/participacoes-itens.csv",
+      "graph_id":"id_item",
+      "node_id":"cnpj"
+    },
+
+    "edges_info":{
+      "corporative_bonds":{
+      "path":"/home/data/vinculos-societarios.csv",
+      "graph_date":"data_referencia",
+      "node1_enters":"data_entrada_sociedade_cnpj1",
+      "node2_enters":"data_entrada_sociedade_cnpj2",
+      "node1_leaves":"data_saida_sociedade_cnpj1",
+      "node2_leaves":"data_saida_sociedade_cnpj2",
+      "graph_node_matrix_1":"num_cpf_cnpj1",
+      "graph_node_matrix_2":"num_cpf_cnpj2",
+      "graph_id":"id_item_licitacao",
+      "immunity_period":90,
+      "decay_constant_after":0.004,
+      "decay_constant_before":0.002,
+      "default_weight":1
+      } ,
+      "adress_bonds":{
+        "path":"/home/data/vinculos-enderecos.csv",
+        "graph_date":"data_referencia",
+        "node1_enters":"data_inicio1",
+        "node2_enters":"data_inicio2",
+        "node1_leaves":"data_fim1",
+        "node2_leaves":"data_fim2",
+        "graph_node_matrix_1":"num_cpf_cnpj1",
+        "graph_node_matrix_2":"num_cpf_cnpj2",
+        "graph_id":"id_item_licitacao",
+        "immunity_period":90,
+        "decay_constant_after":0.004,
+        "decay_constant_before":0.002,
+        "default_weight":0.8
+        },
+      "telephone_bonds":{
+        "path":"/home/data/vinculos-telefonicos.csv",
+        "graph_date":"data_referencia",
+        "node1_enters":"data_inicio1",
+        "node2_enters":"data_inicio2",
+        "node1_leaves":"data_fim1",
+        "node2_leaves":"data_fim2",
+        "graph_node_matrix_1":"num_cpf_cnpj1",
+        "graph_node_matrix_2":"num_cpf_cnpj2",
+        "graph_id":"id_item_licitacao",
+        "immunity_period":90,
+        "decay_constant_after":0.004,
+        "decay_constant_before":0.002,
+        "default_weight":0.6
+        }
+     
+    },
+    "output":{
+      "format":"",
+      "output_path_graph":"/home/data/result.pkl",
+      "output_path_csv":"/home/data/vinculos-com-peso.csv",
+      "csv_columns_all":["cnpj1", "cnpj2", "id_licitacao", "peso","bond_start","bond_end","bond_type"],
+      "csv_columns":["cnpj1", "cnpj2", "id_licitacao", "peso"],
+      "sort_csv_by":"cnpj1"
+  
+    }
+}
+  

@@ -1,0 +1,12 @@
+[
+  {
+    "moduleName": "biddingCliques",
+    "inputFile": "/home/input/result.pkl",
+    "outputFile": "/home/output/cliques.json"
+  },
+  {
+    "moduleName": "crossGraphQuasiCliques",
+    "inputFile": "/home/input/result.pkl",
+    "outputFile": "/home/output/CGQCcliques.json"
+  }
+]

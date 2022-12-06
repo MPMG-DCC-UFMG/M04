@@ -1,0 +1,24 @@
+######################################################################
+Programa Capacidades Analíticas (PCA) - MP || UFMG
+Mineração de Grafos como suporte para construção de trilhas (M04)
+PIPELINE: Módulo de recuperação de dados 
+Desenvolvido por: Rafael Alexandre,   e-mail:rfalexandre@ufop.edu.br 
+######################################################################
+
+** O objetivo desse módulo de software é recuperar os dados      **
+** disponibilizados no Hive para construir os arquivos de entrada**
+** necessários para a execução do pipeline construído pela M04.  **
+** Todas as configurações necessárias deverão ser realizadas     **
+** através do arquivo config.json disponibilizado com o pacote.  **
+** O primeiro passo que deve ser realizado é a configuração das  **
+** credenciais de acesso ao Hive que roda no ambiente do MP. Para**
+** isso serão consiguradas 5 variáveis: database, host, port,    **
+** user e password. Por fim, a variável outputDirectory define   **
+** o diretório de saída onde serão armazenados os arquivos. As   **
+** demais configurações estão relacionadas às tabelas onde os    **
+** dados de entrada estão disponibilizados. Para cada uma das    **
+** fontes de dados, é definido o nome do aquivo de saída que deve**
+** ser construído por esse módulo de software.                   **
+
+######################################################################
+

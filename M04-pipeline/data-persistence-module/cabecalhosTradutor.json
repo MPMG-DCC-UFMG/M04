@@ -1,0 +1,53 @@
+{
+    "rank_metrics.csv" : {
+        "TABLE_NAME": "m04_saida_rank_metricas",
+        "id_item": "iditem",
+        "density": "densidade",
+        "competition": "competicao",
+        "nbOfNodes": "quantidadenos",
+        "nbOfEdges": "quantidadearestas",
+        "nbOfCliques": "quantidadecliques",
+        "sizeOfLargestClique": "tamanhomaiorclique",
+        "vlr_item": "vlritem"
+    },
+    "rank_cnpj_updated.csv" : {
+        "TABLE_NAME": "m04_saida_rank_cnpjs",
+        "cnpj": "cnpj",
+        "participations": "participacoes",
+        "alarm": "alarme"
+    },
+    "rank-cross-graph-quasi-cliques-groups.csv" : {
+        "TABLE_NAME": "m04_saida_rank_cross_graph_quasi_cliques",
+        "cnpjs": "cnpjs",
+        "itens": "itens",
+        "alarm": "alarme"
+    },
+    "group_data.csv" : {
+        "TABLE_NAME": "m04_saida_dados_grupo",
+        "KEY": "chave",
+        "GROUP": "grupo",
+        "BIDDING_ID": "licitacao_id",
+        "ITEM": "item"
+    },
+    "20141_group_att.csv" : {
+        "TABLE_NAME": "m04_saida_nova_abordagem_grupos",
+        "ALERT": "alert",
+        "BIDDER_SIZE": "bidder_size",
+        "KEY": "key",
+        "BIDDING_SIZE": "bidding_size",
+        "ITENS_SIZE": "itens_size",
+        "WINNER": "winner",
+        "COORPORATIVE_BOUND": "coorporative_bound",
+        "ADDRESS_BOUND": "address_bound",
+        "PHONE_BOUND": "phone_bound",
+        "PARENT_BOUND": "parent_bound"
+    },
+    "regras_att.csv" : {
+        "TABLE_NAME": "m04_saida_nova_abordagem_regras",
+        "confianca": "confianca",
+        "suporte": "suporte",
+        "consequente": "consequente",
+        "antecedente": "antecedente"
+    }
+}
+

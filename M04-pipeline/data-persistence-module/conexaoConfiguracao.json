@@ -1,0 +1,9 @@
+{
+    "hiveCredentials": {
+        "database": "graph",
+        "host": "hadoopmn-gsi-prod03.mpmg.mp.br",
+        "port": 10000,
+        "user": "grafogsi",
+        "password": "UFMG@grafo2022"
+    }
+}

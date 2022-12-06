@@ -1,0 +1,15 @@
+{
+  "name": "group_itens",
+  "version": "1.0.0",
+  "dependencies": {
+  },
+  "hiveCredentials": {
+    "database": "graph",
+    "host": "hadoopmn-gsi-prod03.mpmg.mp.br",
+    "port": 10000,
+    "user": "grafogsi",
+    "password": "UFMG@grafo2022"
+  },
+  "years": [2014,2015,2016,2017,2018,2019,2020,2021,2022],
+  "outputDirectory": "../group_data/"
+}

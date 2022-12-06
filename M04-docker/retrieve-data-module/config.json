@@ -1,0 +1,159 @@
+{
+  "name": "retrive_hive_data",
+  "version": "1.0.0",
+  "dependencies": {
+  },
+  "hiveCredentials": {
+    "database": "graph",
+    "host": "hadoopmn-gsi-prod03.mpmg.mp.br",
+    "port": 10000,
+    "user": "grafogsi",
+    "password": "UFMG@grafo2022"
+  },
+  "outputDirectory": "/home/data/",
+  "simpleCommand": [
+    {
+      "databaseName": "graph",
+      "tableName": "m04_04_vinculo_sociedade_licitacoes",
+      "outputFileName": "vinculos-societarios.csv",
+      "columns": [
+        "num_cpf_cnpj1",
+        "num_cpf_cnpj_matriz1",
+        "num_cpf_cnpj2",
+        "num_cpf_cnpj_matriz2",
+        "id_licitacao",
+        "data_referencia",
+        "num_lote",
+        "id_item_licitacao",
+        "num_cpf_cnpj_socio",
+        "data_entrada_sociedade_cnpj1",
+        "data_saida_sociedade_cnpj1",
+        "data_entrada_sociedade_cnpj2",
+        "data_saida_sociedade_cnpj2"
+      ]
+    },
+    {
+      "databaseName": "graph",
+      "tableName": "m04_vinculo_endereco_licitacoes",
+      "outputFileName": "vinculos-enderecos.csv",
+      "columns": [
+        "id_licitacao",
+        "data_referencia",
+        "num_lote",
+        "id_item_licitacao",
+        "num_cpf_cnpj1",
+        "num_cpf_cnpj_matriz1",
+        "nome_matriz1",
+        "num_cpf_cnpj2",
+        "num_cpf_cnpj_matriz2",
+        "nome_matriz2",
+        "descricao_tipo_logradouro",
+        "logradouro",
+        "numero",
+        "complemento1",
+        "complemento2",
+        "flag_complemento_igual",
+        "bairro",
+        "cep",
+        "uf",
+        "cod_municipio_siafi",
+        "cod_municipio_ibge",
+        "nome_municipio",
+        "data_inicio1",
+        "data_fim1",
+        "data_inicio2",
+        "data_fim2"
+      ]
+    },
+    {
+      "databaseName": "graph",
+      "tableName": "m04_vinculo_telefone_licitacoes",
+      "outputFileName": "vinculos_telefonicos.csv",
+      "columns": [
+        "id_licitacao",
+        "data_referencia",
+        "num_lote",
+        "id_item_licitacao",
+        "num_cpf_cnpj1",
+        "num_cpf_cnpj_matriz1",
+        "nome_matriz1",
+        "num_cpf_cnpj2",
+        "num_cpf_cnpj_matriz2",
+        "nome_matriz2",
+        "ddd_telefone",
+        "data_inicio1",
+        "data_fim1",
+        "data_inicio2",
+        "data_fim2"
+      ]
+    }
+  ],
+  "complexCommand": [
+    {
+      "outputFileName": "itens-valores.csv",
+      "sql_command" : "SELECT id_item_licitacao as id_item, AVG(qtde_item_show * vlr_unitario_show) as vlr_item FROM graph.m04_vencedores GROUP BY id_item_licitacao"
+    }
+  ],
+  "batchCommand": [
+    {
+      "stepSize": 1000000,
+      "databaseName": "graph",
+      "tableName": "m04_itens_lote",
+      "outputFileName": "participacoes.csv",
+      "columns" : [
+        "id_julgamento",
+        "id_licitacao",
+        "id_orgao",
+        "nome_orgao",
+        "nome_tipo_orgao",
+        "ano_exercicio",
+        "mes_licitacao",
+        "id_item_licitacao",
+        "nome_item",
+        "cod_item",
+        "num_item",
+        "num_lote",
+        "nome_lote",
+        "vlr_unitario",
+        "num_quant_item",
+        "vlr_perc_desconto",
+        "vlr_perc_taxa_adm",
+        "vlr_global",
+        "num_cpf_cnpj_licitante",
+        "nome_licitante",
+        "cod_tipo_pessoa_licitante",
+        "cod_ibge_municipio",
+        "num_cpf_cnpj_municipio",
+        "nome_cidade",
+        "sigla_uf"
+       ]
+    },
+    {
+      "stepSize": 1000000,
+      "databaseName": "graph",
+      "tableName": "m04_vencedores",
+      "outputFileName": "vencedores.csv",
+      "columns": [
+        "id_licitacao",
+        "id_item_licitacao",
+        "id_orgao",
+        "ano_referencia",
+        "mes_exercicio",
+        "qtde_item_show",
+        "vlr_unitario_show",
+        "vlr_pct_desconto_show",
+        "vlr_pct_tax_adm_show",
+        "vlr_global_show",
+        "num_cpf_cnpj_vencedor_show",
+        "cod_tipo_pessoa_vencedor",
+        "nome_vencedor_show",
+        "num_lote_show",
+        "dsc_lote_show",
+        "cod_item",
+        "num_item",
+        "dsc_item_show",
+        "dsc_unid_medida_show"
+      ]
+    }
+  ]
+}

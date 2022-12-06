@@ -1,0 +1,23 @@
+########################################################################
+Programa Capacidades Analíticas (PCA) - MP || UFMG
+Mineração de Grafos como suporte para construção de trilhas (M04)
+PIPELINE: Módulo para mapeamento de itens licitados em grupos.
+Desenvolvido por: Rafael Alexandre,   e-mail:rfalexandre@ufop.edu.br 
+########################################################################
+
+** O objetivo desse módulo de software é agrupar cada um dos itens    **
+** licitados em grupos de itens. Para isso, considera-se que os       **
+** itens que possuem o mesmo conjuntos de licitantes e estão em uma   **
+** mesma licitação, pertecem ao mesmo grupo. Dessa forma, o           **
+** processamento dos módulos de grafos deverá ter o seu tempo         **
+** computacional reduzido, pois terá como entrada os grupos de itens. **
+** Esse módulo possui um arquivo de configuração denominado 	      **
+** config.json em que será necessário configurar as credenciais de    **
+** acesso ao Hive do MP. Além disso, esse arquivo permite que o       **
+** usuário configure, através da variável "years", quais serão os anos**
+** das licitações de interesse de mapeamento. Por fim, a variável     **
+** outputDirectory permite configurar o diretório de saída onde esse  **
+** módulo de software deverá escrever os arquivos de saída.  
+
+######################################################################
+
