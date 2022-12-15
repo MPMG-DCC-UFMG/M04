@@ -200,7 +200,7 @@ class BiddingsModel(GraphModelingBase):
         bonds_df = bonds_df_info[col]
         bonds_df = bonds_df.sort_values(by=sb)
         bonds_df.to_csv(self.csv_output, sep=';', index=False)
-        bonds_df_info.to_csv("/home/output/bonds.csv",sep=";",index=False)
+        bonds_df_info.to_csv("/home/output/bonds-details.csv",sep=";",index=False)
         []
 
     def pipeline(self):

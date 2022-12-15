@@ -10,7 +10,8 @@ FROM python:3
 
 WORKDIR /home
 COPY / ./
-
+#sasl dependencies
+RUN apt-get install libsasl2-dev libsasl2-2 libsasl2-modules-gssapi-mit
 RUN pip install -r requirements.txt
 
 
@@ -32,7 +33,9 @@ RUN cd /home && wget http://downloads.sourceforge.net/project/boost/boost/1.60.0
   && rm -rf boost_1_60_0
 
 RUN cd /home/multidupehack && make
+
 RUN apt-get install bc
 RUN apt-get install libboost-all-dev -y
 RUN apt-get install gawk
+
 # RUN /home/make

@@ -1,7 +1,7 @@
 
 {
     "node_info":{
-      "path":"/home/source/data/participacoes-itens.csv",
+      "path":"/home/source/data/participacoes.csv",
       "graph_id":"id_item",
       "node_id":"cnpj"
     },
@@ -56,8 +56,8 @@
     },
     "output":{
       "format":"",
-      "output_path_graph":"/home/output/result.pkl",
-      "output_path_csv":"/home/output/vinculos-com-peso.csv",
+      "output_path_graph":"/home/data/result.pkl",
+      "output_path_csv":"/home/data/vinculos-com-peso.csv",
       "csv_columns_all":["cnpj1", "cnpj2", "id_licitacao", "peso","bond_start","bond_end","bond_type"],
       "csv_columns":["cnpj1", "cnpj2", "id_licitacao", "peso"],
       "sort_csv_by":"cnpj1"

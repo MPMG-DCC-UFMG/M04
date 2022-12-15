@@ -1,4 +1,5 @@
 import json
+import os
 from time import process_time
 import pandas as pd
 from pyhive import hive
@@ -53,6 +54,7 @@ class GroupItens:
 
     def __init__(self, config_file: str):
         self.config = self.__readConfigFile(config_file)
+        self.__files = list()
         self.__group_id = 1
 
     def __readConfigFile(self, config_file: str) -> dict:
@@ -62,12 +64,15 @@ class GroupItens:
     def execute(self):
         hive_conn = self.__get_hive_conn()
         years = self.config["years"]
+        files = list()
         for year in years:
             dict_group = self.__make_group(hive_conn, year, 1)
             self.__group_to_file(dict_group, year, 1)
 
             dict_group = self.__make_group(hive_conn, year, 2)
             self.__group_to_file(dict_group, year, 2)
+
+        self.__tuning_data_files()
 
     def __get_hive_conn(self) -> hive.Connection:
         database = self.config["hiveCredentials"]["database"]
@@ -125,6 +130,7 @@ class GroupItens:
                     print("{};{};{};{}".format(key, value.group_id,
                                                 value.hash_code.bidding_id, item), file=output_file)
 
+        self.__files.append(str(year) + str(half_year))
     def __get_data_frame_to_process(self, conn: hive.Connection, year: int, half_year: int) -> pd.DataFrame:
         start_time = process_time()
         print('LOADING DATA BIDDING: {}/{}'.format(year, half_year))
@@ -153,6 +159,17 @@ class GroupItens:
 
         return df
 
+    def __tuning_data_files(self):
+        os.chdir(self.config['outputDirectory'])
+        for i in range(2, len(self.__files)):
+            os.system("sed -i '1d' " + self.__files[i] + "_group.csv")
+
+        cat_command = "cat "
+        for i in range(1, len(self.__files)):
+            cat_command += self.__files[i] + "_group.csv "
+        cat_command = cat_command + " > " + "group.csv"
+        os.system(cat_command)
+
 def main(config_file: str):
     group_itens = GroupItens(config_file)
     group_itens.execute()
@@ -161,5 +178,3 @@ if __name__ == '__main__':
     import sys
     config_file = sys.argv[1]
     main(config_file)
-    #main('config.json')
-
