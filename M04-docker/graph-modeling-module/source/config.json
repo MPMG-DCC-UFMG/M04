@@ -1,7 +1,7 @@
 
 {
     "node_info":{
-      "path":"/home/data/participacoes-itens.csv",
+      "path":"/home/data/participacoes.csv",
       "graph_id":"id_item",
       "node_id":"cnpj"
     },
