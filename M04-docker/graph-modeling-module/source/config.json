@@ -1,5 +1,41 @@
 
 {
+    "graph_group":{
+      "graph_file":"/home/data/vinculos-com-peso.csv",
+      "group_file":"/home/data/group.csv",
+      "dict_key":"ITEM",
+      "dict_value":"GROUP",
+      "weight_col":"peso",
+      "subset_cols":"cnpj1,cnpj2,id_licitacao",
+      "replace_col":"id_licitacao",
+      "final_col_names":"cnpj1,cnpj2,grupo,peso",
+      "output":"/home/data/vinculos-com-peso-grupos.csv"
+    },
+    "root_detection":{
+      "graph_file":"/home/data/vinculos-com-peso-grupos.csv",
+      "n_digits":"8",
+      "output":"/home/data/filiais-vinculos-com-peso.csv",
+      "col_reduce1":"cnpj1",
+      "col_reduce2":"cnpj2",
+      "graph_id_col":"grupo",
+      "subset_cols":"cnpj1,cnpj2,grupo",
+      "weight_col":"peso",
+      "dict_key":"ITEM",
+      "dict_value":"GROUP"
+    },
+    "group_value":{
+      "group_file":"/home/data/group.csv",
+      "value_file":"/home/data/itens-valores.csv",
+      "item_col":"id_item",
+      "value_col":"vlr_item",
+      "subset_cols":"id_item",
+      "replace_col":"id_item",
+      "output":"/home/data/valores-grupos.csv",
+      "dict_key":"ITEM",
+      "dict_value":"GROUP"
+
+    },
+
     "node_info":{
       "path":"/home/data/participacoes.csv",
       "graph_id":"id_item",
@@ -59,7 +95,7 @@
       "output_path_graph":"/home/data/result.pkl",
       "output_path_csv":"/home/data/vinculos-com-peso.csv",
       "csv_columns_all":["cnpj1", "cnpj2", "id_licitacao", "peso","bond_start","bond_end","bond_type"],
-      "csv_columns":["cnpj1", "cnpj2", "id_licitacao", "peso"],
+      "csv_columns":["cnpj1", "cnpj2", "id_item", "peso"],
       "sort_csv_by":"cnpj1"
   
     }

@@ -7,3 +7,5 @@ networkx==2.6.3
 SQLAlchemy
 thrift
 sasl
+pyhive
+thrift_sasl

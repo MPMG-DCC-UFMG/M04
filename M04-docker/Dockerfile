@@ -11,7 +11,8 @@ FROM python:3
 WORKDIR /home
 COPY / ./
 #sasl dependencies
-RUN apt-get install libsasl2-dev libsasl2-2 libsasl2-modules-gssapi-mit
+RUN apt-get install 
+RUN apt-get install -y libsasl2-dev libsasl2-2 libsasl2-modules-gssapi-mit
 RUN pip install -r requirements.txt
 
 
