@@ -1,0 +1,110 @@
+{
+  "name": "export_data_to_postgres",
+  "version": "1.0.0",
+  "dependencies": {
+  },
+  "hiveCredentials": {
+    "database": "graph_dev",
+    "host": "hadoopmn-gsi-prod03.mpmg.mp.br",
+    "port": 10000,
+    "user": "grafogsi",
+    "password": "UFMG@grafo2022"
+  },
+  "postgresCredentials": {
+    "database": "postgres",
+    "host": "localhost",
+    "port": 8087,
+    "user": "postgres",
+    "password": "123456", 
+    "schema": "m04"
+  },
+  "execute_create_database": false,
+  "path_script_database_file": "/home/data-persistence-module/create_database.sql",
+  "simple_export" : [
+    {
+      "table_name": "m04_saida_cnpj_metricas",
+      "export":  true
+    },
+    {
+      "table_name": "m04_saida_rank_cross_graph_quasi_cliques_matrizes",
+      "export":  false
+    },
+    {
+      "table_name": "m04_saida_rank_cross_graph_quasi_cliques_filiais",
+      "export":  false
+    },
+    {
+      "table_name": "m04_saida_rank_cnpjs_matrizes",
+      "export":  false
+    },
+    {
+      "table_name": "m04_saida_rank_cnpjs_filiais",
+      "export":  false
+    },
+    {
+      "table_name": "m04_04_vinculo_sociedade_licitacoes",
+      "export":  false
+    },
+    {
+      "table_name": "m04_vinculo_endereco_licitacoes",
+      "export":  false
+    },
+    {
+      "table_name": "m04_vinculo_telefone_licitacoes",
+      "export":  false
+    }
+  ],
+  "batch_export": [
+    {
+      "table_name": "m04_vinculo_matriz_filial",
+      "export":  false
+    },
+    {
+      "table_name": "m04_saida_dados_grupo",
+      "export":  false
+    },
+    {
+      "table_name": "m04_itens_lote",
+      "export":  false
+    },
+    {
+      "table_name": "m04_vencedores",
+      "export":  false
+    }
+  ],
+  "max_batch_size" : 1000000,
+  "data_from_file": [
+    {
+      "file_path": "/home/data/",
+      "file_name": "rank-cnpjs-matrizes.csv",
+      "table_name": "m04_saida_rank_cnpjs_matrizes",
+      "export":  false
+    },
+    {
+      "file_path": "/home/data/",
+      "file_name": "rank-cnpjs.csv",
+      "table_name": "m04_saida_rank_cnpjs_filiais",
+      "export":  false
+    },
+    {
+      "file_path": "/home/data/",
+      "file_name": "rank-cross-graph-quasi-cliques-filiais.csv",
+      "table_name": "m04_saida_rank_cross_graph_quasi_cliques_matrizes",
+      "export":  false
+    },
+    {
+      "file_path": "/home/data/",
+      "file_name": "rank-cross-graph-quasi-cliques-grupos.csv",
+      "table_name": "m04_saida_rank_cross_graph_quasi_cliques_filiais",
+      "export":  false
+    },
+    {
+      "file_path": "/home/data/",
+      "file_name": "group.csv",
+      "table_name": "m04_saida_dados_grupo",
+      "export":  false
+    }
+
+
+  ]
+}

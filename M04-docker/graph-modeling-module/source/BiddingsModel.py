@@ -27,7 +27,7 @@ class BiddingsModel(GraphModelingBase):
         self.dict_graphs={}
 
     def populate_graphs(self):
-        nodes_per_graph_info = pd.read_csv(self.nodes_per_graph_path, delimiter=',')
+        nodes_per_graph_info = pd.read_csv(self.nodes_per_graph_path, delimiter=';')
         for row in nodes_per_graph_info.itertuples(index=False):
             #print(row.self.graph_id)
             try:
@@ -104,7 +104,7 @@ class BiddingsModel(GraphModelingBase):
             dcb=self.config["edges_info"][i]["decay_constant_before"]
             dca=self.config["edges_info"][i]["decay_constant_after"]
             graph_date =self.config["edges_info"][i]["graph_date"]
-            bonds = pd.read_csv(edges_info_path, delimiter=',',usecols=[node1_enters,
+            bonds = pd.read_csv(edges_info_path, delimiter=';',usecols=[node1_enters,
             node2_enters,node1_leaves,node2_leaves,graph_node_matrix_1,graph_node_matrix_2,
             graph_date,graph_id])
             bonds = bonds[bonds[node1_enters]!= node1_enters]
@@ -195,13 +195,13 @@ class BiddingsModel(GraphModelingBase):
         all_col = self.config["output"]["csv_columns_all"]
         col = self.config["output"]["csv_columns"]
         sb = self.config["output"]["sort_csv_by"]
-        # bonds_df = pd.DataFrame(self.bonds_list, columns=col)
+       
         bonds_df_info = pd.DataFrame(self.bonds_list ,columns=all_col)
         bonds_df = bonds_df_info[col]
         bonds_df = bonds_df.sort_values(by=sb)
         bonds_df.to_csv(self.csv_output, sep=';', index=False)
-        # bonds_df_info.to_csv("/home/output/bonds-details.csv",sep=";",index=False)
-        []
+       
+        
 
     def pipeline(self):
         start=time.time()

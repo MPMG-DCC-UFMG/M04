@@ -9,7 +9,7 @@ class GroupsValue:
         f= open(sys.argv[1])
         data = json.load(f)
         # all graph info
-        self.config =data["graph_group"]
+        self.config =data["group_value"]
         self.values_file = self.config["value_file"]
         self.groups_df = pd.read_csv( self.config["group_file"] , delimiter=';')
         self.groups_dict = {}

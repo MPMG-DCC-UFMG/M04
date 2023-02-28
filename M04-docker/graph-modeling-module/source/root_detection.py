@@ -16,11 +16,11 @@ class RootDetection:
         self.grouping()
     
     #reduce the number of digits that identifies each node in a graph
-    # 10 cnpj digits -> 8 cnpj digits 
+   
     def reduceCols(self,col):
-        self.graph_df[col] =self.graph_df[col].apply(lambda x: str(x)[:int(self.config["n_digits"])])
+        self.graph_df[col] =self.graph_df[col].apply(lambda x: str(x)[:-int(self.config["n_digits"])])
         
-    def grouping(self,df):
+    def grouping(self):
         subset_cols = [i for i in self.config["subset_cols"].split(",")]
         self.graph_df =self.graph_df.sort_values(self.config["weight_col"], ascending = False).drop_duplicates(subset=subset_cols,keep="first")
         #sort by biggest weight and drop duplicates on other fields to only keep the biggest bond

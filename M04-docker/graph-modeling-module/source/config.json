@@ -6,8 +6,8 @@
       "dict_key":"ITEM",
       "dict_value":"GROUP",
       "weight_col":"peso",
-      "subset_cols":"cnpj1,cnpj2,id_licitacao",
-      "replace_col":"id_licitacao",
+      "subset_cols":"cnpj1,cnpj2,id_item",
+      "replace_col":"id_item",
       "final_col_names":"cnpj1,cnpj2,grupo,peso",
       "output":"/home/data/vinculos-com-peso-grupos.csv"
     },
@@ -74,7 +74,7 @@
         "default_weight":0.8
         },
       "telephone_bonds":{
-        "path":"/home/data/vinculos-telefonicos.csv",
+        "path":"/home/data/vinculos_telefonicos.csv",
         "graph_date":"data_referencia",
         "node1_enters":"data_inicio1",
         "node2_enters":"data_inicio2",
@@ -94,7 +94,7 @@
       "format":"",
       "output_path_graph":"/home/data/result.pkl",
       "output_path_csv":"/home/data/vinculos-com-peso.csv",
-      "csv_columns_all":["cnpj1", "cnpj2", "id_licitacao", "peso","bond_start","bond_end","bond_type"],
+      "csv_columns_all":["cnpj1", "cnpj2", "id_item", "peso","bond_start","bond_end","bond_type"],
       "csv_columns":["cnpj1", "cnpj2", "id_item", "peso"],
       "sort_csv_by":"cnpj1"
   

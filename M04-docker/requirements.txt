@@ -9,3 +9,4 @@ thrift
 sasl
 pyhive
 thrift_sasl
+psycopg2

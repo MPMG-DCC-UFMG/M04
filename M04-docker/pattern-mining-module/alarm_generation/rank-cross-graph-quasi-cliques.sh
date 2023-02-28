@@ -46,12 +46,13 @@ fi
 #     printf "\t%d\t%d\t%d\n", grade, nb_of_vertices, nb_of_procurements
 #     close(cmd) }' "$2" "$1" | LC_ALL=C sort -k 3,3nr -k 4,4nr -k 5,5nr -k 1
 
-# Somente o nível de alarme
+# Somente o nível de alarme, com a contribuição de cada lote
 gawk -F \; '
 FILENAME == ARGV[1] {
     value[$1] = $2 }
 
 FILENAME == ARGV[2] {
+    gsub(/#[^,]*/, "", $1)
     printf "%s\t", $1
     nb_of_vertices = split($1, a, ",")
     max_nb_of_edges = nb_of_vertices * (nb_of_vertices - 1)
@@ -59,16 +60,18 @@ FILENAME == ARGV[2] {
     split(a[nb_of_procurements], b, "#")
     grade = value[b[1]] * (max_nb_of_edges - b[2])^2 / max_nb_of_edges / 2
     cmd = "LC_ALL=C sort -t \"" FS "\" -k 2rn"
-    print a[nb_of_procurements] FS grade |& cmd
+    print b[1] FS grade |& cmd
+    # print a[nb_of_procurements] FS grade |& cmd
     while (--nb_of_procurements) {
         split(a[nb_of_procurements], b, "#")
         contrib = value[b[1]] * (max_nb_of_edges - b[2])^2 / max_nb_of_edges / 2
         grade += contrib
-        print a[nb_of_procurements] FS contrib |& cmd }
+        print b[1] FS contrib |& cmd }
+        # print a[nb_of_procurements] FS contrib |& cmd }
     close(cmd, "to")
     cmd |& getline
-    printf "%s", $1
+    printf "%s#%d", $1, $2
     while (cmd |& getline)
-        printf ",%s", $1
+        printf ",%s#%d", $1, $2
     printf "\t%d\n", grade
     close(cmd) }' "$2" "$1" | LC_ALL=C sort -k 3nr -k 1

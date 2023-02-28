@@ -1,19 +1,19 @@
 {
   "name": "retrive_hive_data",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "dependencies": {
   },
   "hiveCredentials": {
-    "database": "graph",
+    "database": "graph_dev",
     "host": "hadoopmn-gsi-prod03.mpmg.mp.br",
     "port": 10000,
     "user": "grafogsi",
     "password": "UFMG@grafo2022"
   },
-  "outputDirectory": "/home/data/",
+  "outputDirectory": "/home/data",
   "simpleCommand": [
     {
-      "databaseName": "graph",
+      "databaseName": "graph_dev",
       "tableName": "m04_04_vinculo_sociedade_licitacoes",
       "outputFileName": "vinculos-societarios.csv",
       "columns": [
@@ -30,10 +30,11 @@
         "data_saida_sociedade_cnpj1",
         "data_entrada_sociedade_cnpj2",
         "data_saida_sociedade_cnpj2"
-      ]
+      ],
+      "constraint": "vinculo_direto = true"
     },
     {
-      "databaseName": "graph",
+      "databaseName": "graph_dev",
       "tableName": "m04_vinculo_endereco_licitacoes",
       "outputFileName": "vinculos-enderecos.csv",
       "columns": [
@@ -66,7 +67,7 @@
       ]
     },
     {
-      "databaseName": "graph",
+      "databaseName": "graph_dev",
       "tableName": "m04_vinculo_telefone_licitacoes",
       "outputFileName": "vinculos_telefonicos.csv",
       "columns": [
@@ -91,13 +92,13 @@
   "complexCommand": [
     {
       "outputFileName": "itens-valores.csv",
-      "sql_command" : "SELECT id_item_licitacao as id_item, AVG(qtde_item_show * vlr_unitario_show) as vlr_item FROM graph.m04_vencedores GROUP BY id_item_licitacao"
+      "sql_command" : "SELECT id_item_licitacao as id_item, AVG(qtde_item_show * vlr_unitario_show) as vlr_item FROM graph_dev.m04_vencedores GROUP BY id_item_licitacao"
     }
   ],
   "batchCommand": [
     {
       "stepSize": 1000000,
-      "databaseName": "graph",
+      "databaseName": "graph_dev",
       "tableName": "m04_itens_lote",
       "outputFileName": "participacoes.csv",
       "columns" : [
@@ -130,7 +131,7 @@
     },
     {
       "stepSize": 1000000,
-      "databaseName": "graph",
+      "databaseName": "graph_dev",
       "tableName": "m04_vencedores",
       "outputFileName": "vencedores.csv",
       "columns": [

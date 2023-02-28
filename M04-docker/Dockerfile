@@ -11,7 +11,7 @@ FROM python:3
 WORKDIR /home
 COPY / ./
 #sasl dependencies
-RUN apt-get install 
+RUN apt-get update
 RUN apt-get install -y libsasl2-dev libsasl2-2 libsasl2-modules-gssapi-mit
 RUN pip install -r requirements.txt
 
@@ -38,5 +38,6 @@ RUN cd /home/pattern-mining-module/multidupehack && make
 RUN apt-get install bc
 RUN apt-get install libboost-all-dev -y
 RUN apt-get install gawk
+
 
 # RUN /home/make

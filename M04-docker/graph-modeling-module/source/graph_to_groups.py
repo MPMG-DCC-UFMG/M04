@@ -32,8 +32,8 @@ class GroupsDict:
         self.replace_col= self.config["replace_col"]
         self.target_df[self.replace_col] = self.target_df[self.replace_col].apply(lambda x: self.__get_values(x)) 
         subset_cols = [i for i in self.config["subset_cols"].split(",")]
-        self.target_df =self.target_df.sort_values(self.config["weight_col"], ascending = False).drop_duplicates(subset=subset_cols,keep="first")
         #sort by biggest weight and drop duplicates on other fields to only keep the biggest bond
+        self.target_df =self.target_df.sort_values(self.config["weight_col"], ascending = False).drop_duplicates(subset=subset_cols,keep="first")
         final_col_names = [i for i  in self.config["final_col_names"].split(",")]
         self.target_df.columns =final_col_names
         self.target_df.to_csv(self.config["output"] ,sep=';', index=False)
